@@ -1,0 +1,4339 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nastro · studio di livelli audio-reattivi</title>
+<meta name="description" content="Uno studio a livelli: video, immagini e tracce audio sovrapposti, ognuno con il suo effetto che parte a ogni kick. Muto, solo e volume per traccia, export video.">
+<meta name="theme-color" content="#0f1011">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nastro · studio di livelli audio-reattivi">
+<meta property="og:description" content="Video, immagini e tracce audio a livelli, ognuno con il suo effetto che parte a ogni colpo. Tutto nel browser.">
+<meta property="og:url" content="https://alessandro1040.github.io/nastro/">
+<meta property="og:image" content="https://alessandro1040.github.io/nastro/demo/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='2' fill='%230f1011'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%23e0553c' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%23f2ece4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;500&family=Cormorant+SC:wght@500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================================================
+     NASTRO  -  STUDIO A LIVELLI
+     Palette e tipografia come i siti locali (Raedius Productions): fondo caldo
+     quasi nero, pannelli pieni, filo da 1 px, angoli quasi vivi (2 px), titoli
+     in Cormorant Garamond, etichette in maiuscoletto spaziato.
+     ========================================================================== */
+  :root{
+    --fondo:#0f1011;
+    --fondo-2:#17181a;
+    --pannello:#1c1d20;
+    --pannello-2:#232428;
+    --bordo:#2c2e32;
+    --bordo-2:#3d4045;
+    --testo:#f2ece4;
+    --dim:#b8b2a9;
+    --muto:#8a857d;
+    --accento:#e0553c;
+    --accento-hi:#ff7a5c;
+    --accento-soft:rgba(224,85,60,.14);
+    --ok:#6fbf73;
+    --serif:"Cormorant Garamond","Iowan Old Style",Georgia,"Times New Roman",serif;
+    --maiuscoletto:"Cormorant SC","Cormorant Garamond",Georgia,serif;
+    --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --raggio:2px;
+    --testata:74px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--fondo);color:var(--testo);
+    font-family:var(--sans);font-size:16px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  img,video,canvas{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  input,select{font:inherit;color:inherit}
+  ::selection{background:var(--accento);color:#fff}
+  :focus-visible{outline:2px solid var(--accento);outline-offset:3px}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.12;margin:0;letter-spacing:.01em}
+  p{margin:0 0 1em;color:var(--dim)}
+  code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:.9em;color:var(--dim)}
+  button code{color:inherit}
+  [hidden]{display:none!important}
+
+  /* --- testata fissa ------------------------------------------------------- */
+  .barra{
+    position:sticky;top:0;z-index:60;
+    background:rgba(15,16,17,.88);
+    backdrop-filter:saturate(140%) blur(10px);
+    border-bottom:1px solid var(--bordo);
+  }
+  .barra__interno{
+    max-width:1640px;margin:0 auto;padding:0 clamp(16px,3vw,34px);
+    min-height:var(--testata);display:flex;align-items:center;gap:clamp(14px,3vw,40px);
+  }
+  .marchio{display:flex;align-items:center;gap:12px;margin-right:auto}
+  .marchio__pallino{
+    width:14px;height:14px;border-radius:50%;flex:0 0 auto;
+    background:var(--accento);box-shadow:0 0 0 4px var(--accento-soft),0 0 18px rgba(224,85,60,.55);
+  }
+  .marchio__testo{
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.2em;
+    font-size:.95rem;line-height:1.1;
+  }
+  .marchio__testo small{
+    display:block;font-family:var(--sans);letter-spacing:.16em;font-size:.56rem;
+    color:var(--muto);margin-top:3px;
+  }
+  .nav{display:flex;align-items:center;gap:clamp(10px,2vw,26px)}
+  .nav a{
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.2em;
+    font-size:.7rem;color:var(--dim);padding:6px 0;
+    border-bottom:1px solid transparent;transition:all .28s var(--ease);
+  }
+  .nav a:hover{color:var(--testo)}
+  .nav a.is-attivo{color:var(--accento);border-color:var(--accento)}
+  .barra__destra{display:flex;align-items:center;gap:16px;font-size:.78rem;color:var(--muto)}
+  .barra__destra a{border-bottom:1px solid transparent;transition:.2s}
+  .barra__destra a:hover{color:var(--testo);border-bottom-color:var(--bordo-2)}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 12px;border-radius:999px;border:1px solid var(--bordo);
+    background:var(--pannello);font-size:.7rem;letter-spacing:.05em;color:var(--dim);
+    white-space:nowrap;
+  }
+  .pill i{width:7px;height:7px;border-radius:50%;background:var(--bordo-2);display:inline-block}
+  .pill.is-ok i{background:var(--ok);box-shadow:0 0 10px rgba(111,191,115,.8)}
+  .pill.is-busy i{background:var(--accento);box-shadow:0 0 10px rgba(224,85,60,.85);animation:pulsa 1s infinite}
+  @keyframes pulsa{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* --- pagina -------------------------------------------------------------- */
+  .pagina{max-width:1640px;margin:0 auto;padding:0 clamp(16px,3vw,34px) 44px}
+  .testata{position:relative;padding:clamp(30px,4.4vw,54px) 0 clamp(20px,2.6vw,30px)}
+  .testata::before{
+    content:"";position:absolute;left:-18%;right:-18%;top:-140px;height:340px;
+    background:radial-gradient(52% 60% at 50% 0%,var(--accento-soft),transparent 72%);
+    pointer-events:none;
+  }
+  .occhiello{
+    position:relative;font-family:var(--maiuscoletto);text-transform:uppercase;
+    letter-spacing:.34em;font-size:.76rem;color:var(--accento);margin:0 0 12px;
+  }
+  .testata__riga{
+    position:relative;display:flex;align-items:flex-end;justify-content:space-between;
+    gap:clamp(18px,3vw,40px);flex-wrap:wrap;
+  }
+  .testata h1{
+    font-size:clamp(2.2rem,4.6vw,3.6rem);font-weight:300;text-transform:uppercase;
+    letter-spacing:.05em;margin:0 0 .16em;
+  }
+  .testata__sub{color:var(--muto);max-width:64ch;margin:0;font-size:.92rem}
+  .testata__sub strong{color:var(--dim);font-weight:500}
+  .etichetta{
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.22em;
+    font-size:.66rem;color:var(--muto);
+  }
+
+  .studio{
+    display:grid;grid-template-columns:minmax(0,1fr) 424px;
+    gap:clamp(16px,2.2vw,26px);align-items:start;
+  }
+  .palco{position:sticky;top:calc(var(--testata) + 14px);min-width:0;display:grid;gap:12px}
+
+  /* --- schermo ------------------------------------------------------------- */
+  .schermo{
+    position:relative;border:1px solid var(--bordo);border-radius:var(--raggio);
+    overflow:hidden;background:#070808;
+    box-shadow:0 30px 70px rgba(0,0,0,.55);
+  }
+  #vista{display:block;width:100%;height:auto;background:#070808}
+  .schermo__vuoto{
+    position:absolute;inset:0;display:grid;place-content:center;gap:6px;
+    text-align:center;pointer-events:none;padding:24px;
+    background:linear-gradient(180deg,rgba(8,9,10,.35),rgba(8,9,10,.86));
+    color:var(--muto);font-size:.86rem;
+  }
+  .schermo__vuoto strong{color:var(--testo);font-size:1.02rem;font-family:var(--serif);font-weight:500}
+  .schermo.is-piena .schermo__vuoto{display:none}
+  .schermo.is-sopra{border-color:var(--accento)}
+  .hud{
+    position:absolute;inset:12px 14px auto;
+    display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+    pointer-events:none;font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+    color:rgba(255,255,255,.7);text-shadow:0 1px 8px rgba(0,0,0,.9);
+  }
+  .hud__riga{display:flex;align-items:center;gap:9px}
+  #hud-tempo{
+    padding:4px 9px;border-radius:999px;background:rgba(15,16,17,.55);
+    border:1px solid rgba(255,255,255,.14);font-variant-numeric:tabular-nums;
+  }
+  .hud__barra{width:110px;height:3px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
+  .hud__barra i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--testo),var(--accento));transition:width .05s linear}
+  .hud__effetto{
+    padding:4px 9px;border-radius:999px;background:rgba(15,16,17,.55);
+    border:1px solid rgba(255,255,255,.16);font-size:.64rem;
+  }
+
+  /* --- trasporto ----------------------------------------------------------- */
+  .trasporto{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .tempo{font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--muto);min-width:112px}
+  .ricerca{flex:1;min-width:140px;display:flex;align-items:center;gap:9px}
+  .interruttore{
+    display:inline-flex;align-items:center;gap:7px;font-size:.72rem;color:var(--dim);
+    user-select:none;cursor:pointer;letter-spacing:.04em;
+  }
+  .interruttore input{accent-color:var(--accento);width:14px;height:14px}
+
+  /* --- onda ---------------------------------------------------------------- */
+  .onda{
+    border:1px solid var(--bordo);border-radius:var(--raggio);
+    background:var(--fondo-2);padding:9px 12px 7px;
+  }
+  .onda__testa{
+    display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.16em;
+    font-size:.62rem;color:var(--muto);margin-bottom:3px;
+  }
+  #onda{display:block;width:100%;height:82px}
+
+  /* --- bottoni ------------------------------------------------------------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.6em;
+    padding:12px 22px;border:1px solid var(--bordo-2);border-radius:var(--raggio);
+    font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:500;
+    color:var(--testo);background:transparent;transition:all .26s var(--ease);
+    white-space:nowrap;font-family:var(--sans);
+  }
+  .btn:hover{border-color:var(--accento);color:var(--accento);background:var(--accento-soft)}
+  .btn--pieno{background:var(--accento);border-color:var(--accento);color:#fff}
+  .btn--pieno:hover{background:var(--accento-hi);border-color:var(--accento-hi);color:#fff}
+  .btn--fantasma{border-style:dashed;color:var(--muto);padding:9px 14px}
+  .btn--fantasma:hover{color:var(--testo);border-color:var(--accento)}
+  .btn--piccolo{padding:8px 13px;font-size:.64rem;letter-spacing:.14em}
+  .btn--registra{border-color:rgba(224,85,60,.55);color:var(--accento-hi)}
+  .btn--registra.is-attivo{background:var(--accento);border-color:var(--accento);color:#fff;animation:pulsa 1.4s infinite}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;background:transparent;color:var(--dim);border-color:var(--bordo)}
+
+  /* --- cursori ------------------------------------------------------------- */
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:16px;
+    background:transparent;margin:2px 0 0;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--bordo-2)}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:12px;height:12px;margin-top:-5.5px;border-radius:50%;
+    background:var(--accento);border:0;box-shadow:0 0 0 3px rgba(224,85,60,.16);
+  }
+  input[type=range]::-moz-range-track{height:1px;background:var(--bordo-2)}
+  input[type=range]::-moz-range-thumb{
+    width:12px;height:12px;border:0;border-radius:50%;background:var(--accento);
+  }
+  input[type=range]:disabled{opacity:.35}
+
+  /* --- pannelli ------------------------------------------------------------ */
+  .pannello{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .blocco{
+    background:var(--pannello);border:1px solid var(--bordo);border-radius:var(--raggio);
+    padding:16px 16px 15px;
+  }
+  .blocco__testa{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:13px}
+  .blocco h2{
+    display:flex;align-items:center;gap:10px;margin:0;
+    font-family:var(--maiuscoletto);font-weight:500;font-size:.76rem;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
+  }
+  .blocco h2 b{
+    display:inline-grid;place-content:center;min-width:20px;height:20px;
+    border:1px solid var(--bordo-2);color:var(--accento);
+    font-family:var(--sans);font-size:.66rem;letter-spacing:0;font-weight:600;
+  }
+  .blocco h2 span{
+    margin-left:auto;font-family:var(--sans);font-size:.68rem;
+    letter-spacing:.05em;text-transform:none;color:var(--muto);font-weight:400;
+  }
+  .fila{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .fila--tra{justify-content:space-between}
+
+  /* --- campi --------------------------------------------------------------- */
+  .campo{display:flex;flex-direction:column;gap:5px;font-size:.72rem;color:var(--dim);margin-bottom:10px}
+  .campo:last-child{margin-bottom:0}
+  .slider{
+    display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px 10px;
+    margin:10px 0;font-size:.74rem;color:var(--dim);
+  }
+  .slider input[type=range]{grid-column:1/-1}
+  .slider output{font-variant-numeric:tabular-nums;font-size:.74rem;color:var(--testo)}
+  .slider--due{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .slider--due .campo{margin-bottom:0}
+  select{
+    width:100%;padding:7px 9px;border-radius:var(--raggio);
+    border:1px solid var(--bordo);background:var(--fondo-2);color:var(--testo);
+    font-family:inherit;font-size:.8rem;
+  }
+  select:focus{outline:2px solid rgba(224,85,60,.35);outline-offset:1px}
+  input[type=search]{
+    width:100%;padding:8px 10px;border-radius:var(--raggio);border:1px solid var(--bordo);
+    background:var(--fondo-2);color:var(--testo);font-size:.8rem;
+  }
+  .nota{font-size:.71rem;line-height:1.55;color:var(--muto);margin:10px 0 0}
+  .nota b{color:var(--dim);font-weight:500}
+  .desc{
+    margin:10px 0 12px;padding-left:10px;border-left:2px solid var(--bordo-2);
+    font-size:.74rem;line-height:1.55;color:var(--muto);
+  }
+  .vuoto{
+    text-align:center;color:var(--muto);font-size:.8rem;
+    border:1px dashed var(--bordo);border-radius:var(--raggio);
+    padding:16px 12px;margin:10px 0 0;line-height:1.5;
+  }
+  .vuoto[hidden]{display:none}
+
+  /* --- chips (come le strumentali A/B) ------------------------------------- */
+  .chip{
+    border:1px solid var(--bordo);border-radius:var(--raggio);padding:7px 13px;
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.16em;
+    font-size:.64rem;color:var(--dim);transition:all .25s var(--ease);
+  }
+  .chip:hover{border-color:var(--bordo-2);color:var(--testo)}
+  .chip.is-attivo{background:var(--accento);border-color:var(--accento);color:#fff}
+  .lane{display:flex;gap:6px;flex-wrap:wrap}
+
+  /* --- effetti ------------------------------------------------------------- */
+  .effetti{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .effetto{
+    text-align:left;padding:8px 10px;border-radius:var(--raggio);cursor:pointer;
+    border:1px solid var(--bordo);background:var(--fondo-2);color:var(--testo);
+    font-family:inherit;transition:.2s var(--ease);
+  }
+  .effetto:hover{border-color:var(--bordo-2)}
+  .effetto.is-attivo{border-color:var(--accento);background:var(--accento-soft)}
+  .effetto__nome{display:block;font-family:var(--serif);font-size:1rem;font-weight:500;line-height:1.2}
+  .effetto__sotto{display:block;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muto);margin-top:3px}
+  .effetto.is-attivo .effetto__sotto{color:#e7b6ac}
+
+  /* --- esempi (loop locale + riferimento esterno) -------------------------- */
+  .esempi{margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--bordo)}
+  .esempi[hidden]{display:none}
+  .esempi__testa{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .esempi__testa>span:first-child{
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.2em;
+    font-size:.63rem;color:var(--dim);
+  }
+  .esempi__conta{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muto)}
+  .esempio{
+    border:1px solid var(--bordo);border-radius:var(--raggio);background:var(--fondo-2);
+    padding:9px;margin-bottom:8px;
+  }
+  .esempio:last-child{margin-bottom:0}
+  .esempio__media{
+    position:relative;display:block;width:100%;aspect-ratio:16/9;padding:0;border:0;
+    border-radius:2px;overflow:hidden;cursor:pointer;background:#0b0d12;
+    background-image:radial-gradient(120% 100% at 50% 0%,#20283a,#0b0d12 72%);
+  }
+  .esempio__media img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    filter:saturate(.82) brightness(.9);transition:filter .3s var(--ease);
+  }
+  .esempio__media:hover img{filter:saturate(1) brightness(1)}
+  .esempio__media.is-vivo{cursor:default;background:#000}
+  .esempio__media iframe{width:100%;height:100%;border:0;display:block}
+  .esempio__badge{
+    position:absolute;left:6px;top:6px;padding:2px 6px;border-radius:2px;
+    background:rgba(15,16,17,.84);border:1px solid var(--bordo);color:var(--dim);
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.16em;
+    font-size:.55rem;
+  }
+  .esempio__gioca{
+    position:absolute;inset:0;display:grid;place-items:center;
+    font-size:1.5rem;color:#f2ece4;text-shadow:0 2px 12px rgba(0,0,0,.7);
+    background:radial-gradient(circle at 50% 50%,rgba(0,0,0,.05),rgba(0,0,0,.45));
+    transition:color .3s var(--ease);
+  }
+  .esempio__media:hover .esempio__gioca{color:var(--accento)}
+  .esempio__titolo{display:block;margin-top:8px;font-family:var(--serif);font-size:.92rem;line-height:1.28;font-weight:500;color:var(--testo)}
+  .esempio__canale{
+    display:inline-block;margin-top:4px;font-family:var(--maiuscoletto);font-size:.6rem;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--accento);text-decoration:none;
+  }
+  .esempio__canale:hover{text-decoration:underline}
+  .esempio__meta{font-size:.66rem;line-height:1.5;color:var(--muto);margin:3px 0 0}
+  .esempio__dati{
+    display:grid;grid-template-columns:auto 1fr;gap:3px 10px;
+    margin:8px 0 0;font-size:.64rem;line-height:1.4;
+  }
+  .esempio__dati dt{
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.1em;
+    font-size:.55rem;color:var(--muto);padding-top:3px;white-space:nowrap;
+  }
+  .esempio__dati dd{margin:0;color:var(--dim)}
+  .esempio__azioni{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .esempio__azioni .btn{flex:1 1 auto;text-align:center;white-space:nowrap;text-decoration:none}
+  .esempio__licenza{margin:8px 0 0;font-size:.6rem;line-height:1.5;color:var(--muto);opacity:.92}
+
+  /* --- livelli (lo stack, come le tracce delle strumentali) ---------------- */
+  .livelli{display:grid;gap:6px}
+  .livello-riga{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    border:1px solid var(--bordo);background:var(--fondo-2);color:var(--testo);
+    padding:7px 8px;border-radius:var(--raggio);cursor:pointer;
+    transition:all .22s var(--ease);position:relative;
+  }
+  .livello-riga:hover{border-color:var(--bordo-2);background:var(--pannello-2)}
+  .livello-riga.is-scelto{border-color:var(--accento);background:var(--pannello-2);box-shadow:inset 2px 0 0 var(--accento)}
+  .livello-riga.is-spento{opacity:.45}
+  .livello-riga__badge{
+    display:grid;place-items:center;width:22px;height:22px;flex:0 0 auto;
+    border-radius:50%;background:var(--accento);color:#fff;
+    font-family:var(--sans);font-size:.64rem;line-height:1;
+  }
+  .livello-riga.is-spento .livello-riga__badge{background:var(--bordo-2)}
+  .livello-riga__cover{
+    width:54px;height:32px;flex:0 0 auto;object-fit:cover;border-radius:var(--raggio);
+    border:1px solid var(--bordo);background:#000;
+    display:grid;place-items:center;color:var(--muto);font-size:.6rem;
+    overflow:hidden;
+  }
+  .livello-riga__testo{flex:1 1 auto;min-width:0;display:grid;gap:1px}
+  .livello-riga__nome{
+    font-family:var(--serif);font-size:.98rem;line-height:1.2;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .livello-riga__meta{
+    font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muto);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .livello-riga__azioni{display:flex;gap:3px;flex:0 0 auto}
+  .mini{
+    width:24px;height:24px;display:grid;place-items:center;
+    border:1px solid var(--bordo);border-radius:var(--raggio);background:var(--pannello-2);
+    color:var(--muto);font-size:.68rem;line-height:1;transition:.18s;padding:0;
+  }
+  .mini:hover{border-color:var(--bordo-2);color:var(--testo)}
+  .mini.is-attivo{border-color:var(--accento);color:var(--accento-hi)}
+  .mini--testo{width:auto;padding:0 6px;font-size:.6rem;letter-spacing:.1em;font-family:var(--sans)}
+
+  /* --- tracce audio -------------------------------------------------------- */
+  .piste{display:grid;gap:6px}
+  .pista{
+    display:grid;grid-template-columns:24px minmax(0,1fr) 24px 24px;gap:6px 7px;
+    align-items:center;border:1px solid var(--bordo);background:var(--fondo-2);
+    border-radius:var(--raggio);padding:7px 8px;transition:.2s;
+  }
+  .pista.is-muta{opacity:.5}
+  .pista.is-accesa{border-color:var(--bordo-2)}
+  .pista__testo{min-width:0;display:grid;gap:1px}
+  .pista__nome{font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pista__meta{font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muto)}
+  .pista__corsie{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;padding-top:2px}
+  .pista__corsia{display:flex;align-items:center;gap:8px;font-size:.6rem;color:var(--muto);letter-spacing:.08em;text-transform:uppercase}
+  .pista__corsia input{flex:1;min-width:0}
+  .pista__corsia output{font-variant-numeric:tabular-nums;color:var(--dim);font-size:.62rem;min-width:36px;text-align:right}
+  .slider input[type=checkbox]{
+    accent-color:var(--accento);width:14px;height:14px;margin:0;justify-self:end;
+  }
+
+  /* --- avvisi e piede ------------------------------------------------------ */
+  .vassoio{
+    position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);z-index:80;
+    max-width:min(560px,calc(100vw - 32px));padding:11px 16px;border-radius:var(--raggio);
+    background:var(--pannello-2);border:1px solid var(--bordo-2);color:var(--testo);
+    font-size:.8rem;line-height:1.45;box-shadow:0 18px 50px rgba(0,0,0,.55);
+    opacity:0;pointer-events:none;transition:.22s;
+  }
+  .vassoio.is-visibile{opacity:1;transform:translate(-50%,0)}
+  .vassoio.is-errore{background:#3a1c1c;border-color:#7a3333}
+  footer{
+    max-width:1640px;margin:0 auto;padding:14px clamp(16px,3vw,34px) 34px;
+    border-top:1px solid var(--bordo);
+    font-size:.71rem;color:var(--muto);line-height:1.6;
+  }
+  footer code{color:var(--dim)}
+
+  @media (max-width:1120px){
+    .studio{grid-template-columns:1fr}
+    .palco{position:static}
+    .nav{display:none}
+  }
+  @media (max-width:640px){
+    .barra__destra .pill{display:none}
+    .effetti{grid-template-columns:1fr}
+    .pagina{padding:0 14px 30px}
+    .testata{padding:24px 0 18px}
+    .blocco{padding:14px}
+    .pista__corsie{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div class="barra__interno">
+    <div class="marchio">
+      <span class="marchio__pallino" aria-hidden="true"></span>
+      <div class="marchio__testo">Nastro<small>Studio a livelli</small></div>
+    </div>
+    <nav class="nav" aria-label="Sezioni">
+      <a href="#livelli">Livelli</a>
+      <a href="#trigger">Trigger</a>
+      <a href="#audio">Audio</a>
+      <a href="#export">Export</a>
+    </nav>
+    <div class="barra__destra">
+      <span class="pill" id="pill-stato"><i></i><span id="pill-testo">in attesa dei file</span></span>
+      <a href="http://127.0.0.1:8080/progetti.html">← Progetti</a>
+    </div>
+  </div>
+</header>
+
+<main class="pagina">
+
+  <section class="testata">
+    <p class="occhiello">Audio-reactive studio</p>
+    <div class="testata__riga">
+      <div>
+        <h1>Nastro</h1>
+        <p class="testata__sub">
+          Video, immagini e tracce audio <strong>impilati</strong>: ogni livello ha il suo
+          effetto, la sua forza e la sua fusione, e parte a ogni colpo. Gli stessi comandi
+          di un player A/B: <strong>A</strong> ascolta il livello scelto da solo,
+          <strong>B</strong> lo stack intero, sempre allo stesso punto.
+        </p>
+      </div>
+      <button class="btn" id="btn-demo">Carica il pacchetto demo</button>
+    </div>
+  </section>
+
+  <div class="studio">
+    <section class="palco" aria-label="Anteprima">
+
+      <div class="schermo" id="schermo">
+        <canvas id="vista" width="1280" height="720"></canvas>
+        <div class="hud">
+          <div class="hud__riga">
+            <span id="hud-tempo">00:00.00</span>
+            <span class="hud__barra" aria-hidden="true"><i id="hud-forza"></i></span>
+          </div>
+          <div class="hud__riga">
+            <span class="hud__effetto" id="hud-effetto">—</span>
+            <span id="hud-media">1280 × 720</span>
+          </div>
+        </div>
+        <div class="schermo__vuoto" id="schermo-vuoto">
+          <strong>Qui va lo stack</strong>
+          <span>Aggiungi un video o un'immagine, poi le tracce audio.</span>
+          <span>Trascina i file qui sopra: il pacchetto demo è già pronto.</span>
+        </div>
+      </div>
+
+      <div class="trasporto">
+        <button class="btn btn--pieno" id="btn-play" disabled>▶ Riproduci</button>
+        <span class="tempo" id="tempo">00:00.00 / 00:00.00</span>
+        <div class="ricerca">
+          <input type="range" id="ricerca" min="0" max="1000" value="0" step="1" aria-label="Posizione nella traccia">
+        </div>
+        <label class="interruttore"><input type="checkbox" id="chk-loop" checked> Loop</label>
+        <button class="btn btn--piccolo" id="btn-prova" disabled>Prova colpo</button>
+        <button class="btn btn--piccolo btn--registra" id="btn-registra" disabled>● Registra</button>
+      </div>
+
+      <div class="onda">
+        <div class="onda__testa">
+          <span id="onda-titolo">Inviluppo del trigger</span>
+          <span id="onda-info">nessuna analisi</span>
+        </div>
+        <canvas id="onda" height="82"></canvas>
+      </div>
+    </section>
+
+    <aside class="pannello">
+
+      <!-- 1. livelli -->
+      <section class="blocco" id="livelli">
+        <div class="blocco__testa">
+          <h2><b>1</b> Livelli <span id="livelli-stato">0</span></h2>
+        </div>
+
+        <div class="lane" role="group" aria-label="Cosa vedi nell'anteprima">
+          <button class="chip" type="button" data-vista="solo" aria-pressed="false">A · Solo quello scelto</button>
+          <button class="chip is-attivo" type="button" data-vista="tutti" aria-pressed="true">B · Tutto lo stack</button>
+        </div>
+
+        <div class="livelli" id="livelli-elenco"></div>
+        <p class="vuoto" id="livelli-vuoto">
+          Nessun livello. Aggiungi un video o un'immagine: quello in cima copre quelli sotto.
+        </p>
+
+        <div class="fila" style="margin-top:10px">
+          <label class="btn btn--fantasma btn--piccolo" for="file-livelli">+ Video o immagine</label>
+          <input type="file" id="file-livelli" accept="image/*,video/*" multiple hidden>
+        </div>
+        <p class="nota" id="nota-livelli">
+          Trascina i file anche sullo schermo. Il primo livello nasce col Contorno nero;
+          quelli aggiunti dopo restano puliti, così puoi sovrapporre una scritta o un logo.
+          La linea del tempo dura quanto la sorgente più lunga: un video più corto si
+          ripete da capo finché il progetto non finisce.
+        </p>
+      </section>
+
+      <!-- 2. livello scelto -->
+      <section class="blocco" id="scelto">
+        <div class="blocco__testa">
+          <h2><b>2</b> Livello scelto <span id="scelto-nome"></span></h2>
+        </div>
+
+        <p class="vuoto" id="nessun-livello">Scegli un livello dallo stack per dargli un effetto.</p>
+
+        <div id="scheda-livello" hidden>
+          <div class="effetti" id="effetti"></div>
+          <p class="desc" id="desc-effetto"></p>
+          <div id="parametri-effetto"></div>
+          <div class="esempi" id="esempi-effetto" hidden></div>
+          <p class="nota" id="nota-normalizzazione" hidden></p>
+
+          <label class="slider">Forza del livello
+            <output id="out-forza">100%</output>
+            <input type="range" id="rng-forza" min="0" max="100" step="1" value="100">
+          </label>
+          <label class="slider">Attacco
+            <output id="out-attacco">12 ms</output>
+            <input type="range" id="rng-attacco" min="0" max="200" step="2" value="12">
+          </label>
+          <label class="slider">Opacità
+            <output id="out-opacita">100%</output>
+            <input type="range" id="rng-opacita" min="0" max="100" step="1" value="100">
+          </label>
+
+          <div class="slider--due">
+            <label class="campo">Fusione
+              <select id="sel-fusione">
+                <option value="normale">Normale</option>
+                <option value="somma">Somma</option>
+                <option value="schermo">Schermo</option>
+                <option value="moltiplica">Moltiplica</option>
+              </select>
+            </label>
+            <label class="campo">Inquadratura
+              <select id="sel-adatta">
+                <option value="0">Riempi il frame</option>
+                <option value="1">Adatta intera</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="fila" style="margin-top:12px">
+            <button class="btn btn--piccolo" type="button" id="btn-su">↑ Su</button>
+            <button class="btn btn--piccolo" type="button" id="btn-giu">↓ Giù</button>
+            <button class="btn btn--piccolo" type="button" id="btn-via">Rimuovi</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. trigger -->
+      <section class="blocco" id="trigger">
+        <div class="blocco__testa">
+          <h2><b>3</b> Cosa fa partire l'effetto</h2>
+        </div>
+
+        <label class="campo">Sorgente
+          <select id="sel-trigger"></select>
+        </label>
+
+        <div class="slider--due">
+          <label class="campo">Modo
+            <select id="sel-modo">
+              <option value="impulso">Impulso (colpo)</option>
+              <option value="sostenuto">Sostenuto (nota)</option>
+            </select>
+          </label>
+          <label class="campo">Banda
+            <select id="sel-banda">
+              <option value="kick">Kick · 40–170 Hz</option>
+              <option value="basso">808 · 25–90 Hz</option>
+              <option value="snare">Snare · 180–3 kHz</option>
+              <option value="hat">Hi-hat · 4,5–10 kHz</option>
+              <option value="tutto">Tutto · 30 Hz–16 kHz</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="slider">Sensibilità
+          <output id="out-sens">1.00×</output>
+          <input type="range" id="rng-sens" min="0.5" max="2" step="0.05" value="1">
+        </label>
+        <label class="slider">Tieni acceso
+          <output id="out-tieni">90 ms</output>
+          <input type="range" id="rng-tieni" min="0" max="600" step="10" value="90">
+        </label>
+        <label class="slider">Coda
+          <output id="out-coda">140 ms</output>
+          <input type="range" id="rng-coda" min="0" max="800" step="10" value="140">
+        </label>
+        <label class="slider">Forza globale
+          <output id="out-master">100%</output>
+          <input type="range" id="rng-master" min="0" max="100" step="1" value="100">
+        </label>
+
+        <p class="nota" id="nota-trigger">L'effetto dura quanto il colpo rilevato, poi sfuma con la coda.</p>
+      </section>
+
+      <!-- 4. audio -->
+      <section class="blocco" id="audio">
+        <div class="blocco__testa">
+          <h2><b>4</b> Tracce audio <span id="audio-stato">0</span></h2>
+        </div>
+
+        <div class="piste" id="piste-elenco"></div>
+        <p class="vuoto" id="piste-vuoto">
+          Nessuna traccia. Il tempo lo detta la traccia più lunga; le altre entrano quando vuoi.
+        </p>
+
+        <div class="fila" style="margin-top:10px">
+          <label class="btn btn--fantasma btn--piccolo" for="file-audio">+ Aggiungi audio</label>
+          <input type="file" id="file-audio" accept="audio/*" multiple hidden>
+        </div>
+        <p class="nota" id="nota-audio">
+          <b>M</b> muta la traccia, <b>S</b> la mette in solo: con un solo acceso si sentono
+          solo le tracce in solo. Il trigger può ascoltare il mix o una traccia sola,
+          anche se è muta.
+        </p>
+      </section>
+
+      <!-- 5. export -->
+      <section class="blocco" id="export">
+        <div class="blocco__testa">
+          <h2><b>5</b> Export</h2>
+        </div>
+
+        <label class="campo">Risoluzione
+          <select id="sel-risoluzione">
+            <option value="480">480p · veloce</option>
+            <option value="720" selected>720p · equilibrata</option>
+            <option value="1080">1080p · pesante</option>
+          </select>
+        </label>
+        <label class="campo">Fotogrammi al secondo
+          <select id="sel-fps">
+            <option value="24">24</option>
+            <option value="30" selected>30</option>
+            <option value="60">60</option>
+          </select>
+        </label>
+        <p class="nota">
+          Premendo <b>Registra</b> la timeline torna all'inizio, il loop si sospende e la
+          registrazione si ferma da sola alla fine della traccia. Salva video + audio in
+          <b>WebM</b> (MP4 dove il browser lo preferisce). Per un MP4 universale:
+          <code>ffmpeg -i nastro.webm -c:v libx264 -c:a aac out.mp4</code>.
+        </p>
+        <button class="btn btn--piccolo" id="btn-azzera" style="width:100%;margin-top:12px">Azzera tutto</button>
+      </section>
+
+    </aside>
+  </div>
+</main>
+
+<footer>
+  Gli effetti girano in WebGL, l'analisi dei colpi in Web Audio: nessun file lascia il computer.
+  Ogni livello ha il suo effetto e la sua normalizzazione; il trigger ascolta il mix delle tracce
+  (o una traccia sola) filtrato nella banda scelta, con inviluppo RMS a 5 ms e soglia adattiva.
+</footer>
+
+<div class="vassoio" id="vassoio" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================================
+   NASTRO  -  STUDIO A LIVELLI
+   Web Audio per l'analisi dei colpi, WebGL per gli effetti, MediaRecorder per
+   l'export. Ogni livello ha il suo media, il suo effetto e la sua forza; le
+   tracce audio si sommano sul master e si possono mutare o mettere in solo.
+   Nessuna dipendenza esterna, nessun upload.
+   ============================================================================ */
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------- utility --- */
+  const $ = (sel, radice) => (radice || document).querySelector(sel);
+  const $$ = (sel, radice) => Array.from((radice || document).querySelectorAll(sel));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  function orologio(v) {
+    if (!isFinite(v) || v < 0) v = 0;
+    const m = Math.floor(v / 60);
+    const s = v - m * 60;
+    return String(m).padStart(2, "0") + ":" + s.toFixed(2).padStart(5, "0");
+  }
+  function millisecondi(v) { return Math.round(v * 1000) + " ms"; }
+  function esc(testo) {
+    return String(testo).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  const pausaBreve = function () {
+    return new Promise(function (ok) { setTimeout(ok, 0); });
+  };
+
+  /* Le bande del trigger. "impulso" = colpo breve, "sostenuto" = nota lunga. */
+  const BANDE = {
+    kick:  { lo: 40,   hi: 170,   modo: "impulso",   nome: "Kick" },
+    basso: { lo: 25,   hi: 90,    modo: "sostenuto", nome: "808 / basso" },
+    snare: { lo: 180,  hi: 3000,  modo: "impulso",   nome: "Snare" },
+    hat:   { lo: 4500, hi: 10000, modo: "impulso",   nome: "Hi-hat" },
+    tutto: { lo: 30,   hi: 16000, modo: "impulso",   nome: "Mix intero" }
+  };
+
+  /* Come si somma un livello a quelli sotto (i nomi sono quelli dei programmi
+     di montaggio, i modi quelli che il WebGL sa fare senza altri passaggi). */
+  const FUSIONI = [
+    { id: "normale", nome: "Normale" },
+    { id: "somma", nome: "Somma" },
+    { id: "schermo", nome: "Schermo" },
+    { id: "moltiplica", nome: "Moltiplica" }
+  ];
+
+  /* --------------------------------------------------------------- effetti --- */
+  const EFFETTI = [
+    {
+      id: "nessuno",
+      nome: "Nessun effetto",
+      sotto: "Il media così com'è",
+      desc: "Il livello resta com'è: serve per sovrapporre una scritta, un logo o un " +
+        "video senza toccarlo, con la sua opacità e la sua fusione.",
+      params: []
+    },
+    {
+      id: "contorno",
+      nome: "Contorno nero",
+      sotto: "Sobel, come OpenCV",
+      pieno: true,
+      desc: "Grigio Rec.601, Gaussiana σ 1,2 px, Sobel 3×3, magnitudine divisa per il " +
+        "99,5° percentile della scena, clip 0–1 e potenza 0,55: bordi bianchi su nero. " +
+        "Il colpo porta la forza a 1, quindi sul kick vedi il contorno pieno, e fuori dal " +
+        "colpo il media resta leggibile.",
+      params: [
+        { id: "blur", nome: "Blur (σ)", min: 0.4, max: 3, step: 0.1, def: 1.2,
+          fmt: (v) => v.toFixed(1) + " px" },
+        { id: "perc", nome: "Percentile", min: 95, max: 99.9, step: 0.1, def: 99.5,
+          fmt: (v) => v.toFixed(1) + "°" },
+        { id: "gamma", nome: "Contrasto", min: 0.2, max: 1.6, step: 0.05, def: 0.55,
+          fmt: (v) => v.toFixed(2) },
+        { id: "inverti", tipo: "bool", def: false, nome: "Inverti (nero su bianco)" }
+      ]
+    },
+    {
+      id: "rgb",
+      nome: "RGB Split",
+      sotto: "Aberrazione cromatica",
+      desc: "I canali rosso e blu si separano e tornano insieme: il colpo diventa una " +
+        "vibrazione ottica orizzontale.",
+      params: [{ id: "dist", nome: "Distanza", min: 0, max: 3, step: 0.05, def: 1,
+        fmt: (v) => v.toFixed(2) + "×" }]
+    },
+    {
+      id: "zoom",
+      nome: "Zoom punch",
+      sotto: "Spinta in avanti",
+      desc: "L'immagine si allarga e rientra seguendo la forza del colpo, come un punch " +
+        "sulla grancassa.",
+      params: [{ id: "spinta", nome: "Spinta", min: 0, max: 1, step: 0.01, def: 0.22,
+        fmt: (v) => "+" + Math.round(v * 100) + "%" }]
+    },
+    {
+      id: "flash",
+      nome: "Flash",
+      sotto: "Lampo bianco",
+      desc: "Un lampo bianco pieno per la durata del colpo. Semplice e cattivo, secco " +
+        "sul kick.",
+      params: [{ id: "lampo", nome: "Intensità", min: 0, max: 1, step: 0.01, def: 0.9,
+        fmt: (v) => Math.round(v * 100) + "%" }]
+    },
+    {
+      id: "mosaico",
+      nome: "Mosaico",
+      sotto: "Pixel grandi",
+      desc: "Quantizza l'immagine in blocchi: più il colpo è forte, più il reticolo è " +
+        "grosso. Ottimo con i volti.",
+      params: [{ id: "pixel", nome: "Lato del blocco", min: 3, max: 90, step: 1, def: 24,
+        fmt: (v) => Math.round(v) + " px" }]
+    },
+    {
+      id: "glitch",
+      nome: "Glitch",
+      sotto: "Strappi e scanline",
+      desc: "Righe orizzontali che slittano a caso, canali separati e scanline: " +
+        "datamosh leggero, sincronizzato con il trigger.",
+      params: [{ id: "caos", nome: "Caos", min: 0, max: 2, step: 0.05, def: 1,
+        fmt: (v) => v.toFixed(2) + "×" }]
+    },
+    {
+      id: "specchio",
+      nome: "Specchio",
+      sotto: "Caleidoscopio 2×2",
+      desc: "Quattro quadranti specchiati: il colpo ribalta la scena e la ricompone.",
+      params: [{ id: "avia", nome: "Inclinazione", min: 0, max: 1, step: 0.01, def: 0.35,
+        fmt: (v) => Math.round(v * 100) + "%" }]
+    },
+    {
+      id: "scia",
+      nome: "Scia",
+      sotto: "Feedback dei fotogrammi",
+      desc: "Il fotogramma precedente resta appeso e si somma al nuovo: ogni colpo " +
+        "lascia una traccia che evapora. La storia è del livello, non dello schermo: " +
+        "due livelli con la scia non si sporcano a vicenda.",
+      params: [{ id: "persistenza", nome: "Persistenza", min: 0, max: 1, step: 0.01, def: 0.78,
+        fmt: (v) => Math.round(v * 100) + "%" }]
+    },
+    {
+      id: "saturo",
+      nome: "Saturazione",
+      sotto: "Il colore si accende",
+      desc: "La saturazione del livello cresce col colpo e rientra con la coda: da spento " +
+        "a pieno, senza cambiare la luminosità. Ottimo per far accendere un'immagine sul kick.",
+      params: [{ id: "sat", nome: "Saturazione in più", min: 0, max: 3, step: 0.05, def: 1.2,
+        fmt: (v) => "+" + Math.round(v * 100) + "%" }]
+    },
+    {
+      id: "tinta",
+      nome: "Tinta",
+      sotto: "Cambio colore",
+      desc: "Il livello cambia colore sul colpo: la tonalità ruota e la scena si colora " +
+        "verso il colore scelto, poi torna com'era quando l'evento finisce.",
+      params: [
+        { id: "tono", nome: "Tonalità", min: 0, max: 360, step: 1, def: 18,
+          fmt: (v) => Math.round(v) + "°" },
+        { id: "miscela", nome: "Miscela", min: 0, max: 1, step: 0.01, def: 0.75,
+          fmt: (v) => Math.round(v * 100) + "%" }
+      ]
+    },
+    {
+      id: "neve",
+      nome: "Neve",
+      sotto: "Disturbo che accelera",
+      desc: "Disturbo bianco e scanline sopra il livello: l'animazione accelera col colpo " +
+        "e torna lenta quando il trigger si spegne. Il tempo è del livello, quindi due nevi " +
+        "diverse possono correre a velocità diverse.",
+      params: [
+        { id: "densita", nome: "Densità", min: 0, max: 1, step: 0.01, def: 0.55,
+          fmt: (v) => Math.round(v * 100) + "%" },
+        { id: "velocita", nome: "Velocità sul colpo", min: 0, max: 6, step: 0.1, def: 3,
+          fmt: (v) => "×" + v.toFixed(1).replace(".", ",") }
+      ],
+      esempi: [
+        {
+          tipo: "loop",
+          nome: "Neve · loop locale",
+          file: "neve.mp4",
+          meta: "960 × 540 · 6 s · 30 fps · senza audio",
+          nota: "Disegnato da strumenti/genera_neve.py: fiocchi veri, loop esatto, nessun " +
+            "filmati di terzi. Su fondo nero va in fusione Schermo, così resta sopra la " +
+            "cover senza coprirla. L'effetto Neve del livello sotto continua a lavorare.",
+          effetto: "nessuno",
+          fusione: "schermo",
+          opacita: 0.9,
+          forza: 0.8
+        },
+        {
+          tipo: "video",
+          titolo: "Free Snowfall Overlay — 4K Loop-Ready Winter Snow Video Background",
+          canale: "Enchanted Studios",
+          canaleUrl: "https://www.youtube.com/@EnchantedStudiosUK",
+          url: "https://www.youtube.com/watch?v=NDV9RovS6U8",
+          videoId: "NDV9RovS6U8",
+          download: "https://www.enchanted.media/downloads/snow-overlay-footage-free-clip/",
+          miniatura: "https://i.ytimg.com/vi/NDV9RovS6U8/hqdefault.jpg",
+          dati: [
+            ["Durata", "0:10"],
+            ["Pubblicato", "30 settembre 2025"],
+            ["Categoria", "Film e animazione"],
+            ["Formato", "4K, loop continuo, senza audio"],
+            ["Visualizzazioni", "13.876 (ottobre 2026)"]
+          ],
+          nota: "L'autore lo distribuisce gratis, anche per lavori commerciali, dalla sua pagina " +
+            "di download: prendilo lì e trascinalo nello studio. Il file non è incluso qui, " +
+            "così i crediti restano al canale.",
+          fonte: "youtube.com",
+          effetto: "nessuno",
+          fusione: "schermo",
+          opacita: 0.75,
+          forza: 0.7
+        }
+      ]
+    },
+    {
+      id: "velocita",
+      nome: "Velocità",
+      sotto: "Il video accelera",
+      desc: "Il video del livello accelera sul colpo e rallenta al ritorno, senza toccare " +
+        "l'audio. Serve un video: sulle immagini non fa nulla. La spinta si somma a 1×, " +
+        "così 1,4× significa 2,4× durante il colpo.",
+      params: [
+        { id: "spinta", nome: "Spinta", min: 0, max: 3, step: 0.05, def: 1.4,
+          fmt: (v) => "+" + v.toFixed(2).replace(".", ",") + "×" },
+        { id: "ritorno", nome: "Ritorno", min: 20, max: 900, step: 10, def: 220,
+          fmt: (v) => Math.round(v) + " ms" }
+      ]
+    }
+  ];
+
+  function effettoDi(id) {
+    return EFFETTI.filter(function (e) { return e.id === id; })[0] || EFFETTI[0];
+  }
+
+  /* Ogni livello parte con i valori di fabbrica di TUTTI gli effetti: cambiando
+     effetto ritrova i suoi parametri, senza toccare gli altri livelli. */
+  function parametriIniziali() {
+    const valori = {};
+    EFFETTI.forEach(function (effetto) {
+      const suoi = {};
+      effetto.params.forEach(function (p) { suoi[p.id] = p.def; });
+      valori[effetto.id] = suoi;
+    });
+    return valori;
+  }
+
+  /* ------------------------------------------------------------------ stato --- */
+  let prossimoId = 1;
+  const nuovoId = function (prefisso) { return prefisso + "-" + (prossimoId += 1); };
+
+  const stato = {
+    livelli: [],          // dal fondo alla cima: l'ultimo copre gli altri
+    scelto: null,
+    vista: "tutti",       // "tutti" = B, "solo" = A (solo il livello scelto)
+    piste: [],            // tracce audio, ognuna col suo guadagno
+    trigger: "mix",       // "mix" oppure "pista:<id>"
+    banda: "kick",
+    modo: "impulso",
+    sens: 1,
+    tieni: 0.09,
+    coda: 0.14,
+    forza: 1,
+    attacco: 0.012,
+    playing: false,
+    t: 0,
+    durata: 0,
+    loop: true,
+    risoluzione: 720,
+    fps: 30,
+    eventiPerBanda: {},   // banda -> elenco eventi
+    forma: null,          // inviluppo della banda scelta, per l'onda
+    formaBanda: "kick",
+    versioneAnalisi: 0,
+    analisiInCorso: false,
+    registrando: false,
+    manuale: -1,
+    ultimaMisura: 0,
+    mouseSopra: false
+  };
+
+  const dom = {
+    vista: $("#vista"),
+    schermo: $("#schermo"),
+    schermoVuoto: $("#schermo-vuoto"),
+    hudTempo: $("#hud-tempo"),
+    hudForza: $("#hud-forza"),
+    hudEffetto: $("#hud-effetto"),
+    hudMedia: $("#hud-media"),
+    pillStato: $("#pill-stato"),
+    pillTesto: $("#pill-testo"),
+
+    play: $("#btn-play"),
+    tempo: $("#tempo"),
+    ricerca: $("#ricerca"),
+    loop: $("#chk-loop"),
+    prova: $("#btn-prova"),
+    registra: $("#btn-registra"),
+    demo: $("#btn-demo"),
+    onda: $("#onda"),
+    ondaTitolo: $("#onda-titolo"),
+    ondaInfo: $("#onda-info"),
+
+    livelliElenco: $("#livelli-elenco"),
+    livelliVuoto: $("#livelli-vuoto"),
+    livelliStato: $("#livelli-stato"),
+    fileLivelli: $("#file-livelli"),
+
+    sceltoNome: $("#scelto-nome"),
+    scheda: $("#scheda-livello"),
+    nessunLivello: $("#nessun-livello"),
+    effetti: $("#effetti"),
+    descEffetto: $("#desc-effetto"),
+    parametri: $("#parametri-effetto"),
+    esempi: $("#esempi-effetto"),
+    notaNormalizzazione: $("#nota-normalizzazione"),
+    outForza: $("#out-forza"),
+    rngForza: $("#rng-forza"),
+    outAttacco: $("#out-attacco"),
+    rngAttacco: $("#rng-attacco"),
+    outOpacita: $("#out-opacita"),
+    rngOpacita: $("#rng-opacita"),
+    selFusione: $("#sel-fusione"),
+    selAdatta: $("#sel-adatta"),
+    btnSu: $("#btn-su"),
+    btnGiu: $("#btn-giu"),
+    btnVia: $("#btn-via"),
+
+    selTrigger: $("#sel-trigger"),
+    selModo: $("#sel-modo"),
+    selBanda: $("#sel-banda"),
+    outSens: $("#out-sens"),
+    rngSens: $("#rng-sens"),
+    outTieni: $("#out-tieni"),
+    rngTieni: $("#rng-tieni"),
+    outCoda: $("#out-coda"),
+    rngCoda: $("#rng-coda"),
+    outMaster: $("#out-master"),
+    rngMaster: $("#rng-master"),
+    notaTrigger: $("#nota-trigger"),
+
+    audioStato: $("#audio-stato"),
+    pisteElenco: $("#piste-elenco"),
+    pisteVuoto: $("#piste-vuoto"),
+    fileAudio: $("#file-audio"),
+
+    selRisoluzione: $("#sel-risoluzione"),
+    selFps: $("#sel-fps"),
+    btnAzzera: $("#btn-azzera"),
+    vassoio: $("#vassoio")
+  };
+
+  function livelloScelto() {
+    return stato.livelli.filter(function (l) { return l.id === stato.scelto; })[0] || null;
+  }
+  function livelloDaId(id) {
+    return stato.livelli.filter(function (l) { return l.id === id; })[0] || null;
+  }
+  function pistaDaId(id) {
+    return stato.piste.filter(function (p) { return p.id === id; })[0] || null;
+  }
+  function effettoDelLivello(livello) {
+    return effettoDi(livello.effetto);
+  }
+  function parametriDelLivello(livello) {
+    return livello.parametri[livello.effetto] || {};
+  }
+  /* Il tempo lo detta la sorgente più lunga: tracce audio (col loro ritardo) e video. */
+  function durataTotale() {
+    let durata = 0;
+    stato.piste.forEach(function (p) {
+      durata = Math.max(durata, p.ritardo + p.buffer.duration);
+    });
+    stato.livelli.forEach(function (l) {
+      if (l.tipo !== "video") return;
+      /* La durata si rilegge dal media: certi file la dichiarano solo dopo un
+         po' (WebM senza indice), e la linea del tempo deve seguire quella vera. */
+      const vera = durataVideo(l.el);
+      if (vera > 0) durata = Math.max(durata, vera);
+      else if (isFinite(l.durata)) durata = Math.max(durata, l.durata);
+    });
+    return durata > 0 ? durata : 12;
+  }
+  /* Con un solo acceso si sentono solo le tracce in solo; il mix del trigger segue
+     la stessa regola, così "muto" toglie davvero la traccia anche all'analisi. */
+  function pistaUdibile(pista) {
+    const solo = stato.piste.some(function (p) { return p.solo; });
+    return solo ? !!pista.solo : !pista.muta;
+  }
+
+  let timerVassoio = 0;
+  function avviso(testo, errore) {
+    dom.vassoio.textContent = testo;
+    dom.vassoio.classList.toggle("is-errore", !!errore);
+    dom.vassoio.classList.add("is-visibile");
+    clearTimeout(timerVassoio);
+    timerVassoio = setTimeout(function () {
+      dom.vassoio.classList.remove("is-visibile");
+    }, 4200);
+  }
+  function segnala(testo, tipo) {
+    dom.pillTesto.textContent = testo;
+    dom.pillStato.classList.remove("is-ok", "is-busy");
+    if (tipo) dom.pillStato.classList.add("is-" + tipo);
+  }
+
+  /* Il canvas decide la griglia di tutti i livelli: si ridimensiona prima di
+     disegnare, non durante, così le texture non vengono ricreate a ogni fotogramma. */
+  function preparaCanvas() {
+    const altezza = stato.risoluzione;
+    const larghezza = Math.max(2, Math.round(altezza * 16 / 9 / 2) * 2);
+    if (dom.vista.width !== larghezza || dom.vista.height !== altezza) {
+      dom.vista.width = larghezza;
+      dom.vista.height = altezza;
+      return true;
+    }
+    return false;
+  }
+
+  /* ----------------------------------------------------------------- audio --- */
+  let ctxAudio = null;
+  let master = null;
+  let nodoRec = null;
+
+  function contestoAudio() {
+    if (!ctxAudio) {
+      const C = window.AudioContext || window.webkitAudioContext;
+      ctxAudio = new C();
+    }
+    if (ctxAudio.state === "suspended") ctxAudio.resume();
+    return ctxAudio;
+  }
+
+  function decodifica(dati) {
+    const c = contestoAudio();
+    return new Promise(function (ok, ko) {
+      // decodeAudioData stacca il buffer: ne passiamo sempre una copia
+      const copia = dati.slice(0);
+      const esito = c.decodeAudioData(copia, ok, ko);
+      if (esito && esito.then) esito.then(ok, ko);
+    });
+  }
+
+  function assicuraGrafo() {
+    const c = contestoAudio();
+    if (!master) {
+      master = c.createGain();
+      master.gain.value = 0.9;
+      master.connect(c.destination);
+      if (nodoRec) master.connect(nodoRec);
+    }
+    return c;
+  }
+
+  /* ---------------------------------------------------------------- tracce --- */
+  async function aggiungiTraccia(file, ritardo) {
+    if (!/^audio\//.test(file.type) && !/\.(wav|mp3|ogg|m4a|aac|flac|aiff?)$/i.test(file.name)) {
+      avviso("\"" + file.name + "\" non sembra un file audio.", true);
+      return null;
+    }
+    segnala("decodifica di " + file.name + "…", "busy");
+    let buffer;
+    try {
+      buffer = await decodifica(await file.arrayBuffer());
+    } catch (errore) {
+      console.error(errore);
+      avviso("Non riesco a leggere \"" + file.name + "\": " + errore.message, true);
+      segnala("audio non letto");
+      return null;
+    }
+    const pista = {
+      id: nuovoId("pista"),
+      nome: file.name.replace(/\.[^.]+$/, ""),
+      buffer: buffer,
+      guadagno: 1,
+      muta: false,
+      solo: false,
+      ritardo: ritardo || 0,
+      sorgente: null,
+      nodo: null
+    };
+    const c = assicuraGrafo();
+    pista.nodo = c.createGain();
+    pista.nodo.gain.value = pistaUdibile(pista) ? pista.guadagno : 0;
+    pista.nodo.connect(master);
+    stato.piste.push(pista);
+    stato.durata = durataTotale();
+    disegnaPiste();
+    aggiornaTrigger();
+    segnala("pronto", "ok");
+    programmaRicalcolo();
+    return pista;
+  }
+
+  function rimuoviTraccia(id) {
+    const i = stato.piste.findIndex(function (p) { return p.id === id; });
+    if (i < 0) return;
+    const pista = stato.piste[i];
+    if (pista.sorgente) {
+      try { pista.sorgente.stop(); } catch (errore) { /* già ferma */ }
+      pista.sorgente.disconnect();
+    }
+    if (pista.nodo) pista.nodo.disconnect();
+    stato.piste.splice(i, 1);
+    if (stato.trigger === "pista:" + id) stato.trigger = "mix";
+    stato.durata = durataTotale();
+    disegnaPiste();
+    aggiornaTrigger();
+    programmaRicalcolo();
+  }
+
+  function aggiornaGuadagni() {
+    const c = contestoAudio();
+    stato.piste.forEach(function (pista) {
+      const valore = pistaUdibile(pista) ? pista.guadagno : 0;
+      const nodo = pista.nodo;
+      if (!nodo) return;
+      if (nodo.gain.setTargetAtTime) {
+        nodo.gain.setTargetAtTime(valore, c.currentTime, 0.015);
+      } else {
+        nodo.gain.value = valore;
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ mix --- */
+  /* Somma le tracce udibili in un solo canale, rispettando il ritardo d'ingresso.
+     È il segnale che l'analisi usa: se muti la cassa, il trigger non la sente più. */
+  function mixPerAnalisi() {
+    const tracce = stato.piste.filter(function (pista) {
+      return pistaUdibile(pista) && pista.buffer;
+    });
+    if (!tracce.length) return null;
+    const sr = tracce[0].buffer.sampleRate;
+    let campioni = 0;
+    tracce.forEach(function (pista) {
+      campioni = Math.max(campioni, Math.round(pista.ritardo * sr) + pista.buffer.length);
+    });
+    if (!campioni) return null;
+    const mono = new Float32Array(campioni);
+    tracce.forEach(function (pista) {
+      const dati = pista.buffer;
+      const base = Math.round(pista.ritardo * sr);
+      const canali = dati.numberOfChannels;
+      for (let c = 0; c < canali; c += 1) {
+        const riga = dati.getChannelData(c);
+        const peso = 1 / canali;
+        for (let i = 0; i < riga.length; i += 1) mono[base + i] += riga[i] * peso;
+      }
+    });
+    return { dati: mono, sr: sr };
+  }
+
+  /* Analisi a 22 kHz: le bande arrivano a 10 kHz, è più che abbastanza per il
+     trigger e i filtri costano la metà. */
+  function assottiglia(mono) {
+    const vecchio = mono.sr;
+    const nuovo = Math.min(22050, vecchio);
+    if (nuovo === vecchio) return mono;
+    const fattore = Math.max(1, Math.round(vecchio / nuovo));
+    const quanti = Math.floor(mono.dati.length / fattore);
+    const fuori = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) {
+      let somma = 0;
+      const base = i * fattore;
+      for (let j = 0; j < fattore; j += 1) somma += mono.dati[base + j];
+      fuori[i] = somma / fattore;
+    }
+    return { dati: fuori, sr: vecchio / fattore };
+  }
+
+  /* ---------------------------------------------------------------- analisi --- */
+  /* Biquad RBJ: due stadi (passa-alto + passa-basso) per banda, come il filtro
+     dell'analisi originale ma fatto a mano, così una sola passata di mix basta
+     per tutte e cinque le bande. */
+  function biquad(tipo, frequenza, Q, sr) {
+    const w = 2 * Math.PI * clamp(frequenza, 10, sr * 0.49) / sr;
+    const cos = Math.cos(w);
+    const sin = Math.sin(w);
+    const alpha = sin / (2 * Math.max(0.1, Q));
+    let b0, b1, b2;
+    if (tipo === "passaalto") {
+      b0 = (1 + cos) / 2; b1 = -(1 + cos); b2 = (1 + cos) / 2;
+    } else {
+      b0 = (1 - cos) / 2; b1 = 1 - cos; b2 = (1 - cos) / 2;
+    }
+    const a0 = 1 + alpha;
+    const a1 = -2 * cos;
+    const a2 = 1 - alpha;
+    return { b0: b0 / a0, b1: b1 / a0, b2: b2 / a0, a1: a1 / a0, a2: a2 / a0 };
+  }
+
+  function filtra(dati, c) {
+    const fuori = new Float32Array(dati.length);
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+    for (let i = 0; i < dati.length; i += 1) {
+      const x = dati[i];
+      const y = c.b0 * x + c.b1 * x1 + c.b2 * x2 - c.a1 * y1 - c.a2 * y2;
+      fuori[i] = y;
+      x2 = x1; x1 = x;
+      y2 = y1; y1 = y;
+    }
+    return fuori;
+  }
+
+  /* RMS su finestre da 20 ms ogni 5 ms, con la somma dei quadrati fatta una volta
+     sola per hop (venti volte meno lavoro della finestra scorrevole). */
+  function inviluppo(dati, sr) {
+    const passo = Math.max(1, Math.round(sr * 0.005));
+    const quanti = Math.max(0, Math.floor(dati.length / passo));
+    const hop = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) {
+      const base = i * passo;
+      let somma = 0;
+      for (let j = 0; j < passo; j += 1) {
+        const v = dati[base + j];
+        somma += v * v;
+      }
+      hop[i] = somma / passo;
+    }
+    const finestra = 4;
+    const env = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) {
+      let somma = 0;
+      let conto = 0;
+      for (let j = 0; j < finestra && i + j < quanti; j += 1) {
+        somma += hop[i + j];
+        conto += 1;
+      }
+      env[i] = Math.sqrt(somma / Math.max(1, conto));
+    }
+    return { env: env, passo: passo };
+  }
+
+  /* Normalizza al 99,5° percentile, stima la soglia con la mediana mobile su
+     ±0,8 s e ritaglia i segmenti accesi con isteresi. È lo stesso schema dello
+     script originale, applicato a ogni banda. */
+  function eventiDaInviluppo(env, passoSecondi, modo, sens) {
+    const quanti = env.length;
+    if (!quanti) return { eventi: [], forma: new Float32Array(0) };
+
+    const campioni = [];
+    const salto = Math.max(1, Math.floor(quanti / 120000));
+    for (let i = 0; i < quanti; i += salto) campioni.push(env[i]);
+    campioni.sort(function (a, b) { return a - b; });
+    const riferimento = campioni[Math.floor(campioni.length * 0.995)] || 0;
+    const scala = riferimento > 1e-6 ? 1 / riferimento : 1;
+
+    const normalizzato = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) normalizzato[i] = env[i] * scala;
+
+    const BIN = 256;
+    const MAX = 2.5;
+    const istogramma = new Uint32Array(BIN);
+    const semi = Math.max(2, Math.round(0.8 / 0.005));
+    let dentro = 0, sinistra = 0, destra = -1;
+    function casella(v) { return clamp(Math.floor(v / MAX * BIN), 0, BIN - 1); }
+    function aggiungi(v, segno) {
+      istogramma[casella(v)] += segno;
+      dentro += segno;
+    }
+    const mediana = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) {
+      const a = Math.max(0, i - semi);
+      const b = Math.min(quanti - 1, i + semi);
+      while (destra < b) { destra += 1; aggiungi(normalizzato[destra], 1); }
+      while (sinistra < a) { aggiungi(normalizzato[sinistra], -1); sinistra += 1; }
+      const meta = dentro / 2;
+      let accumulato = 0;
+      let bin = 0;
+      for (; bin < BIN - 1; bin += 1) {
+        accumulato += istogramma[bin];
+        if (accumulato >= meta) break;
+      }
+      mediana[i] = (bin + 0.5) / BIN * MAX;
+    }
+
+    const rapporto = 2.0 / clamp(sens, 0.3, 3);
+    const grezzi = [];
+    let acceso = false, inizio = 0, picco = 0;
+    for (let i = 0; i < quanti; i += 1) {
+      const v = normalizzato[i];
+      const soglia = mediana[i] * rapporto + 0.012;
+      if (!acceso) {
+        if (v > soglia) { acceso = true; inizio = i; picco = v; }
+      } else {
+        if (v > picco) picco = v;
+        if (v < soglia * 0.62 && i - inizio > 2) {
+          acceso = false;
+          grezzi.push({ i0: inizio, i1: i, picco: picco });
+        }
+      }
+    }
+    if (acceso) grezzi.push({ i0: inizio, i1: quanti, picco: picco });
+
+    const minimo = modo === "sostenuto" ? 0.05 : 0.02;
+    let eventi = grezzi.map(function (e) {
+      let i0 = e.i0;
+      const limite = Math.max(0, i0 - Math.round(0.08 / passoSecondi));
+      for (let j = i0 - 1; j >= limite; j -= 1) {
+        if (normalizzato[j] < e.picco * 0.35) break;
+        i0 = j;
+      }
+      const durata = (e.i1 - i0) * passoSecondi;
+      return {
+        t: i0 * passoSecondi,
+        d: Math.max(minimo, modo === "impulso" ? Math.min(durata, 0.45) : Math.min(durata, 8)),
+        v: clamp(e.picco, 0.45, 1)
+      };
+    });
+    eventi.sort(function (a, b) { return a.t - b.t; });
+    const uniti = [];
+    eventi.forEach(function (e) {
+      const prima = uniti[uniti.length - 1];
+      if (prima && e.t - (prima.t + prima.d) < 0.06) {
+        prima.d = Math.max(prima.d, e.t + e.d - prima.t);
+        prima.v = Math.max(prima.v, e.v);
+      } else {
+        uniti.push(e);
+      }
+    });
+
+    const punti = 1000;
+    const forma = new Float32Array(punti);
+    for (let k = 0; k < punti; k += 1) {
+      const a = Math.floor(k / punti * quanti);
+      const b = Math.max(a + 1, Math.floor((k + 1) / punti * quanti));
+      let massimo = 0;
+      for (let j = a; j < b && j < quanti; j += 1) {
+        if (normalizzato[j] > massimo) massimo = normalizzato[j];
+      }
+      forma[k] = massimo;
+    }
+    return { eventi: uniti, forma: forma };
+  }
+
+  function analizzaBanda(mono, banda, modo, sens) {
+    const scelta = BANDE[banda] || BANDE.kick;
+    const risoluzione = mono.sr;
+    const alto = Math.min(scelta.hi, risoluzione * 0.49);
+    const basso = Math.min(scelta.lo, alto * 0.85);
+    const filtrato = filtra(
+      filtra(mono.dati, biquad("passaalto", basso, 0.7, risoluzione)),
+      biquad("passabasso", alto, 0.7, risoluzione)
+    );
+    const inv = inviluppo(filtrato, risoluzione);
+    return eventiDaInviluppo(inv.env, inv.passo / risoluzione, modo, sens);
+  }
+
+  async function analizzaTutteLeBande(mono, modo, sens) {
+    const bande = Object.keys(BANDE);
+    const risultato = {};
+    for (let i = 0; i < bande.length; i += 1) {
+      risultato[bande[i]] = analizzaBanda(mono, bande[i], modo, sens);
+      await pausaBreve();
+    }
+    return risultato;
+  }
+
+  /* ------------------------------------------------------- trigger e cache --- */
+  const cacheAnalisi = new Map();
+
+  function firmaMix() {
+    return stato.trigger + "#" + stato.piste.map(function (p) {
+      return [p.id, pistaUdibile(p) ? 1 : 0, p.ritardo.toFixed(2),
+        p.buffer.duration.toFixed(2)].join(":");
+    }).join("|");
+  }
+
+  function eventiBanda(banda) {
+    const voce = stato.eventiPerBanda[banda];
+    return voce && voce.eventi ? voce.eventi : [];
+  }
+  function bandaDelLivello(livello) {
+    return livello && livello.banda ? livello.banda : stato.banda;
+  }
+
+  let timerRicalcolo = 0;
+  function programmaRicalcolo() {
+    clearTimeout(timerRicalcolo);
+    timerRicalcolo = setTimeout(function () { ricalcola(); }, 260);
+  }
+
+  async function ricalcola() {
+    const versione = ++stato.versioneAnalisi;
+    const mix = mixPerAnalisi();
+    if (!mix || !mix.dati.length) {
+      stato.eventiPerBanda = {};
+      stato.forma = null;
+      aggiornaOndaInfo();
+      disegnaOnda();
+      segnala(stato.piste.length ? "trigger senza tracce udibili" : "in attesa dei file");
+      return;
+    }
+    const chiave = firmaMix() + "@" + stato.modo + "@" + stato.sens.toFixed(2);
+    let risultato = cacheAnalisi.get(chiave);
+    if (!risultato) {
+      segnala("analisi del trigger…", "busy");
+      stato.analisiInCorso = true;
+      try {
+        risultato = await analizzaTutteLeBande(assottiglia(mix), stato.modo, stato.sens);
+      } catch (errore) {
+        console.error(errore);
+        stato.analisiInCorso = false;
+        avviso("Non riesco ad analizzare il mix: " + errore.message, true);
+        segnala("analisi fallita");
+        return;
+      }
+      stato.analisiInCorso = false;
+      cacheAnalisi.set(chiave, risultato);
+      /* La cache non deve crescere all'infinito cambiando sensibilità col cursore. */
+      if (cacheAnalisi.size > 8) {
+        cacheAnalisi.delete(cacheAnalisi.keys().next().value);
+      }
+    }
+    if (versione !== stato.versioneAnalisi) return;   // nel frattempo è cambiato qualcosa
+    stato.eventiPerBanda = risultato;
+    aggiornaForma();
+    segnala(stato.playing ? "in riproduzione" : "pronto", "ok");
+    aggiornaOndaInfo();
+    disegnaOnda();
+    disegnaLivelli();
+  }
+
+  function aggiornaForma() {
+    const voce = stato.eventiPerBanda[stato.banda];
+    stato.forma = voce ? voce.forma : null;
+    stato.formaBanda = stato.banda;
+  }
+
+  function aggiornaOndaInfo() {
+    const eventi = eventiBanda(stato.banda);
+    const nome = BANDE[stato.banda] ? BANDE[stato.banda].nome : stato.banda;
+    const sorgente = stato.trigger === "mix"
+      ? "mix delle tracce"
+      : (pistaDaId(stato.trigger.slice(6)) || { nome: "traccia" }).nome;
+    dom.ondaTitolo.textContent = "Inviluppo · " + nome + " · " + sorgente;
+    dom.ondaInfo.textContent = eventi.length
+      ? eventi.length + (eventi.length === 1 ? " colpo" : " colpi") +
+        " · " + orologio(durataTotale())
+      : "nessun colpo";
+  }
+
+  /* --------------------------------------------------------------- disegno --- */
+  function disegnaOnda(corrente) {
+    const canvas = dom.onda;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const larghezza = canvas.clientWidth || 600;
+    const altezza = 82;
+    const attuale = corrente === undefined ? stato.t : corrente;
+    if (canvas.width !== Math.round(larghezza * dpr) ||
+        canvas.height !== Math.round(altezza * dpr)) {
+      canvas.width = Math.round(larghezza * dpr);
+      canvas.height = Math.round(altezza * dpr);
+    }
+    const g = canvas.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, larghezza, altezza);
+    g.fillStyle = "#15171a";
+    g.fillRect(0, 0, larghezza, altezza);
+
+    const forma = stato.forma;
+    if (!forma || !forma.length) {
+      g.fillStyle = "#2c2e32";
+      g.fillRect(0, Math.round(altezza / 2), larghezza, 1);
+      g.fillStyle = "#6b675f";
+      g.font = "10px Inter, sans-serif";
+      g.textAlign = "center";
+      g.fillText("nessuna analisi", larghezza / 2, altezza / 2 - 8);
+      return;
+    }
+
+    const barre = Math.max(24, Math.min(forma.length, Math.round(larghezza / 2)));
+    const passo = forma.length / barre;
+    const testa = clamp(attuale / Math.max(0.001, durataTotale()), 0, 1);
+    const centro = altezza * 0.62;
+    for (let i = 0; i < barre; i += 1) {
+      const a = Math.floor(i * passo);
+      const b = Math.max(a + 1, Math.floor((i + 1) * passo));
+      let massimo = 0;
+      for (let j = a; j < b && j < forma.length; j += 1) {
+        if (forma[j] > massimo) massimo = forma[j];
+      }
+      const h = Math.max(1, clamp(massimo, 0, 1) * (altezza - 16));
+      g.fillStyle = i / barre <= testa ? "#e0553c" : "#3d4045";
+      g.fillRect(i * (larghezza / barre), centro - h, Math.max(1, larghezza / barre - 1), h);
+    }
+
+    /* I colpi rilevati, come tacche sul fondo. */
+    const eventi = eventiBanda(stato.banda);
+    g.fillStyle = "rgba(242,236,228,.55)";
+    eventi.forEach(function (e) {
+      const x = e.t / Math.max(0.001, durataTotale()) * larghezza;
+      g.fillRect(x, altezza - 3, 1, 3);
+    });
+
+    const x = testa * larghezza;
+    g.fillStyle = "#f2ece4";
+    g.fillRect(Math.round(x), 0, 1, altezza);
+    g.beginPath();
+    g.arc(Math.round(x), 0, 3, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  /* --------------------------------------------------------------- livelli --- */
+  function nuovoLivello(media, file) {
+    const primo = stato.livelli.length === 0;
+    const livello = {
+      id: nuovoId("livello"),
+      nome: file.name.replace(/\.[^.]+$/, ""),
+      tipo: media.tipo,
+      el: media.el,
+      url: media.url,
+      larghezza: media.larghezza,
+      altezza: media.altezza,
+      durata: media.durata,
+      effetto: primo ? "contorno" : "nessuno",
+      parametri: parametriIniziali(),
+      forza: 1,
+      attacco: 0.012,
+      opacita: 1,
+      fusione: "normale",
+      adatta: 0,             // 0 = riempi il frame, 1 = adatta intera
+      banda: "",             // vuota = segui il trigger globale
+      spento: false,
+      tela: document.createElement("canvas"),
+      pennello: null,
+      p99: 1,
+      sobelMag: null,
+      sobelScala: 1,
+      misuraDaFare: true,
+      ultimaMisura: -1,
+      clock: 0,              // tempo del livello: la neve accelera sul colpo
+      velocita: 1,
+      forzaVisiva: 0
+    };
+    livello.pennello = livello.tela.getContext("2d");
+    return livello;
+  }
+
+  function leggiMedia(file) {
+    const nome = file.name || "media";
+    const video = /^video\//.test(file.type) ||
+      /\.(mp4|mov|webm|m4v|mkv|avi|ogv)$/i.test(nome);
+    const url = URL.createObjectURL(file);
+    if (!video) {
+      return new Promise(function (ok, ko) {
+        const el = new Image();
+        el.onload = function () {
+          ok({ tipo: "immagine", el: el, url: url,
+            larghezza: el.naturalWidth || 1, altezza: el.naturalHeight || 1,
+            durata: Infinity });
+        };
+        el.onerror = function () { ko(new Error("immagine non leggibile")); };
+        el.src = url;
+      });
+    }
+    return new Promise(function (ok, ko) {
+      const el = document.createElement("video");
+      el.preload = "auto";
+      el.muted = true;          // il suono delle tracce viene dalle piste, non dal video
+      el.playsInline = true;
+      el.setAttribute("playsinline", "");
+      el.addEventListener("error", function () {
+        ko(new Error("video non leggibile: " + (el.error ? el.error.message : "formato?")));
+      }, { once: true });
+      el.addEventListener("loadeddata", function () {
+        /* Primo fotogramma pronto: così la texture non è nera al primo disegno.
+           Se il contenitore non dichiara la durata si prova a fargliela dire
+           subito: senza, non si saprebbe dove ripartire nel loop. */
+        sbloccaDurata(el);
+        ok({ tipo: "video", el: el, url: url,
+          larghezza: el.videoWidth || 16, altezza: el.videoHeight || 9,
+          durata: durataVideo(el) || Infinity });
+      }, { once: true });
+      el.src = url;
+      el.load();
+    });
+  }
+
+  async function aggiungiLivello(file) {
+    if (!/^image\//.test(file.type) && !/^video\//.test(file.type) &&
+        !/\.(png|jpe?g|webp|gif|avif|bmp|svg|mp4|mov|webm|m4v|mkv|avi)$/i.test(file.name)) {
+      avviso("\"" + file.name + "\" non è un video o un'immagine.", true);
+      return null;
+    }
+    segnala("carico " + file.name + "…", "busy");
+    let media;
+    try {
+      media = await leggiMedia(file);
+    } catch (errore) {
+      console.error(errore);
+      avviso("Non riesco a leggere \"" + file.name + "\": " + errore.message, true);
+      segnala("media non letto");
+      return null;
+    }
+    const livello = nuovoLivello(media, file);
+    stato.livelli.push(livello);
+    stato.scelto = livello.id;
+    stato.durata = durataTotale();
+    preparaTela(livello);
+    disegnaLivelli();
+    disegnaScheda();
+    aggiornaTrasporto();
+    aggiornaSchermoVuoto();
+    aggiornaHud();
+    segnala("pronto", "ok");
+    return livello;
+  }
+
+  function rimuoviLivello(id) {
+    const i = stato.livelli.findIndex(function (l) { return l.id === id; });
+    if (i < 0) return;
+    const livello = stato.livelli[i];
+    if (livello.el && livello.el.pause) livello.el.pause();
+    if (livello.el) livello.el.removeAttribute("src");
+    if (livello.url) URL.revokeObjectURL(livello.url);
+    if (renderer) renderer.dimentica(livello.id);
+    stato.livelli.splice(i, 1);
+    if (stato.scelto === id) {
+      const vicino = stato.livelli[Math.min(i, stato.livelli.length - 1)];
+      stato.scelto = vicino ? vicino.id : null;
+    }
+    stato.durata = durataTotale();
+    disegnaLivelli();
+    disegnaScheda();
+    aggiornaTrasporto();
+    aggiornaSchermoVuoto();
+    aggiornaHud();
+  }
+
+  function spostaLivello(id, delta) {
+    const i = stato.livelli.findIndex(function (l) { return l.id === id; });
+    const j = i + delta;
+    if (i < 0 || j < 0 || j >= stato.livelli.length) return;
+    const livello = stato.livelli.splice(i, 1)[0];
+    stato.livelli.splice(j, 0, livello);
+    disegnaLivelli();
+  }
+
+  function aggiornaSchermoVuoto() {
+    dom.schermo.classList.toggle("is-piena", stato.livelli.length > 0);
+  }
+
+  /* La tela di ogni livello ha la stessa griglia del canvas: così i pixel di blur
+     e Sobel sono quelli che il livello mostra davvero, non quelli del file. */
+  function preparaTela(livello) {
+    const larghezza = dom.vista.width;
+    const altezza = dom.vista.height;
+    if (livello.tela.width !== larghezza || livello.tela.height !== altezza) {
+      livello.tela.width = larghezza;
+      livello.tela.height = altezza;
+    }
+    const g = livello.pennello;
+    g.fillStyle = "#08090a";
+    g.fillRect(0, 0, larghezza, altezza);
+    const media = livello.el;
+    if (!media) return;
+    let dl, da;
+    if (livello.adatta) {
+      const scala = Math.min(larghezza / livello.larghezza, altezza / livello.altezza);
+      dl = livello.larghezza * scala;
+      da = livello.altezza * scala;
+    } else {
+      const scala = Math.max(larghezza / livello.larghezza, altezza / livello.altezza);
+      dl = livello.larghezza * scala;
+      da = livello.altezza * scala;
+    }
+    try {
+      g.drawImage(media, (larghezza - dl) / 2, (altezza - da) / 2, dl, da);
+    } catch (errore) {
+      /* video non ancora decodificato: si riprova al fotogramma dopo */
+    }
+    livello._telaVersione = (livello._telaVersione || 0) + 1;
+  }
+
+  function noccioloGaussiano(sigma) {
+    const s = Math.max(0.1, sigma);
+    const raggio = Math.min(4, Math.max(1, Math.round(s * 3)));
+    const pesi = new Float32Array(9);
+    let somma = 0;
+    for (let i = -raggio; i <= raggio; i += 1) {
+      const w = Math.exp(-(i * i) / (2 * s * s));
+      pesi[i + 4] = w;
+      somma += w;
+    }
+    for (let i = 0; i < 9; i += 1) pesi[i] /= somma;
+    return pesi;
+  }
+
+  /* ------------------------------------------------------- percentile Sobel --- */
+  /* Il contorno divide la magnitudine per il 99,5° percentile della scena: qui lo
+     misuriamo su una miniatura del livello (0,45×, come lo script originale) e lo
+     teniamo per livello. Un video cambia luminosità, quindi si rimisura ogni tanto. */
+  const telaStima = document.createElement("canvas");
+  let pennelloStima = null;
+
+  function misuraSobel(livello, scala) {
+    if (!livello.tela.width) return;
+    const k = scala || 0.45;
+    const larghezza = Math.max(8, Math.round(dom.vista.width * k));
+    const altezza = Math.max(8, Math.round(dom.vista.height * k));
+    if (telaStima.width !== larghezza || telaStima.height !== altezza) {
+      telaStima.width = larghezza;
+      telaStima.height = altezza;
+      pennelloStima = telaStima.getContext("2d", { willReadFrequently: true });
+    }
+    const g = pennelloStima;
+    g.clearRect(0, 0, larghezza, altezza);
+    try {
+      g.drawImage(livello.tela, 0, 0, larghezza, altezza);
+    } catch (errore) {
+      return;
+    }
+    let pixel;
+    try {
+      pixel = g.getImageData(0, 0, larghezza, altezza).data;
+    } catch (errore) {
+      return;   // canvas "sporco" da un video di un'altra origine
+    }
+
+    const grigio = new Float32Array(larghezza * altezza);
+    for (let i = 0; i < grigio.length; i += 1) {
+      const j = i * 4;
+      grigio[i] = (pixel[j] * 0.299 + pixel[j + 1] * 0.587 + pixel[j + 2] * 0.114) / 255;
+    }
+
+    const scalaTela = Math.max(dom.vista.width / livello.larghezza,
+      dom.vista.height / livello.altezza);
+    const sigma = Math.max(0.4, livello.parametri.contorno.blur * scalaTela * k);
+    const pesi = noccioloGaussiano(sigma);
+
+    const orizzontale = new Float32Array(grigio.length);
+    for (let y = 0; y < altezza; y += 1) {
+      const riga = y * larghezza;
+      for (let x = 0; x < larghezza; x += 1) {
+        let somma = 0;
+        for (let t = -4; t <= 4; t += 1) {
+          const xx = clamp(x + t, 0, larghezza - 1);
+          somma += grigio[riga + xx] * pesi[t + 4];
+        }
+        orizzontale[riga + x] = somma;
+      }
+    }
+    const sfocata = new Float32Array(grigio.length);
+    for (let y = 0; y < altezza; y += 1) {
+      for (let x = 0; x < larghezza; x += 1) {
+        let somma = 0;
+        for (let t = -4; t <= 4; t += 1) {
+          const yy = clamp(y + t, 0, altezza - 1);
+          somma += orizzontale[yy * larghezza + x] * pesi[t + 4];
+        }
+        sfocata[y * larghezza + x] = somma;
+      }
+    }
+
+    const magnitudini = new Float32Array(grigio.length);
+    for (let y = 1; y < altezza - 1; y += 1) {
+      for (let x = 1; x < larghezza - 1; x += 1) {
+        const i = y * larghezza + x;
+        const gx = (sfocata[i - larghezza + 1] + 2 * sfocata[i + 1] + sfocata[i + larghezza + 1]) -
+          (sfocata[i - larghezza - 1] + 2 * sfocata[i - 1] + sfocata[i + larghezza - 1]);
+        const gy = (sfocata[i + larghezza - 1] + 2 * sfocata[i + larghezza] +
+          sfocata[i + larghezza + 1]) -
+          (sfocata[i - larghezza - 1] + 2 * sfocata[i - larghezza] + sfocata[i - larghezza + 1]);
+        magnitudini[i] = Math.sqrt(gx * gx + gy * gy);
+      }
+    }
+    livello.sobelMag = magnitudini;
+    livello.sobelScala = k;
+    livello.ultimaMisura = performance.now() / 1000;
+    aggiornaPercentile(livello);
+  }
+
+  function aggiornaPercentile(livello) {
+    const magnitudini = livello.sobelMag;
+    if (!magnitudini) {
+      livello.p99 = 1;
+      return;
+    }
+    const percentile = clamp(livello.parametri.contorno.perc, 90, 100);
+    let massimo = 0;
+    for (let i = 0; i < magnitudini.length; i += 1) {
+      if (magnitudini[i] > massimo) massimo = magnitudini[i];
+    }
+    if (massimo <= 1e-6) {
+      livello.p99 = 1;
+      return;
+    }
+    const caselle = 2048;
+    const conteggi = new Uint32Array(caselle);
+    const passo = massimo / caselle;
+    for (let i = 0; i < magnitudini.length; i += 1) {
+      const c = clamp(Math.floor(magnitudini[i] / passo), 0, caselle - 1);
+      conteggi[c] += 1;
+    }
+    const bersaglio = magnitudini.length * percentile / 100;
+    let cumulato = 0;
+    let trovato = massimo;
+    for (let i = 0; i < caselle; i += 1) {
+      cumulato += conteggi[i];
+      if (cumulato >= bersaglio) { trovato = (i + 1) * passo; break; }
+    }
+    livello.p99 = Math.max(0.002, trovato);
+  }
+
+  function aggiornaNotaNormalizzazione() {
+    const livello = livelloScelto();
+    const attivo = !!livello && livello.effetto === "contorno";
+    dom.notaNormalizzazione.hidden = !attivo;
+    if (!attivo) return;
+    if (!livello.sobelMag) {
+      dom.notaNormalizzazione.textContent = "Normalizzazione: misuro la scena…";
+      return;
+    }
+    const percentile = livello.parametri.contorno.perc.toFixed(1).replace(".", ",");
+    const divisore = livello.p99.toFixed(4).replace(".", ",");
+    dom.notaNormalizzazione.innerHTML = percentile + "° percentile della magnitudine: <b>" +
+      divisore + "</b> · miniatura a " + Math.round(livello.sobelScala * 100) + "%";
+  }
+
+  /* Misura al massimo un livello per fotogramma: se ne hai cinque col contorno
+     non si blocca il disegno, si aggiornano a turno. */
+  function misuraSeServe(adesso) {
+    const scelti = stato.livelli.filter(function (l) {
+      if (l.effetto !== "contorno") return false;
+      if (!l.sobelMag) return true;
+      if (l.tipo === "video" && stato.playing && adesso - l.ultimaMisura > 1.5) return true;
+      return l.misuraDaFare;
+    });
+    if (!scelti.length) return false;
+    const livello = scelti[0];
+    livello.misuraDaFare = false;
+    misuraSobel(livello, livello.tipo === "video" ? 0.35 : 0.45);
+    if (livello === livelloScelto()) aggiornaNotaNormalizzazione();
+    return true;
+  }
+
+  /* ---------------------------------------------------------------- WebGL --- */
+  const VERTICE = [
+    "attribute vec2 posizione;",
+    "varying vec2 vUv;",
+    "void main() {",
+    "  vUv = posizione * 0.5 + 0.5;",
+    "  gl_Position = vec4(posizione, 0.0, 1.0);",
+    "}"
+  ].join("\n");
+
+  const TESTA_FRAMMENTO = [
+    "precision highp float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uSorgente;",
+    "uniform sampler2D uPrec;",
+    "uniform float uForza;",
+    "uniform float uTempo;",
+    "uniform vec2 uRisoluzione;",
+    "uniform float uP0;",
+    "uniform float uP1;",
+    "uniform float uP2;",
+    "uniform float uP3;",
+    "uniform float uP4;",
+    "uniform float uP5;",
+    "uniform float uSobel;",
+    "vec2 uvMedia() { return vec2(vUv.x, 1.0 - vUv.y); }",
+    "vec3 originale() { return texture2D(uSorgente, uvMedia()).rgb; }",
+    "float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }",
+    ""
+  ].join("\n");
+
+  const FRAMMENTI = {};
+
+  /* Sfocatura gaussiana separabile: i pesi arrivano da noccioloGaussiano, che li
+     calcola come OpenCV (raggio = round(3σ), somma 1). uFlippata = 1 quando la
+     sorgente è la texture del media, che ha la riga 0 in alto. */
+  FRAMMENTI.sfocatura = TESTA_FRAMMENTO + [
+    "uniform float uPesi[9];",
+    "uniform vec2 uDirezione;",
+    "uniform float uFlippata;",
+    "void main() {",
+    "  vec2 uv = uFlippata > 0.5 ? vec2(vUv.x, 1.0 - vUv.y) : vUv;",
+    "  vec2 passo = uDirezione / uRisoluzione;",
+    "  vec3 somma = vec3(0.0);",
+    "  for (int i = -4; i <= 4; i += 1) {",
+    "    somma += texture2D(uSorgente, uv + passo * float(i)).rgb * uPesi[i + 4];",
+    "  }",
+    "  gl_FragColor = vec4(somma, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* Il tuo script OpenCV, passo per passo: grigio Rec.601 sulla copia sfocata,
+     Sobel 3×3, magnitudine divisa per il 99,5° percentile, clip 0–1, potenza 0,55.
+     Con uForza = 1 l'uscita è esattamente bordi bianchi su nero. */
+  FRAMMENTI.contorno = TESTA_FRAMMENTO + [
+    "uniform sampler2D uSfocata;",
+    "float grigioSfocato(vec2 uv) {",
+    "  return dot(texture2D(uSfocata, uv).rgb, vec3(0.299, 0.587, 0.114));",
+    "}",
+    "void main() {",
+    "  vec2 uv = vUv;",
+    "  vec2 px = 1.0 / uRisoluzione;",
+    "  float a = grigioSfocato(uv + vec2(-px.x, -px.y));",
+    "  float b = grigioSfocato(uv + vec2(0.0, -px.y));",
+    "  float c = grigioSfocato(uv + vec2(px.x, -px.y));",
+    "  float d = grigioSfocato(uv + vec2(-px.x, 0.0));",
+    "  float f = grigioSfocato(uv + vec2(px.x, 0.0));",
+    "  float g = grigioSfocato(uv + vec2(-px.x, px.y));",
+    "  float h = grigioSfocato(uv + vec2(0.0, px.y));",
+    "  float i = grigioSfocato(uv + vec2(px.x, px.y));",
+    "  float gx = (c + 2.0 * f + i) - (a + 2.0 * d + g);",
+    "  float gy = (g + 2.0 * h + i) - (a + 2.0 * b + c);",
+    "  float modulo = length(vec2(gx, gy)) / max(uSobel, 0.0001);",
+    "  float bordo = pow(clamp(modulo, 0.0, 1.0), max(uP2, 0.05));",
+    "  if (uP3 > 0.5) bordo = 1.0 - bordo;",
+    "  gl_FragColor = vec4(mix(originale(), vec3(bordo), clamp(uForza, 0.0, 1.0)), 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.rgb = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  vec2 uv = uvMedia();",
+    "  float distanza = uP0 * 0.02 * uForza;",
+    "  float r = texture2D(uSorgente, uv + vec2(distanza, 0.0)).r;",
+    "  float b = texture2D(uSorgente, uv - vec2(distanza, 0.0)).b;",
+    "  vec3 base = originale();",
+    "  gl_FragColor = vec4(mix(base, vec3(r, base.g, b), uForza), 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.zoom = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  float fattore = 1.0 + uP0 * uForza;",
+    "  vec2 uv = (uvMedia() - 0.5) / fattore + 0.5;",
+    "  gl_FragColor = vec4(texture2D(uSorgente, uv).rgb, 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.flash = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  vec3 lampo = mix(vec3(1.0), vec3(1.0, 0.93, 0.86), 0.35);",
+    "  gl_FragColor = vec4(mix(originale(), lampo, clamp(uForza * uP0, 0.0, 1.0)), 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.mosaico = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  float blocco = mix(1.0, max(uP0, 1.0), uForza);",
+    "  vec2 celle = floor(uvMedia() * uRisoluzione / blocco);",
+    "  vec2 uv = (celle + 0.5) * blocco / uRisoluzione;",
+    "  gl_FragColor = vec4(texture2D(uSorgente, uv).rgb, 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.glitch = TESTA_FRAMMENTO + [
+    "float caso(float n) { return fract(sin(n * 127.1) * 43758.5453); }",
+    "void main() {",
+    "  vec2 uv = uvMedia();",
+    "  float caos = uP0 * uForza;",
+    "  float riga = floor(uv.y * 44.0);",
+    "  float salto = floor(uTempo * 26.0);",
+    "  float strappo = (caso(riga + salto) - 0.5) * 0.07 * caos;",
+    "  vec2 spostato = vec2(fract(uv.x + strappo + 1.0), uv.y);",
+    "  float r = texture2D(uSorgente, spostato + vec2(0.004 * caos, 0.0)).r;",
+    "  float g = texture2D(uSorgente, spostato).g;",
+    "  float b = texture2D(uSorgente, spostato - vec2(0.004 * caos, 0.0)).b;",
+    "  vec3 col = vec3(r, g, b);",
+    "  float scan = 0.82 + 0.18 * sin(uv.y * 720.0 * 1.7);",
+    "  col *= mix(1.0, scan, clamp(caos, 0.0, 1.0));",
+    "  gl_FragColor = vec4(mix(originale(), col, uForza), 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.specchio = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  float angolo = (uP0 - 0.5) * 1.2 * uForza;",
+    "  vec2 p = vUv - 0.5;",
+    "  float c = cos(angolo);",
+    "  float s = sin(angolo);",
+    "  vec2 ruotato = vec2(p.x * c - p.y * s, p.x * s + p.y * c);",
+    "  vec2 quadrante = vec2(abs(ruotato.x), abs(ruotato.y));",
+    "  vec2 uv = vec2(quadrante.x, 1.0 - quadrante.y);",
+    "  vec3 col = texture2D(uSorgente, uv).rgb;",
+    "  gl_FragColor = vec4(mix(originale(), col, uForza), 1.0);",
+    "}"
+  ].join("\n");
+
+  FRAMMENTI.scia = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  vec3 nuovo = originale();",
+    "  vec3 vecchio = texture2D(uPrec, vUv).rgb;",
+    "  float persistenza = clamp(uP0 * (0.45 + 0.55 * uForza), 0.0, 0.995);",
+    "  vec3 col = max(nuovo, vecchio * persistenza);",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* Saturazione: cresce col colpo, la luminosità resta quella di partenza. */
+  FRAMMENTI.saturo = TESTA_FRAMMENTO + [
+    "void main() {",
+    "  vec3 base = originale();",
+    "  float l = luma(base);",
+    "  vec3 col = mix(vec3(l), base, 1.0 + uP0 * uForza);",
+    "  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);",
+    "}"
+  ].join("\n");
+
+  /* Tinta: ruota la tonalità e colora la scena verso il colore scelto. La rotazione
+     passa da YIQ, che è il modo più corto di girare la tinta in GLSL ES 1.0. */
+  FRAMMENTI.tinta = TESTA_FRAMMENTO + [
+    "vec3 ruotaTinta(vec3 c, float a) {",
+    "  float y = dot(c, vec3(0.299, 0.587, 0.114));",
+    "  float i = dot(c, vec3(0.596, -0.274, -0.322));",
+    "  float q = dot(c, vec3(0.211, -0.523, 0.312));",
+    "  float ca = cos(a);",
+    "  float sa = sin(a);",
+    "  float i2 = i * ca - q * sa;",
+    "  float q2 = i * sa + q * ca;",
+    "  return vec3(y + 0.956 * i2 + 0.621 * q2,",
+    "              y - 0.272 * i2 - 0.647 * q2,",
+    "              y - 1.106 * i2 + 1.703 * q2);",
+    "}",
+    "vec3 daHsv(vec3 c) {",
+    "  vec3 k = mod(c.x * 6.0 + vec3(5.0, 3.0, 1.0), 6.0);",
+    "  vec3 rgb = clamp(abs(k - 3.0) - 1.0, 0.0, 1.0);",
+    "  return c.z * mix(vec3(1.0), rgb, c.y);",
+    "}",
+    "void main() {",
+    "  vec3 base = originale();",
+    "  float l = luma(base);",
+    "  float tinta = uP0 / 360.0;",
+    "  float angolo = tinta * 6.28318 * uForza;",
+    "  vec3 ruotato = clamp(ruotaTinta(base, angolo), 0.0, 1.0);",
+    "  vec3 colorato = daHsv(vec3(tinta, 0.78, 1.0)) * (0.22 + 0.78 * l);",
+    "  vec3 col = mix(ruotato, colorato, clamp(uP1 * uForza, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* Neve: disturbo a blocchi + scanline. L'accelerazione non è qui: il tempo del
+     livello (uTempo) avanza più in fretta quando il colpo è forte, quindi due
+     livelli con la neve possono correre a velocità diverse. */
+  FRAMMENTI.neve = TESTA_FRAMMENTO + [
+    "float caso(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }",
+    "void main() {",
+    "  vec3 base = originale();",
+    "  float densita = clamp(uP0, 0.0, 1.0);",
+    "  vec2 celle = floor(vUv * uRisoluzione / 2.0);",
+    "  float grana = caso(celle + floor(uTempo * 34.0));",
+    "  float riga = caso(vec2(floor(vUv.y * 160.0), floor(uTempo * 9.0)));",
+    "  float neve = smoothstep(1.0 - densita * 0.85, 1.0, grana);",
+    "  float scan = 0.88 + 0.12 * sin(vUv.y * uRisoluzione.y * 1.4 + uTempo * 5.0);",
+    "  float quanto = 0.25 + 0.75 * clamp(uForza, 0.0, 1.0);",
+    "  vec3 col = base * scan + vec3(neve) * (0.6 + 0.4 * riga) * 0.55;",
+    "  gl_FragColor = vec4(mix(base, clamp(col, 0.0, 1.0), quanto), 1.0);",
+    "}"
+  ].join("\n");
+
+  const FRAMMENTO_COPIA = [
+    "precision highp float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uSorgente;",
+    "uniform float uFlippata;",
+    "void main() {",
+    "  vec2 uv = uFlippata > 0.5 ? vec2(vUv.x, 1.0 - vUv.y) : vUv;",
+    "  gl_FragColor = vec4(texture2D(uSorgente, uv).rgb, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* Compositing: ogni livello si somma a quelli sotto con la sua fusione. I modi
+     sono quelli dei programmi di montaggio; il WebGL li fa in una passata sola. */
+  const FRAMMENTO_COMPOSITA = [
+    "precision highp float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uSotto;",
+    "uniform sampler2D uSopra;",
+    "uniform float uOpacita;",
+    "uniform float uModo;",
+    "void main() {",
+    "  vec3 sotto = texture2D(uSotto, vUv).rgb;",
+    "  vec3 sopra = texture2D(uSopra, vUv).rgb;",
+    "  float a = clamp(uOpacita, 0.0, 1.0);",
+    "  vec3 col;",
+    "  if (uModo < 0.5) {",
+    "    col = mix(sotto, sopra, a);",
+    "  } else if (uModo < 1.5) {",
+    "    col = min(vec3(1.0), sotto + sopra * a);",
+    "  } else if (uModo < 2.5) {",
+    "    col = 1.0 - (1.0 - sotto) * (1.0 - sopra * a);",
+    "  } else {",
+    "    col = mix(sotto, sotto * sopra, a);",
+    "  }",
+    "  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);",
+    "}"
+  ].join("\n");
+
+  /* -------------------------------------------------------------- renderer --- */
+  function creaRenderer(canvas) {
+    const gl = canvas.getContext("webgl", {
+      alpha: false,
+      antialias: false,
+      depth: false,
+      stencil: false,
+      preserveDrawingBuffer: true
+    });
+    if (!gl) return null;
+
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
+
+    function compila(tipo, sorgente) {
+      const shader = gl.createShader(tipo);
+      gl.shaderSource(shader, sorgente);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
+        throw new Error("shader: " + log);
+      }
+      return shader;
+    }
+
+    function creaProgramma(frammento) {
+      const p = gl.createProgram();
+      const v = compila(gl.VERTEX_SHADER, VERTICE);
+      const f = compila(gl.FRAGMENT_SHADER, frammento);
+      gl.attachShader(p, v);
+      gl.attachShader(p, f);
+      gl.linkProgram(p);
+      gl.deleteShader(v);
+      gl.deleteShader(f);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+        throw new Error("link: " + gl.getProgramInfoLog(p));
+      }
+      return {
+        programma: p,
+        posizione: gl.getAttribLocation(p, "posizione"),
+        uniformi: {}
+      };
+    }
+
+    function uniforme(voce, nome) {
+      if (!(nome in voce.uniformi)) {
+        voce.uniformi[nome] = gl.getUniformLocation(voce.programma, nome);
+      }
+      return voce.uniformi[nome];
+    }
+
+    const programmi = {};
+    Object.keys(FRAMMENTI).forEach(function (id) {
+      programmi[id] = creaProgramma(FRAMMENTI[id]);
+    });
+    const copia = creaProgramma(FRAMMENTO_COPIA);
+    const composita = creaProgramma(FRAMMENTO_COMPOSITA);
+
+    const quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1, 1, -1, -1, 1, 1, 1
+    ]), gl.STATIC_DRAW);
+
+    let larghezza = canvas.width;
+    let altezza = canvas.height;
+    let ausiliari = [];
+    let pila = [];
+    const medie = new Map();
+    const mediaVersione = new Map();
+    const uscite = new Map();
+
+    function creaBersaglio(l, a) {
+      const t = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, l, a, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const f = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      gl.clearColor(0, 0, 0, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return { texture: t, fbo: f };
+    }
+
+    function liberaBersaglio(voce) {
+      if (!voce) return;
+      gl.deleteTexture(voce.texture);
+      gl.deleteFramebuffer(voce.fbo);
+    }
+
+    function preparaTutto() {
+      ausiliari.forEach(liberaBersaglio);
+      pila.forEach(liberaBersaglio);
+      ausiliari = [creaBersaglio(larghezza, altezza), creaBersaglio(larghezza, altezza)];
+      pila = [creaBersaglio(larghezza, altezza), creaBersaglio(larghezza, altezza)];
+      uscite.forEach(function (voce) {
+        liberaBersaglio(voce.a);
+        liberaBersaglio(voce.b);
+      });
+      uscite.clear();
+      medie.forEach(function (t) { gl.deleteTexture(t); });
+      medie.clear();
+      mediaVersione.clear();
+    }
+
+    preparaTutto();
+
+    function ridimensiona(l, a) {
+      if (l === larghezza && a === altezza) return;
+      larghezza = l;
+      altezza = a;
+      preparaTutto();
+    }
+
+    function bersagli(livello) {
+      let voce = uscite.get(livello.id);
+      if (!voce) {
+        voce = {
+          a: creaBersaglio(larghezza, altezza),
+          b: creaBersaglio(larghezza, altezza),
+          giro: 0
+        };
+        uscite.set(livello.id, voce);
+      }
+      return voce;
+    }
+
+    function dimentica(id) {
+      const voce = uscite.get(id);
+      if (voce) {
+        liberaBersaglio(voce.a);
+        liberaBersaglio(voce.b);
+        uscite.delete(id);
+      }
+      const t = medie.get(id);
+      if (t) {
+        gl.deleteTexture(t);
+        medie.delete(id);
+        mediaVersione.delete(id);
+      }
+    }
+
+    function aggiornaMedia(livello) {
+      const versione = livello._telaVersione || 0;
+      let t = medie.get(livello.id);
+      if (t && mediaVersione.get(livello.id) === versione) return t;
+      if (!t) {
+        t = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        medie.set(livello.id, t);
+      } else {
+        gl.bindTexture(gl.TEXTURE_2D, t);
+      }
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, livello.tela);
+      mediaVersione.set(livello.id, versione);
+      return t;
+    }
+
+    function preparaQuad(voce) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.enableVertexAttribArray(voce.posizione);
+      gl.vertexAttribPointer(voce.posizione, 2, gl.FLOAT, false, 0, 0);
+    }
+
+    /* Una passata della gaussiana separabile, da texture a framebuffer. */
+    function passoGaussiano(programma, sorgente, bersaglio, orizzontale, flippata, pesi) {
+      gl.useProgram(programma.programma);
+      preparaQuad(programma);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sorgente);
+      gl.uniform1i(uniforme(programma, "uSorgente"), 0);
+      gl.uniform2f(uniforme(programma, "uRisoluzione"), larghezza, altezza);
+      gl.uniform2f(uniforme(programma, "uDirezione"), orizzontale ? 1 : 0, orizzontale ? 0 : 1);
+      gl.uniform1f(uniforme(programma, "uFlippata"), flippata ? 1 : 0);
+      gl.uniform1fv(uniforme(programma, "uPesi[0]"), pesi);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, bersaglio.fbo);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    function copiaIn(sorgente, bersaglio, flippata) {
+      gl.useProgram(copia.programma);
+      preparaQuad(copia);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sorgente);
+      gl.uniform1i(uniforme(copia, "uSorgente"), 0);
+      gl.uniform1f(uniforme(copia, "uFlippata"), flippata ? 1 : 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, bersaglio.fbo);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    function componi(sotto, sopra, modo, opacita) {
+      const bersaglio = pila[1 - pilaCorrente];
+      gl.useProgram(composita.programma);
+      preparaQuad(composita);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sotto);
+      gl.uniform1i(uniforme(composita, "uSotto"), 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, sopra);
+      gl.uniform1i(uniforme(composita, "uSopra"), 1);
+      gl.uniform1f(uniforme(composita, "uOpacita"), clamp(opacita, 0, 1));
+      gl.uniform1f(uniforme(composita, "uModo"), modo);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, bersaglio.fbo);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      pilaCorrente = 1 - pilaCorrente;
+    }
+
+    function mostra(texture) {
+      gl.useProgram(copia.programma);
+      preparaQuad(copia);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.uniform1i(uniforme(copia, "uSorgente"), 0);
+      gl.uniform1f(uniforme(copia, "uFlippata"), 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    /* Un livello: media → (sfocatura) → shader → texture del livello. Il ping-pong
+       per livello serve alla scia: ogni livello ha la sua storia, non quella comune. */
+    function disegnaLivello(livello) {
+      const sorgente = aggiornaMedia(livello);
+      const voce = bersagli(livello);
+      const lettura = voce.giro === 0 ? voce.a : voce.b;
+      const scrittura = voce.giro === 0 ? voce.b : voce.a;
+      const id = livello.effetto;
+      const attivo = Object.prototype.hasOwnProperty.call(programmi, id) ? id : null;
+      const parametri = parametriDelLivello(livello);
+
+      if (!attivo) {
+        copiaIn(sorgente, scrittura, true);
+        voce.giro = 1 - voce.giro;
+        return scrittura.texture;
+      }
+
+      if (id === "contorno") {
+        const scala = dom.vista.width / Math.max(1, livello.larghezza);
+        const pesi = noccioloGaussiano((parametri.blur || 1.2) * scala);
+        passoGaussiano(programmi.sfocatura, sorgente, ausiliari[0], true, true, pesi);
+        passoGaussiano(programmi.sfocatura, ausiliari[0].texture, ausiliari[1],
+          false, false, pesi);
+      }
+
+      const programma = programmi[attivo];
+      gl.useProgram(programma.programma);
+      preparaQuad(programma);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sorgente);
+      gl.uniform1i(uniforme(programma, "uSorgente"), 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, lettura.texture);
+      gl.uniform1i(uniforme(programma, "uPrec"), 1);
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, ausiliari[1].texture);
+      gl.uniform1i(uniforme(programma, "uSfocata"), 2);
+
+      gl.uniform1f(uniforme(programma, "uForza"), clamp(livello.forzaVisiva, 0, 1));
+      gl.uniform1f(uniforme(programma, "uTempo"), livello.clock);
+      gl.uniform2f(uniforme(programma, "uRisoluzione"), larghezza, altezza);
+      gl.uniform1f(uniforme(programma, "uSobel"), livello.p99 || 1);
+      const effetto = effettoDelLivello(livello);
+      for (let i = 0; i < 6; i += 1) {
+        const p = effetto.params[i];
+        let valore = 0;
+        if (p) {
+          const v = parametri[p.id];
+          valore = p.tipo === "bool" ? (v ? 1 : 0) : (isFinite(v) ? v : 0);
+        }
+        gl.uniform1f(uniforme(programma, "uP" + i), valore);
+      }
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, scrittura.fbo);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      voce.giro = 1 - voce.giro;
+      return scrittura.texture;
+    }
+
+    let pilaCorrente = 0;
+
+    function disegna() {
+      ridimensiona(canvas.width, canvas.height);
+      const solo = stato.vista === "solo" ? stato.scelto : null;
+      const visibili = stato.livelli.filter(function (l) {
+        if (l.spento || l.opacita <= 0.002) return false;
+        return solo ? l.id === solo : true;
+      });
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.clearColor(0.02, 0.03, 0.04, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      if (!visibili.length) return;
+
+      const risultati = visibili.map(function (livello) {
+        return { livello: livello, texture: disegnaLivello(livello) };
+      });
+
+      if (solo) {
+        mostra(risultati[0].texture);
+        return;
+      }
+
+      pilaCorrente = 0;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, pila[0].fbo);
+      gl.viewport(0, 0, larghezza, altezza);
+      gl.clearColor(0, 0, 0, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      risultati.forEach(function (voce) {
+        const fusione = FUSIONI.filter(function (f) {
+          return f.id === voce.livello.fusione;
+        })[0];
+        const modo = fusione ? FUSIONI.indexOf(fusione) : 0;
+        componi(pila[pilaCorrente].texture, voce.texture, modo, voce.livello.opacita);
+      });
+      mostra(pila[pilaCorrente].texture);
+    }
+
+    return {
+      gl: gl,
+      disegna: disegna,
+      ridimensiona: ridimensiona,
+      dimentica: dimentica
+    };
+  }
+
+  let renderer = null;
+
+  /* ------------------------------------------------------------- trasporto --- */
+  let inizioTempo = 0;
+  let trascinandoRicerca = false;
+
+  function posizione() {
+    if (!stato.playing) return stato.t;
+    /* Il tempo non deve mai superare la fine: il ciclo lo riporta indietro o mette
+       in pausa al fotogramma dopo, ma intanto l'HUD mostrerebbe 00:13 su 00:12. */
+    return Math.min(durataTotale(), stato.t + (performance.now() / 1000 - inizioTempo));
+  }
+
+  function etichettaPlay() {
+    dom.play.textContent = stato.playing ? "❚❚ Pausa" : "▶ Riproduci";
+  }
+
+  function aggiornaTrasporto() {
+    const qualcosa = stato.livelli.length > 0 || stato.piste.length > 0;
+    dom.play.disabled = !qualcosa;
+    dom.prova.disabled = !stato.livelli.length;
+    dom.registra.disabled = !stato.livelli.length;
+    const totale = durataTotale();
+    dom.tempo.textContent = orologio(stato.t) + " / " + orologio(totale);
+    if (!trascinandoRicerca) {
+      dom.ricerca.value = String(Math.round(stato.t / Math.max(0.001, totale) * 1000));
+    }
+    dom.hudTempo.textContent = orologio(stato.t);
+  }
+
+  function fermaPiste() {
+    stato.piste.forEach(function (pista) {
+      if (!pista.sorgente) return;
+      pista.sorgente.onended = null;
+      try { pista.sorgente.stop(); } catch (errore) { /* già ferma */ }
+      pista.sorgente.disconnect();
+      pista.sorgente = null;
+    });
+  }
+
+  function avviaPiste(daSecondi) {
+    const c = assicuraGrafo();
+    fermaPiste();
+    if (!stato.piste.length) return;
+    stato.piste.forEach(function (pista) {
+      if (!pista.buffer) return;
+      const attesa = Math.max(0, pista.ritardo - daSecondi);
+      const offset = Math.max(0, daSecondi - pista.ritardo);
+      if (offset >= pista.buffer.duration - 0.01) return;   // in questo giro è già finita
+      const sorgente = c.createBufferSource();
+      sorgente.buffer = pista.buffer;
+      sorgente.connect(pista.nodo);
+      pista.sorgente = sorgente;
+      sorgente.start(c.currentTime + attesa, offset);
+    });
+  }
+
+  /* Durata vera di un video: certi file arrivano con duration Infinity o NaN
+     (WebM senza indice, MP4 scaricati a metà, contenitori senza Duration). In
+     quei casi non si sa dove ricominciare, e riavvolgere "a un secondo" era
+     proprio il difetto da togliere: meglio lasciar correre il media. */
+  function durataVideo(v) {
+    if (!v) return 0;
+    if (Number.isFinite(v.duration) && v.duration > 0.05) return v.duration;
+    const cercabile = v.seekable;
+    if (cercabile && cercabile.length) {
+      const fine = cercabile.end(cercabile.length - 1);
+      if (Number.isFinite(fine) && fine > 0.05) return fine;
+    }
+    return 0;
+  }
+
+  /* Un media che non dichiara la durata si fa leggere fino in fondo una volta
+     sola: il browser riempie duration e da lì il loop torna esatto. Il salto si
+     annulla subito, al primo timeupdate. */
+  function sbloccaDurata(v) {
+    if (!v || Number.isFinite(v.duration)) return;
+    const ripristina = function () {
+      v.removeEventListener("timeupdate", ripristina);
+      try { v.currentTime = 0; } catch (errore) { /* in caricamento */ }
+    };
+    v.addEventListener("timeupdate", ripristina);
+    try { v.currentTime = 1e101; } catch (errore) { /* in caricamento */ }
+  }
+
+  function portaVideo(v, tempo) {
+    const durata = durataVideo(v);
+    try {
+      v.currentTime = durata ? tempo % durata : tempo;
+      return true;
+    } catch (errore) {
+      return false;
+    }
+  }
+
+  function riproduci() {
+    if (stato.playing) {
+      mettiInPausa();
+      return;
+    }
+    if (!stato.livelli.length && !stato.piste.length) return;
+    assicuraGrafo();
+    stato.playing = true;
+    stato.durata = durataTotale();
+    if (stato.t >= stato.durata - 0.02) stato.t = 0;
+    inizioTempo = performance.now() / 1000;
+    avviaPiste(stato.t);
+    stato.livelli.forEach(function (livello) {
+      if (livello.tipo !== "video") return;
+      portaVideo(livello.el, stato.t);
+      livello.el.play().catch(function () {});
+      livello._voluto = undefined;
+    });
+    etichettaPlay();
+    aggiornaTrasporto();
+  }
+
+  function mettiInPausa() {
+    stato.t = posizione();
+    stato.playing = false;
+    fermaPiste();
+    stato.livelli.forEach(function (livello) {
+      if (livello.tipo === "video") livello.el.pause();
+    });
+    etichettaPlay();
+    aggiornaTrasporto();
+  }
+
+  function cerca(t) {
+    stato.t = clamp(t, 0, durataTotale());
+    if (stato.playing) {
+      inizioTempo = performance.now() / 1000;
+      avviaPiste(stato.t);
+    }
+    stato.livelli.forEach(function (livello) {
+      if (livello.tipo !== "video") return;
+      portaVideo(livello.el, stato.t);
+      livello._voluto = undefined;
+      livello._telaFatta = false;
+    });
+    stato.livelli.forEach(function (livello) {
+      if (livello.effetto === "contorno") livello.misuraDaFare = true;
+    });
+    aggiornaTrasporto();
+  }
+
+  /* La velocità del video è un effetto come gli altri, ma si applica al media:
+     sale con l'attacco del livello e torna con il suo "ritorno". Il resto del
+     tempo il video resta allineato alla linea del tempo... con calma. */
+  function aggiornaVideo(livello, dt) {
+    if (livello.tipo !== "video" || !livello.el) return;
+    const v = livello.el;
+    const velocita = livello.parametri.velocita;
+    const attivo = livello.effetto === "velocita";
+    const spinta = attivo ? velocita.spinta : 0;
+    const durata = durataVideo(v);
+    let target = clamp(1 + spinta * livello.forzaVisiva, 0.25, 4);
+
+    /* Sincronia di lato, col rate: se il media è un po' indietro lo si fa
+       correre un filo più forte, senza toccargli currentTime. Con un margine
+       largo: correggere ogni minima differenza tiene il rate sempre su e giù. */
+    if (durata && stato.playing && !v.seeking) {
+      const scarto = (stato.t % durata) - v.currentTime;
+      if (Math.abs(scarto) > 0.2 && Math.abs(scarto) < 2) {
+        target = clamp(target + clamp(scarto * 0.4, -0.2, 0.2), 0.25, 4);
+      }
+    }
+
+    const ritorno = Math.max(0.02, (velocita.ritorno || 220) / 1000);
+    const tau = target > v.playbackRate ? Math.max(0.01, livello.attacco) : ritorno;
+    const k = 1 - Math.exp(-Math.max(0.001, dt) / tau);
+    const nuova = clamp(v.playbackRate + (target - v.playbackRate) * k, 0.25, 4);
+    try {
+      if (Math.abs(nuova - v.playbackRate) > 0.001) v.playbackRate = nuova;
+    } catch (errore) { /* alcuni browser non ammettono certi valori */ }
+
+    if (stato.playing) {
+      if (v.paused) v.play().catch(function () {});
+    } else if (!v.paused) {
+      v.pause();
+    }
+
+    if (!durata) return;
+
+    const voluto = stato.t % durata;
+    const prima = typeof livello._voluto === "number" ? livello._voluto : voluto;
+    livello._voluto = voluto;
+
+    if (!stato.playing) {
+      /* Fermo: il fotogramma deve essere esattamente quello della linea del
+         tempo, altrimenti si monta guardando un'immagine che non è quella. */
+      if (!v.seeking && Math.abs(voluto - v.currentTime) > 0.2) {
+        if (portaVideo(v, stato.t)) livello._telaFatta = false;
+      }
+      return;
+    }
+
+    /* Mentre suona si salta solo quando la linea del tempo è tornata al
+       principio, o quando il media è finito mentre il progetto continua. Un
+       salto indietro per "recuperare" un video che decodifica piano riavvia la
+       decodifica a ogni fotogramma: si vede un pezzetto che riparte
+       all'infinito, ed era il difetto peggiore. */
+    if (voluto < prima - 0.05 || v.ended) {
+      if (portaVideo(v, stato.t)) livello._telaFatta = false;
+    }
+  }
+
+  /* --------------------------------------------------------------- interfaccia --- */
+  function miniatura(livello) {
+    const c = document.createElement("canvas");
+    c.className = "livello-riga__cover";
+    c.width = 108;
+    c.height = 64;
+    const g = c.getContext("2d");
+    g.fillStyle = "#070808";
+    g.fillRect(0, 0, c.width, c.height);
+    try {
+      const scala = Math.max(c.width / livello.larghezza, c.height / livello.altezza);
+      const dl = livello.larghezza * scala;
+      const da = livello.altezza * scala;
+      g.drawImage(livello.el, (c.width - dl) / 2, (c.height - da) / 2, dl, da);
+    } catch (errore) {
+      /* video non ancora decodificato */
+    }
+    return c;
+  }
+
+  function disegnaLivelli() {
+    dom.livelliElenco.innerHTML = "";
+    dom.livelliVuoto.hidden = stato.livelli.length > 0;
+    dom.livelliStato.textContent = stato.livelli.length
+      ? stato.livelli.length + (stato.livelli.length === 1 ? " livello" : " livelli")
+      : "0";
+
+    const elenco = stato.livelli.slice().reverse();
+    elenco.forEach(function (livello) {
+      const indice = stato.livelli.indexOf(livello);
+      const riga = document.createElement("div");
+      riga.className = "livello-riga";
+      riga.dataset.id = livello.id;
+      riga.tabIndex = 0;
+      riga.setAttribute("role", "button");
+      riga.classList.toggle("is-scelto", livello.id === stato.scelto);
+      riga.classList.toggle("is-spento", !!livello.spento);
+
+      const badge = document.createElement("span");
+      badge.className = "livello-riga__badge";
+      badge.textContent = String(stato.livelli.length - indice);
+      riga.appendChild(badge);
+      riga.appendChild(miniatura(livello));
+
+      const testo = document.createElement("div");
+      testo.className = "livello-riga__testo";
+      const nome = document.createElement("span");
+      nome.className = "livello-riga__nome";
+      nome.textContent = livello.nome;
+      const meta = document.createElement("span");
+      meta.className = "livello-riga__meta";
+      /* La durata del video sta lì apposta: se è più corta della linea del tempo
+         il livello si ripete, e conviene vederlo prima di chiedersi perché. */
+      const durataVideoLivello = livello.tipo === "video" ? durataVideo(livello.el) : 0;
+      meta.textContent = [
+        durataVideoLivello ? "video " + Math.round(durataVideoLivello) + "s" : livello.tipo,
+        effettoDelLivello(livello).nome,
+        Math.round(livello.opacita * 100) + "%",
+        livello.fusione
+      ].join(" · ");
+      testo.appendChild(nome);
+      testo.appendChild(meta);
+      riga.appendChild(testo);
+
+      const azioni = document.createElement("div");
+      azioni.className = "livello-riga__azioni";
+
+      const occhio = document.createElement("button");
+      occhio.type = "button";
+      occhio.className = "mini" + (livello.spento ? "" : " is-attivo");
+      occhio.title = livello.spento ? "Riaccendi il livello" : "Spegni il livello";
+      occhio.textContent = livello.spento ? "○" : "●";
+      occhio.addEventListener("click", function (evento) {
+        evento.stopPropagation();
+        livello.spento = !livello.spento;
+        disegnaLivelli();
+        aggiornaHud();
+      });
+
+      const su = document.createElement("button");
+      su.type = "button";
+      su.className = "mini";
+      su.title = "Porta sopra";
+      su.textContent = "↑";
+      su.disabled = indice === stato.livelli.length - 1;
+      su.addEventListener("click", function (evento) {
+        evento.stopPropagation();
+        spostaLivello(livello.id, 1);
+      });
+
+      const giu = document.createElement("button");
+      giu.type = "button";
+      giu.className = "mini";
+      giu.title = "Porta sotto";
+      giu.textContent = "↓";
+      giu.disabled = indice === 0;
+      giu.addEventListener("click", function (evento) {
+        evento.stopPropagation();
+        spostaLivello(livello.id, -1);
+      });
+
+      azioni.appendChild(occhio);
+      azioni.appendChild(su);
+      azioni.appendChild(giu);
+      riga.appendChild(azioni);
+
+      riga.addEventListener("click", function () {
+        stato.scelto = livello.id;
+        disegnaLivelli();
+        disegnaScheda();
+        aggiornaHud();
+      });
+      riga.addEventListener("keydown", function (evento) {
+        if (evento.key !== "Enter" && evento.key !== " ") return;
+        evento.preventDefault();
+        riga.click();
+      });
+
+      dom.livelliElenco.appendChild(riga);
+    });
+  }
+
+  function disegnaEffetti(livello) {
+    dom.effetti.innerHTML = "";
+    EFFETTI.forEach(function (effetto) {
+      const bottone = document.createElement("button");
+      bottone.type = "button";
+      bottone.className = "effetto" + (effetto.id === livello.effetto ? " is-attivo" : "");
+      bottone.setAttribute("aria-pressed", effetto.id === livello.effetto ? "true" : "false");
+      const nome = document.createElement("span");
+      nome.className = "effetto__nome";
+      nome.textContent = effetto.nome;
+      const sotto = document.createElement("span");
+      sotto.className = "effetto__sotto";
+      sotto.textContent = effetto.sotto;
+      bottone.appendChild(nome);
+      bottone.appendChild(sotto);
+      bottone.addEventListener("click", function () {
+        if (livello.effetto === effetto.id) return;
+        livello.effetto = effetto.id;
+        livello.misuraDaFare = true;
+        disegnaEffetti(livello);
+        dom.descEffetto.textContent = effetto.desc;
+        disegnaParametri(livello);
+        disegnaEsempi(livello);
+        aggiornaNotaNormalizzazione();
+        disegnaLivelli();
+        aggiornaHud();
+      });
+      dom.effetti.appendChild(bottone);
+    });
+  }
+
+  function disegnaParametri(livello) {
+    dom.parametri.innerHTML = "";
+    const effetto = effettoDelLivello(livello);
+    const valori = parametriDelLivello(livello);
+    if (!effetto.params.length) return;
+
+    effetto.params.forEach(function (p) {
+      const etichetta = document.createElement("label");
+      etichetta.className = "slider";
+      etichetta.append(p.nome);
+
+      if (p.tipo === "bool") {
+        const casella = document.createElement("input");
+        casella.type = "checkbox";
+        casella.checked = !!valori[p.id];
+        casella.addEventListener("input", function () {
+          valori[p.id] = casella.checked;
+          if (livello.effetto === "contorno") {
+            livello.misuraDaFare = true;
+            aggiornaNotaNormalizzazione();
+          }
+        });
+        etichetta.appendChild(casella);
+      } else {
+        const uscita = document.createElement("output");
+        const cursore = document.createElement("input");
+        cursore.type = "range";
+        cursore.min = String(p.min);
+        cursore.max = String(p.max);
+        cursore.step = String(p.step);
+        cursore.value = String(valori[p.id]);
+        uscita.textContent = p.fmt(valori[p.id]);
+        cursore.addEventListener("input", function () {
+          const v = parseFloat(cursore.value);
+          valori[p.id] = v;
+          uscita.textContent = p.fmt(v);
+          if (livello.effetto === "contorno") {
+            livello.misuraDaFare = true;
+            aggiornaNotaNormalizzazione();
+          }
+        });
+        etichetta.appendChild(uscita);
+        etichetta.appendChild(cursore);
+      }
+      dom.parametri.appendChild(etichetta);
+    });
+
+    if (effetto.id === "velocita" && livello.tipo !== "video") {
+      const nota = document.createElement("p");
+      nota.className = "nota";
+      nota.textContent = "Questo livello è un'immagine: la velocità ha effetto solo sui video. " +
+        "Mettila su un livello video e il colpo accelera la riproduzione.";
+      dom.parametri.appendChild(nota);
+    }
+  }
+
+  /* ---------------------------------------------------------------- esempi --- */
+  /* Un effetto può portarsi dietro un esempio: un loop nostro da aggiungere al
+     progetto e, quando esiste, il riferimento esterno col link, il canale e i
+     dati del video. Compaiono sotto i parametri, solo per quell'effetto. */
+  function disegnaEsempi(livello) {
+    const effetto = effettoDelLivello(livello);
+    const esempi = effetto.esempi || [];
+    dom.esempi.innerHTML = "";
+    dom.esempi.hidden = !esempi.length;
+    if (!esempi.length) return;
+
+    const testa = document.createElement("div");
+    testa.className = "esempi__testa";
+    const etichetta = document.createElement("span");
+    etichetta.textContent = "Esempi";
+    const conta = document.createElement("span");
+    conta.className = "esempi__conta";
+    conta.textContent = esempi.length === 1 ? "1 riferimento" : esempi.length + " riferimenti";
+    testa.append(etichetta, conta);
+    dom.esempi.appendChild(testa);
+
+    esempi.forEach(function (esempio) {
+      dom.esempi.appendChild(esempio.tipo === "loop"
+        ? cartaEsempioLocale(esempio)
+        : cartaEsempioVideo(esempio));
+    });
+  }
+
+  function cartaEsempioLocale(esempio) {
+    const carta = document.createElement("div");
+    carta.className = "esempio";
+
+    const titolo = document.createElement("strong");
+    titolo.className = "esempio__titolo";
+    titolo.textContent = esempio.nome;
+
+    const meta = document.createElement("p");
+    meta.className = "esempio__meta";
+    meta.textContent = esempio.meta;
+
+    const azioni = document.createElement("div");
+    azioni.className = "esempio__azioni";
+
+    const aggiungi = document.createElement("button");
+    aggiungi.type = "button";
+    aggiungi.className = "btn btn--piccolo";
+    aggiungi.textContent = "Aggiungi al progetto";
+    aggiungi.addEventListener("click", function () { aggiungiEsempioNeve(esempio); });
+
+    const scegli = document.createElement("button");
+    scegli.type = "button";
+    scegli.className = "btn btn--fantasma btn--piccolo";
+    scegli.textContent = "Usa un mio file";
+    scegli.addEventListener("click", function () { scegliFileNeve(esempio); });
+
+    azioni.append(aggiungi, scegli);
+
+    const nota = document.createElement("p");
+    nota.className = "esempio__licenza";
+    nota.textContent = esempio.nota;
+
+    carta.append(titolo, meta, azioni, nota);
+    return carta;
+  }
+
+  function cartaEsempioVideo(esempio) {
+    const carta = document.createElement("div");
+    carta.className = "esempio";
+
+    const schermo = document.createElement("button");
+    schermo.type = "button";
+    schermo.className = "esempio__media";
+    schermo.setAttribute("aria-label", "Guarda su YouTube: " + esempio.titolo);
+
+    if (esempio.miniatura) {
+      const miniatura = document.createElement("img");
+      miniatura.src = esempio.miniatura;
+      miniatura.alt = "";
+      miniatura.loading = "lazy";
+      miniatura.referrerPolicy = "no-referrer";
+      miniatura.addEventListener("error", function () { miniatura.remove(); });
+      schermo.appendChild(miniatura);
+    }
+
+    const badge = document.createElement("span");
+    badge.className = "esempio__badge";
+    badge.textContent = esempio.fonte || "web";
+
+    const gioca = document.createElement("span");
+    gioca.className = "esempio__gioca";
+    gioca.textContent = "▶";
+
+    schermo.append(badge, gioca);
+    schermo.addEventListener("click", function () { apriEsempioVideo(schermo, esempio); });
+
+    const titolo = document.createElement("strong");
+    titolo.className = "esempio__titolo";
+    titolo.textContent = esempio.titolo;
+
+    const canale = document.createElement("a");
+    canale.className = "esempio__canale";
+    canale.href = esempio.canaleUrl || esempio.url;
+    canale.target = "_blank";
+    canale.rel = "noopener noreferrer";
+    canale.textContent = esempio.canale;
+
+    const dati = document.createElement("dl");
+    dati.className = "esempio__dati";
+    (esempio.dati || []).forEach(function (riga) {
+      const termine = document.createElement("dt");
+      termine.textContent = riga[0];
+      const valore = document.createElement("dd");
+      valore.textContent = riga[1];
+      dati.append(termine, valore);
+    });
+
+    const azioni = document.createElement("div");
+    azioni.className = "esempio__azioni";
+    if (esempio.url) azioni.appendChild(linkEsempio("Apri su YouTube", esempio.url));
+    if (esempio.download) azioni.appendChild(linkEsempio("Download del canale", esempio.download));
+
+    const hoIlFile = document.createElement("button");
+    hoIlFile.type = "button";
+    hoIlFile.className = "btn btn--fantasma btn--piccolo";
+    hoIlFile.textContent = "Ho già il file";
+    hoIlFile.addEventListener("click", function () { scegliFileNeve(esempio); });
+    azioni.appendChild(hoIlFile);
+
+    const nota = document.createElement("p");
+    nota.className = "esempio__licenza";
+    nota.textContent = esempio.nota;
+
+    carta.append(schermo, titolo, canale, dati, azioni, nota);
+    return carta;
+  }
+
+  function linkEsempio(testo, indirizzo) {
+    const link = document.createElement("a");
+    link.className = "btn btn--fantasma btn--piccolo";
+    link.href = indirizzo;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = testo;
+    return link;
+  }
+
+  /* Il player parte solo se lo chiedi: così la pagina non chiama YouTube finché
+     non serve, e il riquadro resta la miniatura quando sei offline. */
+  function apriEsempioVideo(schermo, esempio) {
+    if (schermo.classList.contains("is-vivo") || !esempio.videoId) return;
+    const riquadro = document.createElement("iframe");
+    riquadro.src = "https://www.youtube-nocookie.com/embed/" + esempio.videoId +
+      "?autoplay=1&rel=0&modestbranding=1";
+    riquadro.title = esempio.titolo;
+    riquadro.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; " +
+      "gyroscope; picture-in-picture; web-share";
+    riquadro.allowFullscreen = true;
+    riquadro.referrerPolicy = "strict-origin-when-cross-origin";
+    schermo.replaceChildren(riquadro);
+    schermo.classList.add("is-vivo");
+    schermo.disabled = false;
+  }
+
+  function disegnaScheda() {
+    const livello = livelloScelto();
+    dom.nessunLivello.hidden = !!livello;
+    dom.scheda.hidden = !livello;
+    dom.sceltoNome.textContent = livello ? livello.nome : "";
+    if (!livello) {
+      dom.effetti.innerHTML = "";
+      dom.parametri.innerHTML = "";
+      dom.esempi.innerHTML = "";
+      dom.esempi.hidden = true;
+      dom.descEffetto.textContent = "";
+      aggiornaNotaNormalizzazione();
+      return;
+    }
+    disegnaEffetti(livello);
+    dom.descEffetto.textContent = effettoDelLivello(livello).desc;
+    disegnaParametri(livello);
+    disegnaEsempi(livello);
+
+    dom.rngForza.value = String(Math.round(livello.forza * 100));
+    dom.outForza.textContent = Math.round(livello.forza * 100) + "%";
+    dom.rngAttacco.value = String(Math.round(livello.attacco * 1000));
+    dom.outAttacco.textContent = millisecondi(livello.attacco);
+    dom.rngOpacita.value = String(Math.round(livello.opacita * 100));
+    dom.outOpacita.textContent = Math.round(livello.opacita * 100) + "%";
+    dom.selFusione.value = livello.fusione;
+    dom.selAdatta.value = String(livello.adatta);
+    aggiornaNotaNormalizzazione();
+  }
+
+  function aggiornaHud() {
+    const livello = livelloScelto();
+    const visibili = stato.livelli.filter(function (l) { return !l.spento; });
+    dom.hudEffetto.textContent = stato.vista === "solo"
+      ? "A · " + (livello ? effettoDelLivello(livello).nome : "nessun livello")
+      : "B · " + visibili.length + (visibili.length === 1 ? " livello" : " livelli");
+    dom.hudMedia.textContent = dom.vista.width + " × " + dom.vista.height +
+      " · " + stato.fps + " fps";
+    dom.hudForza.style.width = Math.round((stato.forzaOra || 0) * 100) + "%";
+  }
+
+  /* ------------------------------------------------------------------ tracce --- */
+  let timerRitardo = 0;
+
+  function disegnaPiste() {
+    dom.pisteElenco.innerHTML = "";
+    dom.pisteVuoto.hidden = stato.piste.length > 0;
+    dom.audioStato.textContent = stato.piste.length
+      ? stato.piste.length + (stato.piste.length === 1 ? " traccia" : " tracce")
+      : "0";
+
+    stato.piste.forEach(function (pista) {
+      const riga = document.createElement("div");
+      riga.className = "pista";
+      riga.classList.toggle("is-muta", !pistaUdibile(pista));
+      riga.classList.toggle("is-accesa", pistaUdibile(pista));
+
+      const muta = document.createElement("button");
+      muta.type = "button";
+      muta.className = "mini mini--testo" + (pista.muta ? " is-attivo" : "");
+      muta.textContent = "M";
+      muta.title = pista.muta ? "Riattiva la traccia" : "Muta la traccia";
+      muta.setAttribute("aria-pressed", pista.muta ? "true" : "false");
+      muta.addEventListener("click", function () {
+        pista.muta = !pista.muta;
+        aggiornaGuadagni();
+        disegnaPiste();
+        programmaRicalcolo();
+      });
+
+      const testo = document.createElement("div");
+      testo.className = "pista__testo";
+      const nome = document.createElement("span");
+      nome.className = "pista__nome";
+      nome.textContent = pista.nome;
+      const meta = document.createElement("span");
+      meta.className = "pista__meta";
+      meta.textContent = orologio(pista.buffer.duration) +
+        (pista.ritardo > 0.001
+          ? " · entra a " + pista.ritardo.toFixed(2).replace(".", ",") + " s"
+          : "");
+      testo.appendChild(nome);
+      testo.appendChild(meta);
+
+      const solo = document.createElement("button");
+      solo.type = "button";
+      solo.className = "mini mini--testo" + (pista.solo ? " is-attivo" : "");
+      solo.textContent = "S";
+      solo.title = "Solo: zittisce le altre tracce";
+      solo.setAttribute("aria-pressed", pista.solo ? "true" : "false");
+      solo.addEventListener("click", function () {
+        pista.solo = !pista.solo;
+        aggiornaGuadagni();
+        disegnaPiste();
+        programmaRicalcolo();
+      });
+
+      const via = document.createElement("button");
+      via.type = "button";
+      via.className = "mini";
+      via.title = "Togli la traccia";
+      via.textContent = "×";
+      via.addEventListener("click", function () { rimuoviTraccia(pista.id); });
+
+      riga.appendChild(muta);
+      riga.appendChild(testo);
+      riga.appendChild(solo);
+      riga.appendChild(via);
+
+      const corsie = document.createElement("div");
+      corsie.className = "pista__corsie";
+
+      const corsiaVolume = document.createElement("label");
+      corsiaVolume.className = "pista__corsia";
+      corsiaVolume.append("Vol");
+      const volume = document.createElement("input");
+      volume.type = "range";
+      volume.min = "0";
+      volume.max = "150";
+      volume.step = "1";
+      volume.value = String(Math.round(pista.guadagno * 100));
+      const uscitaVolume = document.createElement("output");
+      uscitaVolume.textContent = Math.round(pista.guadagno * 100) + "%";
+      volume.addEventListener("input", function () {
+        pista.guadagno = parseFloat(volume.value) / 100;
+        uscitaVolume.textContent = volume.value + "%";
+        aggiornaGuadagni();
+      });
+      corsiaVolume.appendChild(volume);
+      corsiaVolume.appendChild(uscitaVolume);
+
+      const corsiaRitardo = document.createElement("label");
+      corsiaRitardo.className = "pista__corsia";
+      corsiaRitardo.append("Entra");
+      const ritardo = document.createElement("input");
+      ritardo.type = "range";
+      ritardo.min = "0";
+      ritardo.max = "8";
+      ritardo.step = "0.05";
+      ritardo.value = String(pista.ritardo);
+      const uscitaRitardo = document.createElement("output");
+      uscitaRitardo.textContent = pista.ritardo.toFixed(2).replace(".", ",") + "s";
+      ritardo.addEventListener("input", function () {
+        pista.ritardo = parseFloat(ritardo.value);
+        uscitaRitardo.textContent = pista.ritardo.toFixed(2).replace(".", ",") + "s";
+        stato.durata = durataTotale();
+        aggiornaTrasporto();
+        clearTimeout(timerRitardo);
+        timerRitardo = setTimeout(function () {
+          programmaRicalcolo();
+          if (stato.playing) {
+            inizioTempo = performance.now() / 1000;
+            avviaPiste(stato.t);
+          }
+        }, 220);
+      });
+      corsiaRitardo.appendChild(ritardo);
+      corsiaRitardo.appendChild(uscitaRitardo);
+
+      corsie.appendChild(corsiaVolume);
+      corsie.appendChild(corsiaRitardo);
+      riga.appendChild(corsie);
+
+      dom.pisteElenco.appendChild(riga);
+    });
+  }
+
+  function aggiornaTrigger() {
+    const scelta = stato.trigger;
+    dom.selTrigger.innerHTML = "";
+    const mix = document.createElement("option");
+    mix.value = "mix";
+    mix.textContent = "Mix delle tracce";
+    dom.selTrigger.appendChild(mix);
+    stato.piste.forEach(function (pista) {
+      const opzione = document.createElement("option");
+      opzione.value = "pista:" + pista.id;
+      opzione.textContent = pista.nome + (pistaUdibile(pista) ? "" : " (muta)");
+      dom.selTrigger.appendChild(opzione);
+    });
+    const esiste = stato.piste.some(function (p) {
+      return "pista:" + p.id === scelta;
+    }) || scelta === "mix";
+    dom.selTrigger.value = esiste ? scelta : "mix";
+    stato.trigger = dom.selTrigger.value;
+
+    dom.selModo.value = stato.modo;
+    dom.selBanda.value = stato.banda;
+    dom.rngSens.value = String(stato.sens);
+    dom.outSens.textContent = stato.sens.toFixed(2).replace(".", ",") + "×";
+    dom.rngTieni.value = String(Math.round(stato.tieni * 1000));
+    dom.outTieni.textContent = Math.round(stato.tieni * 1000) + " ms";
+    dom.rngCoda.value = String(Math.round(stato.coda * 1000));
+    dom.outCoda.textContent = Math.round(stato.coda * 1000) + " ms";
+    dom.rngMaster.value = String(Math.round(stato.forza * 100));
+    dom.outMaster.textContent = Math.round(stato.forza * 100) + "%";
+
+    const banda = BANDE[stato.banda];
+    const nome = banda ? banda.nome : stato.banda;
+    dom.notaTrigger.textContent = stato.piste.length
+      ? "Ascolto " + nome + " (" + banda.lo + "–" + banda.hi + " Hz) sull'" +
+        (stato.trigger === "mix" ? "mix delle tracce" : "traccia scelta") +
+        ": ogni colpo porta i livelli alla loro forza, poi la coda li riporta a riposo."
+      : "Aggiungi una traccia audio: il trigger analizza il mix filtrato nella banda scelta.";
+    aggiornaOndaInfo();
+  }
+
+  /* ------------------------------------------------------------- fotogramma --- */
+  let ultimoFotogramma = 0;
+  let ultimaOnda = 0;
+  let ultimoHud = 0;
+
+  /* La forza di un livello al tempo t: l'ultimo colpo della sua banda, tenuto
+     acceso per "tieni" e poi sfumato per "coda". Il pulsante "Prova colpo" è un
+     evento manuale con la stessa forma, così si vede l'effetto anche senza audio. */
+  function forzaEventi(livello, t) {
+    const eventi = eventiBanda(bandaDelLivello(livello));
+    let lo = 0;
+    let hi = eventi.length - 1;
+    let trovato = -1;
+    while (lo <= hi) {
+      const m = (lo + hi) >> 1;
+      if (eventi[m].t <= t) { trovato = m; lo = m + 1; } else { hi = m - 1; }
+    }
+    if (trovato < 0) return 0;
+    const e = eventi[trovato];
+    const dentro = t - e.t;
+    const tenuta = Math.max(0.02, stato.tieni);
+    if (dentro < tenuta) return e.v;
+    const dopo = dentro - tenuta;
+    if (dopo >= stato.coda) return 0;
+    return e.v * (1 - dopo / Math.max(0.001, stato.coda));
+  }
+
+  function forzaManuale(adesso) {
+    if (stato.manuale < 0) return 0;
+    const dentro = adesso - stato.manuale;
+    const tenuta = Math.max(0.02, stato.tieni);
+    if (dentro < 0) return 0;
+    if (dentro < tenuta) return 1;
+    const dopo = dentro - tenuta;
+    if (dopo >= stato.coda) { stato.manuale = -1; return 0; }
+    return 1 - dopo / Math.max(0.001, stato.coda);
+  }
+
+  function serveTela(livello) {
+    if (livello.tela.width !== dom.vista.width || livello.tela.height !== dom.vista.height) {
+      livello._telaFatta = false;
+    }
+    const fermo = livello.tipo === "immagine" || (livello.el && livello.el.paused);
+    if (fermo && livello._telaFatta) return;
+    livello._telaFatta = true;
+    preparaTela(livello);
+  }
+
+  function ciclo() {
+    requestAnimationFrame(ciclo);
+    const adesso = performance.now() / 1000;
+    if (!ultimoFotogramma) ultimoFotogramma = adesso;
+    const dt = Math.min(0.1, Math.max(0.001, adesso - ultimoFotogramma));
+    ultimoFotogramma = adesso;
+
+    if (stato.playing) {
+      const durata = durataTotale();
+      stato.durata = durata;
+      const pos = posizione();
+      if (pos >= durata) {
+        if (stato.loop && !stato.registrando) {
+          stato.t = 0;
+          avviaPiste(0);
+          stato.livelli.forEach(function (livello) {
+            if (livello.tipo === "video") {
+              try { livello.el.currentTime = 0; } catch (errore) { /* in caricamento */ }
+              livello._telaFatta = false;
+            }
+          });
+        } else {
+          mettiInPausa();
+          stato.t = durata;
+          if (stato.registrando) fermaRegistrazione();
+        }
+      } else {
+        stato.t = pos;
+      }
+      /* Il caposaldo si sposta a ogni fotogramma: posizione() somma il tempo
+         passato da qui, che è già finito dentro stato.t. Senza questo, il tempo
+         si sommerebbe due volte e la linea correrebbe a velocità crescente,
+         riportando il progetto al principio ogni poche centinaia di ms. */
+      inizioTempo = adesso;
+    }
+
+    const t = stato.t;
+    const manuale = forzaManuale(adesso);
+    let massimo = 0;
+
+    stato.livelli.forEach(function (livello) {
+      serveTela(livello);
+      aggiornaVideo(livello, dt);
+
+      const automatica = forzaEventi(livello, t);
+      const grezza = Math.max(automatica, manuale) * livello.forza * stato.forza;
+      const target = clamp(grezza, 0, 1);
+      const tau = target > livello.forzaVisiva
+        ? Math.max(0.005, livello.attacco)
+        : 0.055;
+      const k = 1 - Math.exp(-dt / tau);
+      livello.forzaVisiva += (target - livello.forzaVisiva) * k;
+      if (livello.forzaVisiva < 0.001) livello.forzaVisiva = 0;
+
+      const neve = livello.parametri.neve;
+      const spintaNeve = livello.effetto === "neve" ? 1 + neve.velocita * livello.forzaVisiva : 1;
+      livello.clock += dt * spintaNeve;
+
+      if (livello.forzaVisiva > massimo) massimo = livello.forzaVisiva;
+    });
+
+    stato.forzaOra = massimo;
+
+    if (renderer) {
+      misuraSeServe(adesso);
+      renderer.disegna();
+    }
+
+    dom.schermo.classList.toggle("is-sopra", massimo > 0.55);
+    if (adesso - ultimaOnda > 0.05) {
+      ultimaOnda = adesso;
+      disegnaOnda(t);
+    }
+    if (adesso - ultimoHud > 0.12) {
+      ultimoHud = adesso;
+      aggiornaHud();
+      dom.hudTempo.textContent = orologio(t);
+      dom.tempo.textContent = orologio(t) + " / " + orologio(durataTotale());
+      if (!trascinandoRicerca) {
+        dom.ricerca.value = String(Math.round(t / Math.max(0.001, durataTotale()) * 1000));
+      }
+    }
+  }
+
+  /* ----------------------------------------------------------------- export --- */
+  let registratore = null;
+  let parti = [];
+  let destinazione = null;
+
+  function impostaRisoluzione(valore) {
+    stato.risoluzione = valore;
+    const cambiato = preparaCanvas();
+    if (cambiato && renderer) renderer.ridimensiona(dom.vista.width, dom.vista.height);
+    stato.livelli.forEach(function (livello) {
+      livello._telaFatta = false;
+      livello.misuraDaFare = true;
+    });
+  }
+
+  function fermaRegistrazione() {
+    if (!stato.registrando || !registratore) return;
+    stato.registrando = false;
+    dom.registra.classList.remove("is-attivo");
+    dom.registra.textContent = "● Registra";
+    try { registratore.stop(); } catch (errore) { /* già fermo */ }
+    if (destinazione && master) {
+      try { master.disconnect(destinazione); } catch (errore) { /* già staccata */ }
+    }
+    destinazione = null;
+    segnala("registrazione pronta", "ok");
+  }
+
+  function avviaRegistrazione() {
+    if (stato.registrando) {
+      fermaRegistrazione();
+      return;
+    }
+    if (!stato.livelli.length) {
+      avviso("Serve almeno un livello da registrare.", true);
+      return;
+    }
+    if (!window.MediaRecorder) {
+      avviso("Questo browser non ha MediaRecorder: l'export non è disponibile.", true);
+      return;
+    }
+    const c = assicuraGrafo();
+    destinazione = c.createMediaStreamDestination();
+    master.connect(destinazione);
+    const flusso = dom.vista.captureStream(stato.fps);
+    destinazione.stream.getAudioTracks().forEach(function (traccia) {
+      flusso.addTrack(traccia);
+    });
+
+    const preferiti = [
+      "video/webm;codecs=vp9,opus",
+      "video/webm;codecs=vp8,opus",
+      "video/webm",
+      "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+      "video/mp4"
+    ];
+    let tipo = "";
+    for (let i = 0; i < preferiti.length; i += 1) {
+      if (MediaRecorder.isTypeSupported(preferiti[i])) { tipo = preferiti[i]; break; }
+    }
+    try {
+      registratore = tipo
+        ? new MediaRecorder(flusso, {
+          mimeType: tipo,
+          videoBitsPerSecond: Math.round(stato.risoluzione * 1000 * 7)
+        })
+        : new MediaRecorder(flusso);
+    } catch (errore) {
+      console.error(errore);
+      avviso("Non riesco ad avviare la registrazione: " + errore.message, true);
+      return;
+    }
+    parti = [];
+    registratore.ondataavailable = function (evento) {
+      if (evento.data && evento.data.size) parti.push(evento.data);
+    };
+    registratore.onstop = function () {
+      const blob = new Blob(parti, { type: tipo || "video/webm" });
+      const estensione = /mp4/.test(tipo) ? "mp4" : "webm";
+      const data = new Date();
+      const nome = "nastro-" + data.getFullYear() +
+        String(data.getMonth() + 1).padStart(2, "0") +
+        String(data.getDate()).padStart(2, "0") + "-" +
+        String(data.getHours()).padStart(2, "0") +
+        String(data.getMinutes()).padStart(2, "0") +
+        String(data.getSeconds()).padStart(2, "0") + "." + estensione;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = nome;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 6000);
+      parti = [];
+      avviso("Registrazione salvata: " + nome + " (" +
+        (blob.size / 1048576).toFixed(1).replace(".", ",") + " MB).", false);
+    };
+
+    stato.registrando = true;
+    dom.registra.classList.add("is-attivo");
+    dom.registra.textContent = "■ Ferma";
+    segnala("registro a " + stato.risoluzione + "p…", "busy");
+    try {
+      registratore.start(250);
+    } catch (errore) {
+      console.error(errore);
+      stato.registrando = false;
+      dom.registra.classList.remove("is-attivo");
+      dom.registra.textContent = "● Registra";
+      avviso("Il registratore non parte: " + errore.message, true);
+      return;
+    }
+    if (!stato.playing) {
+      cerca(0);
+      riproduci();
+    } else if (stato.t > 0.05) {
+      cerca(0);
+    }
+    setTimeout(function () {
+      if (stato.registrando && registratore && registratore.state === "recording") {
+        registratore.requestData();
+      }
+    }, 1200);
+  }
+
+  /* ------------------------------------------------------------------- demo --- */
+  /* Il pacchetto demo non scarica niente: sintetizza una strumentale a 120 BPM,
+     disegna tre immagini e le impila. Serve a vedere subito il contorno, la neve
+     e la fusione senza preparare file. */
+  function bufferDemo() {
+    const c = assicuraGrafo();
+    const sr = c.sampleRate;
+    const battito = 0.5;
+    const durata = 16;
+    const buffer = c.createBuffer(2, Math.ceil(sr * durata), sr);
+    const L = buffer.getChannelData(0);
+    const R = buffer.getChannelData(1);
+    const passi = Math.floor(durata / battito);
+
+    for (let n = 0; n < passi; n += 1) {
+      const inizio = n * battito;
+
+      /* Cassa: sinusoide con discesa di frequenza e inviluppo esponenziale. */
+      const i0 = Math.floor(inizio * sr);
+      const lungaKick = Math.floor(sr * 0.42);
+      for (let i = 0; i < lungaKick && i0 + i < L.length; i += 1) {
+        const tt = i / sr;
+        const frequenza = 48 + 120 * Math.exp(-tt / 0.045);
+        const ampiezza = Math.exp(-tt / 0.13) * 0.85;
+        const v = Math.sin(2 * Math.PI * frequenza * tt) * ampiezza;
+        L[i0 + i] += v;
+        R[i0 + i] += v;
+      }
+
+      /* Hi-hat sul contrattempo: rumore cortissimo. */
+      const ih = Math.floor((inizio + battito * 0.5) * sr);
+      const lungaHat = Math.floor(sr * 0.05);
+      for (let i = 0; i < lungaHat && ih + i < L.length; i += 1) {
+        const v = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.012)) * 0.15;
+        L[ih + i] += v * 0.9;
+        R[ih + i] += v;
+      }
+
+      /* 808: nota lunga ogni due battiti, per sentire il modo "sostenuto". */
+      if (n % 2 === 0) {
+        const ib = Math.floor((inizio + battito * 0.5) * sr);
+        const lungaBasso = Math.floor(sr * 0.9);
+        for (let i = 0; i < lungaBasso && ib + i < L.length; i += 1) {
+          const tt = i / sr;
+          const v = Math.sin(2 * Math.PI * 55 * tt) *
+            Math.min(1, tt / 0.02) * Math.exp(-tt / 0.5) * 0.2;
+          L[ib + i] += v;
+          R[ib + i] += v;
+        }
+      }
+    }
+    return buffer;
+  }
+
+  function pistaDaBuffer(nome, buffer) {
+    const c = assicuraGrafo();
+    const pista = {
+      id: nuovoId("pista"),
+      nome: nome,
+      buffer: buffer,
+      guadagno: 1,
+      muta: false,
+      solo: false,
+      ritardo: 0,
+      sorgente: null,
+      nodo: null
+    };
+    pista.nodo = c.createGain();
+    pista.nodo.gain.value = 1;
+    pista.nodo.connect(master);
+    stato.piste.push(pista);
+    return pista;
+  }
+
+  function telaDemo(larghezza, altezza) {
+    const c = document.createElement("canvas");
+    c.width = larghezza;
+    c.height = altezza;
+    return c;
+  }
+
+  function disegnaTrama(g, l, a) {
+    g.fillStyle = "#0b0a09";
+    g.fillRect(0, 0, l, a);
+    const centro = { x: l * 0.52, y: a * 0.5 };
+    const sfondo = g.createRadialGradient(centro.x, centro.y, 20, centro.x, centro.y, a * 0.75);
+    sfondo.addColorStop(0, "#3a1b14");
+    sfondo.addColorStop(0.45, "#1a1210");
+    sfondo.addColorStop(1, "#080808");
+    g.fillStyle = sfondo;
+    g.fillRect(0, 0, l, a);
+
+    g.strokeStyle = "rgba(242,236,228,.10)";
+    g.lineWidth = 1;
+    for (let i = 0; i < 26; i += 1) {
+      const raggio = 26 + i * 22;
+      g.beginPath();
+      g.arc(centro.x, centro.y, raggio, 0, Math.PI * 2);
+      g.stroke();
+    }
+    g.strokeStyle = "rgba(224,85,60,.30)";
+    g.lineWidth = 2;
+    for (let i = 0; i < 6; i += 1) {
+      g.beginPath();
+      g.arc(centro.x, centro.y, 40 + i * 88, -0.4, Math.PI * 1.35);
+      g.stroke();
+    }
+    g.fillStyle = "rgba(242,236,228,.9)";
+    g.beginPath();
+    g.arc(centro.x, centro.y, 7, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  function disegnaAura(g, l, a) {
+    g.fillStyle = "#000";
+    g.fillRect(0, 0, l, a);
+    const centro = { x: l * 0.5, y: a * 0.52 };
+    const aura = g.createRadialGradient(centro.x, centro.y, 10, centro.x, centro.y, a * 0.62);
+    aura.addColorStop(0, "rgba(255,122,92,.95)");
+    aura.addColorStop(0.35, "rgba(224,85,60,.42)");
+    aura.addColorStop(0.7, "rgba(90,30,20,.16)");
+    aura.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = aura;
+    g.fillRect(0, 0, l, a);
+  }
+
+  function disegnaTitolo(g, l, a) {
+    g.fillStyle = "#000";
+    g.fillRect(0, 0, l, a);
+    g.textAlign = "center";
+    g.fillStyle = "#f2ece4";
+    g.font = "500 " + Math.round(a * 0.2) + "px \"Cormorant Garamond\", Georgia, serif";
+    g.fillText("Nastro", l / 2, a * 0.52);
+    g.fillStyle = "rgba(224,85,60,.95)";
+    g.font = "400 " + Math.round(a * 0.032) + "px Inter, Helvetica, sans-serif";
+    g.letterSpacing = "0.3em";
+    g.fillText("STUDIO A LIVELLI", l / 2, a * 0.62);
+    g.letterSpacing = "0em";
+    g.strokeStyle = "rgba(242,236,228,.22)";
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(l * 0.32, a * 0.56);
+    g.lineTo(l * 0.68, a * 0.56);
+    g.stroke();
+  }
+
+  function fileDaTela(nome, disegna) {
+    const c = telaDemo(1280, 720);
+    disegna(c.getContext("2d"), c.width, c.height);
+    return new Promise(function (ok) {
+      c.toBlob(function (blob) {
+        ok(new File([blob], nome, { type: "image/png" }));
+      }, "image/png");
+    });
+  }
+
+  let caricandoDemo = false;
+
+  async function scaricaFile(nome, tipo) {
+    const risposta = await fetch("demo/" + nome, { cache: "no-store" });
+    if (!risposta.ok) throw new Error("demo/" + nome + " non si scarica");
+    const blob = await risposta.blob();
+    return new File([blob], nome, { type: tipo || blob.type });
+  }
+
+  /* Se la cartella demo/ è servita da un server, uso i file veri. Da file:// la
+     fetch non passa, quindi la demo si sintetizza sul momento. */
+  async function demoDaFile() {
+    const cover = await scaricaFile("cover.jpg", "image/jpeg");
+    const mix = await scaricaFile("mix.wav", "audio/wav");
+    const kick = await scaricaFile("kick.wav", "audio/wav");
+    const basso = await scaricaFile("bass808.wav", "audio/wav");
+    const hat = await scaricaFile("hat.wav", "audio/wav");
+
+    const pMix = await aggiungiTraccia(mix);
+    if (pMix) {
+      pMix.guadagno = 0.85;
+      pMix.nodo.gain.value = 0.85;
+    }
+    const pKick = await aggiungiTraccia(kick);
+    if (pKick) {
+      pKick.muta = true;
+      pKick.nome = "Cassa (muta, per il trigger)";
+    }
+    const pBasso = await aggiungiTraccia(basso);
+    if (pBasso) {
+      pBasso.muta = true;
+      pBasso.nome = "808 (muta, per il trigger)";
+    }
+    const pHat = await aggiungiTraccia(hat);
+    if (pHat) {
+      pHat.muta = true;
+      pHat.nome = "Hi-hat (muta, per il trigger)";
+    }
+    aggiornaGuadagni();
+    disegnaPiste();
+
+    const base = await aggiungiLivello(cover);
+    if (base) base.nome = "Cover";
+    return base;
+  }
+
+  async function demoProcedurale() {
+    const pista = pistaDaBuffer("Strumentale 120 BPM", bufferDemo());
+    pista.guadagno = 0.85;
+    pista.nodo.gain.value = 0.85;
+    stato.durata = durataTotale();
+    const base = await aggiungiLivello(await fileDaTela("Trama.png", disegnaTrama));
+    return base;
+  }
+
+  async function rifinisciDemo(base) {
+    const aura = await aggiungiLivello(await fileDaTela("Aura.png", disegnaAura));
+    if (aura) {
+      aura.effetto = "neve";
+      aura.parametri.neve.densita = 0.34;
+      aura.parametri.neve.velocita = 3.4;
+      aura.fusione = "somma";
+      aura.opacita = 0.55;
+      aura.forza = 0.9;
+      aura.attacco = 0.02;
+    }
+
+    const titolo = await aggiungiLivello(await fileDaTela("Titolo.png", disegnaTitolo));
+    if (titolo) {
+      titolo.effetto = "nessuno";
+      titolo.fusione = "schermo";
+      titolo.opacita = 0.92;
+      titolo.adatta = 1;
+      titolo.forza = 0.55;
+      titolo._telaFatta = false;
+    }
+
+    if (base) {
+      base.effetto = "contorno";
+      base.fusione = "normale";
+      base.forza = 1;
+      base.attacco = 0.012;
+    }
+
+    stato.scelto = base ? base.id : (stato.livelli[0] ? stato.livelli[0].id : null);
+    stato.banda = "kick";
+    stato.modo = "impulso";
+    stato.trigger = "mix";
+    stato.t = 0;
+    stato.durata = durataTotale();
+
+    disegnaLivelli();
+    disegnaScheda();
+    disegnaPiste();
+    aggiornaTrigger();
+    aggiornaTrasporto();
+    aggiornaSchermoVuoto();
+    aggiornaHud();
+    programmaRicalcolo();
+    cerca(0);
+  }
+
+  /* ---------------------------------------------------------------- esempi --- */
+  /* Un esempio può essere un loop del pacchetto (demo/) o un file che porti tu:
+     in entrambi i casi nasce un livello sopra lo stack, già in fusione Schermo,
+     così la neve si somma alla scena invece di coprirla. */
+  async function aggiungiEsempioNeve(esempio) {
+    segnala("carico " + esempio.file + "…", "busy");
+    try {
+      const file = await scaricaFile(esempio.file, "video/mp4");
+      const livello = await aggiungiLivello(file);
+      if (!livello) return;
+      livello.nome = esempio.nome || "Neve · esempio";
+      applicaEsempioNeve(livello, esempio);
+      avviso("Neve di esempio aggiunta sopra lo stack: è in fusione Schermo, quindi " +
+        "la cover resta leggibile e le tracce non cambiano.", false);
+    } catch (errore) {
+      console.warn("Loop di esempio non raggiungibile:", errore.message);
+      avviso("Con doppio clic (file://) il browser non lascia leggere demo/. Avvia " +
+        "strumenti/serve.py, oppure scegli il video a mano.", true);
+      scegliFileNeve(esempio);
+    } finally {
+      segnala(stato.piste.length ? "pronto" : "in attesa dei file",
+        stato.piste.length ? "ok" : "");
+    }
+  }
+
+  function scegliFileNeve(esempio) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "video/*";
+    input.hidden = true;
+    document.body.appendChild(input);
+    input.addEventListener("change", async function () {
+      const file = input.files && input.files[0];
+      input.remove();
+      if (!file) return;
+      const livello = await aggiungiLivello(file);
+      if (!livello) return;
+      livello.nome = esempio && esempio.nome ? esempio.nome : file.name.replace(/\.[^.]+$/, "");
+      applicaEsempioNeve(livello, esempio);
+    });
+    input.click();
+  }
+
+  function applicaEsempioNeve(livello, esempio) {
+    const dati = esempio || {};
+    livello.effetto = dati.effetto || "nessuno";
+    livello.misuraDaFare = true;
+    const valori = livello.parametri[livello.effetto];
+    if (valori && dati.preset) {
+      Object.keys(dati.preset).forEach(function (chiave) {
+        if (chiave in valori) valori[chiave] = dati.preset[chiave];
+      });
+    }
+    livello.fusione = dati.fusione || "schermo";
+    livello.opacita = typeof dati.opacita === "number" ? dati.opacita : 0.85;
+    livello.forza = typeof dati.forza === "number" ? dati.forza : 0.8;
+    livello.attacco = 0.02;
+    livello.spento = false;
+    disegnaLivelli();
+    disegnaScheda();
+    disegnaPiste();
+    aggiornaTrasporto();
+    aggiornaSchermoVuoto();
+    aggiornaHud();
+    programmaRicalcolo();
+  }
+
+  async function caricaDemo() {
+    if (caricandoDemo) return;
+    caricandoDemo = true;
+    dom.demo.disabled = true;
+    segnala("preparo il pacchetto demo…", "busy");
+    try {
+      if (stato.livelli.length || stato.piste.length) azzera(true);
+      assicuraGrafo();
+
+      let base = null;
+      let origine = "file";
+      try {
+        base = await demoDaFile();
+      } catch (errore) {
+        console.warn("Demo dal pacchetto non disponibile:", errore.message);
+        base = await demoProcedurale();
+        origine = "sintetica";
+      }
+      await rifinisciDemo(base);
+
+      avviso(origine === "file"
+        ? "Demo pronta: cover col contorno, due tracce mute per provare il trigger, " +
+          "un'aura con la neve e il titolo in fusione schermo. Premi Riproduci."
+        : "I file in demo/ non sono raggiungibili da qui, quindi ho sintetizzato tutto " +
+          "al momento. Premi Riproduci.", false);
+    } catch (errore) {
+      console.error(errore);
+      avviso("La demo non è partita: " + errore.message, true);
+    } finally {
+      caricandoDemo = false;
+      dom.demo.disabled = false;
+      segnala(stato.piste.length ? "pronto" : "in attesa dei file", stato.piste.length ? "ok" : "");
+    }
+  }
+
+  function azzera(silenzioso) {
+    if (stato.registrando) fermaRegistrazione();
+    if (stato.playing) mettiInPausa();
+    stato.manuale = -1;
+
+    stato.livelli.forEach(function (livello) {
+      if (livello.el && livello.el.pause) livello.el.pause();
+      if (livello.el && livello.el.removeAttribute) livello.el.removeAttribute("src");
+      if (livello.url) URL.revokeObjectURL(livello.url);
+      if (renderer) renderer.dimentica(livello.id);
+    });
+    stato.livelli = [];
+
+    fermaPiste();
+    stato.piste.forEach(function (pista) {
+      if (pista.nodo) pista.nodo.disconnect();
+    });
+    stato.piste = [];
+
+    stato.scelto = null;
+    stato.t = 0;
+    stato.durata = 0;
+    stato.vista = "tutti";
+    stato.eventiPerBanda = {};
+    stato.forma = null;
+    stato.versioneAnalisi += 1;
+    stato.forzaOra = 0;
+    cacheAnalisi.clear();
+
+    $$("[data-vista]").forEach(function (chip) {
+      const attivo = chip.dataset.vista === "tutti";
+      chip.classList.toggle("is-attivo", attivo);
+      chip.setAttribute("aria-pressed", attivo ? "true" : "false");
+    });
+
+    disegnaLivelli();
+    disegnaScheda();
+    disegnaPiste();
+    aggiornaTrigger();
+    aggiornaTrasporto();
+    aggiornaSchermoVuoto();
+    aggiornaHud();
+    disegnaOnda(0);
+    etichettaPlay();
+    dom.schermo.classList.remove("is-sopra");
+    if (!silenzioso) {
+      segnala("in attesa dei file");
+      avviso("Studio azzerato.", false);
+    }
+  }
+
+  /* ---------------------------------------------------------------- comandi --- */
+  function collegaComandi() {
+    dom.fileLivelli.addEventListener("change", async function () {
+      const files = Array.from(dom.fileLivelli.files || []);
+      dom.fileLivelli.value = "";
+      for (let i = 0; i < files.length; i += 1) {
+        await aggiungiLivello(files[i]);
+      }
+    });
+
+    dom.fileAudio.addEventListener("change", async function () {
+      const files = Array.from(dom.fileAudio.files || []);
+      dom.fileAudio.value = "";
+      for (let i = 0; i < files.length; i += 1) {
+        await aggiungiTraccia(files[i]);
+      }
+    });
+
+    dom.demo.addEventListener("click", caricaDemo);
+    dom.play.addEventListener("click", riproduci);
+    dom.prova.addEventListener("click", function () {
+      stato.manuale = performance.now() / 1000;
+      segnala("colpo di prova", "busy");
+    });
+    dom.registra.addEventListener("click", avviaRegistrazione);
+
+    dom.loop.addEventListener("change", function () {
+      stato.loop = dom.loop.checked;
+    });
+
+    dom.ricerca.addEventListener("pointerdown", function () { trascinandoRicerca = true; });
+    dom.ricerca.addEventListener("input", function () {
+      trascinandoRicerca = true;
+      cerca(parseFloat(dom.ricerca.value) / 1000 * durataTotale());
+    });
+    dom.ricerca.addEventListener("change", function () {
+      trascinandoRicerca = false;
+      cerca(parseFloat(dom.ricerca.value) / 1000 * durataTotale());
+    });
+    dom.ricerca.addEventListener("pointerup", function () { trascinandoRicerca = false; });
+
+    $$("[data-vista]").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        stato.vista = chip.dataset.vista;
+        $$("[data-vista]").forEach(function (altro) {
+          const attivo = altro === chip;
+          altro.classList.toggle("is-attivo", attivo);
+          altro.setAttribute("aria-pressed", attivo ? "true" : "false");
+        });
+        aggiornaHud();
+      });
+    });
+
+    dom.rngForza.addEventListener("input", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.forza = parseFloat(dom.rngForza.value) / 100;
+      dom.outForza.textContent = Math.round(livello.forza * 100) + "%";
+      disegnaLivelli();
+    });
+    dom.rngAttacco.addEventListener("input", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.attacco = parseFloat(dom.rngAttacco.value) / 1000;
+      dom.outAttacco.textContent = millisecondi(livello.attacco);
+    });
+    dom.rngOpacita.addEventListener("input", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.opacita = parseFloat(dom.rngOpacita.value) / 100;
+      dom.outOpacita.textContent = Math.round(livello.opacita * 100) + "%";
+      disegnaLivelli();
+    });
+    dom.selFusione.addEventListener("change", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.fusione = dom.selFusione.value;
+      disegnaLivelli();
+    });
+    dom.selAdatta.addEventListener("change", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.adatta = parseInt(dom.selAdatta.value, 10) ? 1 : 0;
+      livello._telaFatta = false;
+      livello.misuraDaFare = true;
+    });
+
+    dom.btnSu.addEventListener("click", function () {
+      if (stato.scelto) spostaLivello(stato.scelto, 1);
+    });
+    dom.btnGiu.addEventListener("click", function () {
+      if (stato.scelto) spostaLivello(stato.scelto, -1);
+    });
+    dom.btnVia.addEventListener("click", function () {
+      if (stato.scelto) rimuoviLivello(stato.scelto);
+    });
+
+    dom.selTrigger.addEventListener("change", function () {
+      stato.trigger = dom.selTrigger.value;
+      aggiornaTrigger();
+      programmaRicalcolo();
+    });
+    dom.selModo.addEventListener("change", function () {
+      stato.modo = dom.selModo.value;
+      aggiornaTrigger();
+      programmaRicalcolo();
+    });
+    dom.selBanda.addEventListener("change", function () {
+      stato.banda = dom.selBanda.value;
+      aggiornaForma();
+      aggiornaOndaInfo();
+      disegnaOnda(stato.t);
+    });
+    dom.rngSens.addEventListener("input", function () {
+      stato.sens = parseFloat(dom.rngSens.value);
+      dom.outSens.textContent = stato.sens.toFixed(2).replace(".", ",") + "×";
+      programmaRicalcolo();
+    });
+    dom.rngTieni.addEventListener("input", function () {
+      stato.tieni = parseFloat(dom.rngTieni.value) / 1000;
+      dom.outTieni.textContent = Math.round(stato.tieni * 1000) + " ms";
+    });
+    dom.rngCoda.addEventListener("input", function () {
+      stato.coda = parseFloat(dom.rngCoda.value) / 1000;
+      dom.outCoda.textContent = Math.round(stato.coda * 1000) + " ms";
+    });
+    dom.rngMaster.addEventListener("input", function () {
+      stato.forza = parseFloat(dom.rngMaster.value) / 100;
+      dom.outMaster.textContent = Math.round(stato.forza * 100) + "%";
+    });
+
+    dom.selRisoluzione.addEventListener("change", function () {
+      impostaRisoluzione(parseInt(dom.selRisoluzione.value, 10));
+      aggiornaHud();
+    });
+    dom.selFps.addEventListener("change", function () {
+      stato.fps = parseInt(dom.selFps.value, 10);
+      aggiornaHud();
+    });
+    dom.btnAzzera.addEventListener("click", function () { azzera(false); });
+  }
+
+  /* ------------------------------------------------------------ trascinare --- */
+  function classificaFile(file) {
+    if (/^image\//.test(file.type) || /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(file.name)) {
+      return "immagine";
+    }
+    if (/^video\//.test(file.type) || /\.(mp4|mov|webm|m4v|mkv|avi|ogv)$/i.test(file.name)) {
+      return "video";
+    }
+    if (/^audio\//.test(file.type) || /\.(wav|mp3|ogg|m4a|aac|flac|aiff?)$/i.test(file.name)) {
+      return "audio";
+    }
+    return "altro";
+  }
+
+  async function importaFile(files) {
+    const elenco = Array.from(files || []);
+    for (let i = 0; i < elenco.length; i += 1) {
+      const file = elenco[i];
+      const tipo = classificaFile(file);
+      if (tipo === "audio") {
+        await aggiungiTraccia(file);
+      } else if (tipo === "altro") {
+        avviso("\"" + file.name + "\" non è un video, un'immagine o un audio.", true);
+      } else {
+        await aggiungiLivello(file);
+      }
+    }
+  }
+
+  function cambiaVista(vista) {
+    stato.vista = vista;
+    $$("[data-vista]").forEach(function (chip) {
+      const attivo = chip.dataset.vista === vista;
+      chip.classList.toggle("is-attivo", attivo);
+      chip.setAttribute("aria-pressed", attivo ? "true" : "false");
+    });
+    aggiornaHud();
+  }
+
+  function collegaFinestra() {
+    document.addEventListener("dragover", function (evento) {
+      evento.preventDefault();
+      dom.schermo.classList.add("is-sopra");
+    });
+    document.addEventListener("dragleave", function (evento) {
+      if (evento.relatedTarget) return;
+      dom.schermo.classList.remove("is-sopra");
+    });
+    document.addEventListener("drop", function (evento) {
+      evento.preventDefault();
+      dom.schermo.classList.remove("is-sopra");
+      if (evento.dataTransfer && evento.dataTransfer.files.length) {
+        importaFile(evento.dataTransfer.files);
+      }
+    });
+
+    document.addEventListener("keydown", function (evento) {
+      const t = evento.target;
+      if (t && (t.tagName === "INPUT" || t.tagName === "SELECT" ||
+          t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (evento.code === "Space") {
+        evento.preventDefault();
+        if (!dom.play.disabled) riproduci();
+      } else if (evento.key === "a" || evento.key === "A") {
+        cambiaVista("solo");
+      } else if (evento.key === "b" || evento.key === "B") {
+        cambiaVista("tutti");
+      } else if (evento.key === "p" || evento.key === "P") {
+        if (!dom.prova.disabled) {
+          stato.manuale = performance.now() / 1000;
+          segnala("colpo di prova", "busy");
+        }
+      }
+    });
+
+    let timerForma = 0;
+    window.addEventListener("resize", function () {
+      clearTimeout(timerForma);
+      timerForma = setTimeout(function () {
+        preparaCanvas();
+        if (renderer) renderer.ridimensiona(dom.vista.width, dom.vista.height);
+        stato.livelli.forEach(function (livello) {
+          livello._telaFatta = false;
+          livello.misuraDaFare = true;
+        });
+        aggiornaHud();
+        disegnaOnda(stato.t);
+      }, 180);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden && stato.playing) mettiInPausa();
+    });
+  }
+
+  /* ------------------------------------------------------------------- avvio --- */
+  function collegaNavigazione() {
+    const link = $$(".nav a");
+    if (!link.length || !("IntersectionObserver" in window)) return;
+    const sezioni = link.map(function (a) {
+      return document.querySelector(a.getAttribute("href"));
+    }).filter(Boolean);
+    if (!sezioni.length) return;
+    const osservatore = new IntersectionObserver(function (voci) {
+      voci.forEach(function (voce) {
+        if (!voce.isIntersecting) return;
+        link.forEach(function (a) {
+          a.classList.toggle("is-attivo",
+            a.getAttribute("href") === "#" + voce.target.id);
+        });
+      });
+    }, { rootMargin: "-25% 0px -65% 0px" });
+    sezioni.forEach(function (sezione) { osservatore.observe(sezione); });
+  }
+
+  function avvia() {
+    window.addEventListener("error", function (evento) {
+      avviso("Errore: " + (evento.message || "sconosciuto"), true);
+    });
+    window.addEventListener("unhandledrejection", function (evento) {
+      console.error(evento.reason);
+      avviso("Operazione non riuscita: " +
+        (evento.reason && evento.reason.message ? evento.reason.message : "errore"), true);
+    });
+
+    preparaCanvas();
+    try {
+      renderer = creaRenderer(dom.vista);
+    } catch (errore) {
+      console.error(errore);
+      avviso("Il WebGL non parte: " + errore.message, true);
+      segnala("WebGL non disponibile");
+      renderer = null;
+    }
+
+    collegaComandi();
+    collegaFinestra();
+    collegaNavigazione();
+
+    disegnaLivelli();
+    disegnaScheda();
+    disegnaPiste();
+    aggiornaTrigger();
+    aggiornaTrasporto();
+    aggiornaSchermoVuoto();
+    aggiornaHud();
+    aggiornaOndaInfo();
+    disegnaOnda(0);
+    etichettaPlay();
+    requestAnimationFrame(ciclo);
+  }
+
+  avvia();
+})();
+</script>
+</body>
+</html>
