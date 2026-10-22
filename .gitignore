@@ -1,3 +1,7 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# Pacchetti fatti con strumenti/pacchetto_da_video.py: possono contenere brani
+# altrui, quindi restano in locale e non finiscono nel sito pubblicato.
+demo-video/

@@ -8,10 +8,13 @@
 Scrive nella cartella indicata, con i nomi che l'app si aspetta:
 
     cover.jpg     un fotogramma del video (l'immagine di partenza)
+    filmato.mp4   il video stesso, 720p H.264 senza audio: se c'è, l'app lo usa
+                  come base al posto della copertina
     mix.wav       il brano completo, come sta nel video
     kick.wav      la cassa isolata
     bass808.wav   il basso/808 isolato
     hat.wav       gli hi-hat isolati
+    pacchetto.json  il manifesto: durata, BPM, colpi e se c'è il video
 
 Come lavora:
 
@@ -20,7 +23,8 @@ Come lavora:
      resto: se demucs non c'è, ripiega sulle bande del mix;
   3. filtra le bande giuste e riscrive tutto a 32 kHz, come il pacchetto che
      sta in demo/;
-  4. prende un fotogramma a metà brano per la copertina.
+  4. prende un fotogramma a metà brano per la copertina;
+  5. copia il filmato a 720p senza audio, così l'app può partire dal video.
 
 Il video NON viene scomposto in strati: da un filmato già montato non si
 separano titolo, neve e sfondo. Quelli li genera l'app (Titolo, Aura, Neve).
@@ -116,6 +120,25 @@ def estrai_copertina(video: Path, destinazione: Path, quando: float) -> None:
         "-ss", f"{quando:.3f}", "-i", str(video),
         "-frames:v", "1", "-q:v", "4", str(destinazione),
     )
+
+
+def prepara_filmato(
+    video: Path, destinazione: Path, inizio: float, durata: float | None, altezza: int
+) -> None:
+    """Il video in una forma che il browser apre senza sorprese: H.264, niente audio.
+
+    L'audio del filmato non serve: le tracce del pacchetto lo sostituiscono, e
+    tenerlo dentro significherebbe due brani sovrapposti.
+    """
+    parti = ["ffmpeg", "-y", "-v", "error", "-ss", str(inizio), "-i", str(video)]
+    if durata:
+        parti += ["-t", str(durata)]
+    parti += [
+        "-an", "-vf", f"scale=-2:{altezza}",
+        "-c:v", "libx264", "-crf", "28", "-preset", "slow", "-pix_fmt", "yuv420p",
+        "-movflags", "+faststart", str(destinazione),
+    ]
+    comando(*parti)
 
 
 # ----------------------------------------------------------------- audio ---
@@ -236,6 +259,10 @@ def main() -> int:
     argomenti.add_argument("--inizio", type=float, default=0.0, help="secondo da cui partire")
     argomenti.add_argument("--durata", type=float, default=None, help="quanti secondi tenere")
     argomenti.add_argument("--mono", action="store_true", help="tracce mono (metà dello spazio)")
+    argomenti.add_argument("--senza-filmato", action="store_true",
+                           help="niente video nel pacchetto: solo tracce e copertina")
+    argomenti.add_argument("--altezza", type=int, default=720,
+                           help="altezza del filmato nel pacchetto (default 720)")
     argomenti = argomenti.parse_args()
 
     for programma in ("ffmpeg", "ffprobe"):
@@ -279,16 +306,39 @@ def main() -> int:
         # La copertina viene da metà brano: lì il montaggio ha già mostrato tutto.
         estrai_copertina(video, uscita / "cover.jpg", argomenti.inizio + durata * 0.5)
 
+        if not argomenti.senza_filmato:
+            prepara_filmato(video, uscita / "filmato.mp4",
+                            argomenti.inizio, argomenti.durata, argomenti.altezza)
+            print(f"filmato: {argomenti.altezza}p, senza audio")
+
     ritmo = conta_colpi(uscita / "kick.wav", uscita / "mix.wav")
     bpm = f"{ritmo['bpm']} BPM, " if ritmo["bpm"] else ""
     print(f"ritmo: {bpm}{ritmo['colpi']} colpi di cassa")
 
-    nomi = ("cover.jpg", "mix.wav", "kick.wav", "bass808.wav", "hat.wav")
+    # Il manifesto serve all'app per sapere com'è fatto il pacchetto senza
+    # indovinare: se non c'è, resta valido il comportamento di sempre.
+    manifesto = {
+        "nome": uscita.name,
+        "durata": round(durata, 3),
+        "bpm": ritmo["bpm"],
+        "colpi": ritmo["colpi"],
+        "filmato": None if argomenti.senza_filmato else "filmato.mp4",
+    }
+    (uscita / "pacchetto.json").write_text(
+        json.dumps(manifesto, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    nomi = ["cover.jpg"]
+    if (uscita / "filmato.mp4").exists():
+        nomi.append("filmato.mp4")
+    nomi += ["mix.wav", "kick.wav", "bass808.wav", "hat.wav"]
     totale = sum((uscita / nome).stat().st_size for nome in nomi)
     print(f"\npacchetto in {uscita} ({totale / 1e6:.1f} MB):")
     for nome in nomi:
-        print(f"  {nome:12} {(uscita / nome).stat().st_size / 1e6:6.2f} MB")
-    print("\nper provarlo: sostituisci demo/ con questa cartella e apri index.html.")
+        print(f"  {nome:13} {(uscita / nome).stat().st_size / 1e6:6.2f} MB")
+    print("\nper provarlo:"
+          f"\n  cp -R \"{uscita}\" demo-video   # dentro il progetto"
+          "\n  python3 strumenti/serve.py e apri http://127.0.0.1:7870/?demo=demo-video"
+          "\n(oppure sostituisci demo/ e apri index.html senza parametri)")
     return 0
 
 

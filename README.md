@@ -184,18 +184,35 @@ Le tracce sono sintetizzate da `genera_demo.py`, il loop di neve da
 
 ## Da un video al pacchetto
 
-Se hai già un filmato con il tuo brano, `pacchetto_da_video.py` ne ricava le
-tracce per il trigger e la copertina:
+Se hai già un filmato con il tuo brano, `pacchetto_da_video.py` ne ricava tutto
+quello che serve al trigger:
 
 ```
-python3 strumenti/pacchetto_da_video.py mio-video.mp4 --uscita demo-mio
-python3 strumenti/pacchetto_da_video.py "https://youtu.be/…" --uscita demo-mio
+python3 strumenti/pacchetto_da_video.py mio-video.mp4 --uscita demo-video
+python3 strumenti/pacchetto_da_video.py "https://youtu.be/…" --uscita demo-video --mono
 ```
 
 Demucs (se installato) separa batteria e basso, poi lo strumento filtra la cassa
 (30–170 Hz), l'808 (25–250 Hz) e gli hi-hat (sopra i 6 kHz), riscrive tutto a
-32 kHz come il pacchetto di serie e prende un fotogramma a metà brano per la
-copertina. `--mono` dimezza lo spazio, `--inizio`/`--durata` tagliano una parte.
+32 kHz come il pacchetto di serie, prende un fotogramma a metà brano per la
+copertina e copia il filmato a 720p senza audio in `filmato.mp4`. Se c'è
+`filmato.mp4` l'app lo mette come base al posto della copertina: la neve e il
+titolo restano strati sopra. `--mono` dimezza lo spazio, `--inizio`/`--durata`
+tagliano una parte, `--senza-filmato` lascia solo le tracce, `--altezza 540`
+alleggerisce il video.
+
+Per provare un pacchetto senza toccare `demo/`, la cartella si sceglie
+dall'indirizzo:
+
+```
+demo-video/                      # dentro il progetto, ignorata da git
+python3 strumenti/serve.py
+# poi apri http://127.0.0.1:7870/?demo=demo-video
+```
+
+Senza parametri l'app carica `demo/`. `demo-video/` sta nel `.gitignore` perché
+un pacchetto fatto da un video può contenere un brano che non è tuo: in locale
+sì, sul sito pubblicato no.
 
 Un avvertimento onesto: dal video **non** si ricavano gli strati. Un filmato
 già montato è un'immagine sola (più zoom e particelle, se ci sono), quindi non

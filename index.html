@@ -3785,11 +3785,29 @@
 
   let caricandoDemo = false;
 
-  async function scaricaFile(nome, tipo) {
-    const risposta = await fetch("demo/" + nome, { cache: "no-store" });
-    if (!risposta.ok) throw new Error("demo/" + nome + " non si scarica");
+  /* La cartella del pacchetto: "demo/" di serie, oppure un'altra scelta con
+     ?demo=nome-cartella (utile per provare un pacchetto senza toccare demo/). */
+  const cartellaDemo = (new URLSearchParams(location.search).get("demo") || "demo")
+    .replace(/^\/+|\/+$/g, "") || "demo";
+
+  async function scaricaFile(nome, tipo, cartella) {
+    const percorso = (cartella || cartellaDemo) + "/" + nome;
+    const risposta = await fetch(percorso, { cache: "no-store" });
+    if (!risposta.ok) throw new Error(percorso + " non si scarica");
     const blob = await risposta.blob();
     return new File([blob], nome, { type: tipo || blob.type });
+  }
+
+  /* Il manifesto racconta cosa c'è nel pacchetto (e se c'è anche il video).
+     È facoltativo: i pacchetti vecchi non ce l'hanno e valgono le regole di prima. */
+  async function leggiManifesto() {
+    try {
+      const risposta = await fetch(cartellaDemo + "/pacchetto.json", { cache: "no-store" });
+      if (!risposta.ok) return null;
+      return await risposta.json();
+    } catch (errore) {
+      return null;
+    }
   }
 
   /* Se la cartella demo/ è servita da un server, uso i file veri. Da file:// la
@@ -3824,8 +3842,23 @@
     aggiornaGuadagni();
     disegnaPiste();
 
-    const base = await aggiungiLivello(cover);
-    if (base) base.nome = "Cover";
+    /* Se il manifesto dice che c'è anche il filmato, la base è il video; la
+       copertina resta per i pacchetti che il video non ce l'hanno. */
+    let base = null;
+    const manifesto = await leggiManifesto();
+    if (manifesto && manifesto.filmato) {
+      try {
+        const filmato = await scaricaFile(manifesto.filmato, "video/mp4");
+        base = await aggiungiLivello(filmato);
+        if (base) base.nome = "Filmato";
+      } catch (errore) {
+        console.warn("filmato non caricato:", errore.message);
+      }
+    }
+    if (!base) {
+      base = await aggiungiLivello(cover);
+      if (base) base.nome = "Cover";
+    }
     return base;
   }
 
@@ -3861,7 +3894,9 @@
     }
 
     if (base) {
-      base.effetto = "contorno";
+      // Il contorno serve a muovere una copertina ferma; su un filmato lo lascio
+      // spento, altrimenti si perde il video e resta solo il bordo.
+      base.effetto = base.tipo === "video" ? "nessuno" : "contorno";
       base.fusione = "normale";
       base.forza = 1;
       base.attacco = 0.012;
@@ -3892,7 +3927,8 @@
   async function aggiungiEsempioNeve(esempio) {
     segnala("carico " + esempio.file + "…", "busy");
     try {
-      const file = await scaricaFile(esempio.file, "video/mp4");
+      // Il loop di neve è roba dell'effetto, non del pacchetto: sta sempre in demo/.
+      const file = await scaricaFile(esempio.file, "video/mp4", "demo");
       const livello = await aggiungiLivello(file);
       if (!livello) return;
       livello.nome = esempio.nome || "Neve · esempio";
