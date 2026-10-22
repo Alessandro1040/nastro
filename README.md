@@ -27,22 +27,24 @@ tracce.
 
 ## Come si usa
 
-1. **Carica il pacchetto demo** per avere una scena di partenza: cover, aura e
-   titolo, quattro tracce, dodici secondi di timeline.
+1. **Carica il pacchetto demo** per avere una scena di partenza: cover e quattro
+   tracce, dodici secondi di timeline. Con `?demo=demo-video` la demo è invece il
+   video scomposto in strati (sfondo, buio, immagine, neve): vedi *Da un video al
+   pacchetto*.
 2. **Aggiungi un livello**: trascina un video o un'immagine sullo schermo, oppure
    usa **+ Video o immagine** nel blocco *Livelli*. Nasce in cima allo stack,
    quindi copre quello che sta sotto; se è un loop su fondo nero mettilo in
-   **fusione Schermo** e abbassa l'opacità.
-3. **Scegli il livello dallo stack** e dagli un effetto (o lascialo pulito), poi
-   **Riproduci**. La durata del progetto è la sorgente più lunga: un video più
+   **fusione Schermo** e abbassa l'opacità. Con **×** sulla riga lo elimini.
+3. **Scegli il livello dallo stack** e dagli uno o più effetti (o lascialo pulito),
+   poi **Riproduci**. La durata del progetto è la sorgente più lunga: un video più
    corto si ripete da capo finché la timeline non finisce.
 4. **Esporta** con *Registra*: parte dall'inizio, si ferma alla fine e scrive un
    WebM con l'audio che stai sentendo.
 
-Il blocco **Esempi** dell'effetto Neve fa i primi due passi da solo: **Aggiungi al
-progetto** mette il loop locale sopra lo stack, già in Schermo. **Ho già il file**
-serve se hai scaricato il tuo overlay: diventa un livello normale, con le stesse
-manopole degli altri.
+Il blocco **Esempi** dell'effetto Neve porta il riferimento al video del canale:
+**Ho già il file** serve se hai scaricato quell'overlay (il file non viaggia col
+progetto, i crediti restano a chi l'ha fatto): diventa un livello normale, con le
+stesse manopole degli altri.
 
 ## L'interfaccia
 
@@ -58,21 +60,29 @@ stesso segnale, una variabile per volta. Da tastiera: `A` e `B`.
 
 **Livelli.** Lo stack si legge dall'alto in basso come l'immagine finale: la riga
 in cima è il livello che sta sopra. `↑`/`↓` lo spostano davvero, `●`/`○` lo
-spengono senza perderne le impostazioni. Ogni riga mostra miniatura, nome, effetto
-e i tre numeri che contano: forza, opacità, fusione. Il primo livello che aggiungi
-nasce col Contorno nero; quelli dopo restano puliti, così una scritta o un logo si
-sovrappone senza effetti.
+spengono senza perderne le impostazioni, `×` lo elimina (spegne il media, libera
+l'URL e toglie la sua texture). Ogni riga mostra miniatura, nome, effetti in
+catena e i tre numeri che contano: forza, opacità, fusione. Il primo livello che
+aggiungi nasce col Contorno nero; quelli dopo restano puliti, così una scritta o un
+logo si sovrappone senza effetti.
 
 **Livello scelto.** Dodici effetti più «Nessun effetto», ognuno con i suoi
 parametri; poi forza del livello, attacco (quanto ci mette ad accendersi), opacità,
 fusione (normale, somma, schermo, moltiplica) e inquadratura (riempi il frame o
 adatta intera).
 
+**Catena.** La griglia degli effetti è un interruttore: ogni clic aggiunge
+l'effetto in fondo alla catena (col numero della posizione sul bottone), un altro
+lo toglie. Sopra la griglia l'elenco ordinato dice chi viene prima e chi dopo,
+con `↑`/`↓` per cambiare l'ordine e `×` per togliere un passaggio. Il secondo
+effetto legge il risultato del primo, quindi **Neve → Tremolio** non è **Tremolio
+→ Neve**; i parametri restano quelli di ogni effetto, e il tetto è quattro
+passaggi. «Nessun effetto» svuota la catena.
+
 **Esempi.** L'effetto Neve porta con sé un blocco *Esempi* sotto i parametri: il
-loop locale (`demo/neve.mp4`) entra nello stack con un clic, in fusione Schermo e
-senza effetto; il riferimento esterno resta lì con miniatura, titolo, canale,
-durata, data, categoria e visualizzazioni, più i link al video e alla pagina di
-download del canale. Il player parte solo se lo chiedi.
+riferimento esterno con miniatura, titolo, canale, durata, data, categoria e
+visualizzazioni, più i link al video e alla pagina di download del canale. Il
+player parte solo se lo chiedi. Il file non è nel progetto.
 
 **Trigger.** Sorgente: il mix delle tracce udibili, una traccia sola (anche se è
 muta: serve per far pilotare la cassa e tenere il mix muto) oppure il colpo di
@@ -101,10 +111,12 @@ sensibilità.
 **Renderer.** Un programma GLSL per effetto, tutti con lo stesso contratto:
 `uvMedia()` per campionare il media (con il flip Y corretto), `uForza` come
 intensità del colpo e `uP0…uP5` come parametri. I livelli si disegnano dal basso
-verso l'alto, ognuno nella sua texture; la fusione con l'opacità avviene in una
-passata di compositing (normale, somma, schermo, moltiplica). Ogni livello ha il
-suo ping-pong di framebuffer, quindi la scia di un livello non sporca gli altri, e
-il suo clock, quindi due nevicate possono correre a velocità diverse.
+verso l'alto, ognuno nella sua texture. Se un livello ha più effetti, la catena
+gira in ping-pong su due bersagli: il primo passaggio legge il media, ognuno dei
+successivi legge il risultato del precedente, e solo l'ultimo va in compositing
+(normale, somma, schermo, moltiplica) con l'opacità. Ogni livello ha anche il suo
+ping-pong per la scia, quindi non sporca gli altri, e il suo clock, quindi due
+nevicate possono correre a velocità diverse.
 
 **Media.** La texture di ogni livello resta in cache finché la tela sorgente non
 cambia versione (`_telaVersione`): un'immagine si ricarica una volta sola, un video
@@ -128,16 +140,16 @@ registrazione, così il video esportato ha l'audio che stai sentendo.
 
 **Demo.** Se la cartella `demo/` è servita da un server, la demo usa i file veri
 (`cover.jpg`, `mix.wav`, `kick.wav`, `bass808.wav`, `hat.wav`); da `file://` la
-sintetizza sul momento, così l'app funziona anche con doppio clic.
+sintetizza sul momento, così l'app funziona anche con doppio clic. Se il manifesto
+del pacchetto elenca `livelli`, al posto della base si monta quella pila; uno
+strato può dichiarare una `fonte` esterna (il video della neve su YouTube) e, se
+il file non c'è, al suo posto compare una carta che chiede di caricarlo: appena
+arriva entra nello stack con gli stessi parametri.
 
 ## Esempi e crediti
 
-Il blocco **Esempi** dell'effetto Neve mostra due cose.
-
-**Neve · loop locale.** `demo/neve.mp4`: 960 × 540, 6 secondi, 30 fps, senza audio.
-Lo disegna `strumenti/genera_neve.py` — particelle su tre profondità con
-avvolgimento verticale periodico, sprite morbidi in numpy, codifica H.264 via
-ffmpeg. Nessun filmato di terzi dentro al progetto.
+Il blocco **Esempi** dell'effetto Neve mostra il riferimento al video, e nient'altro:
+il file non viaggia col progetto, così i crediti restano a chi l'ha fatto.
 
 **Free Snowfall Overlay — 4K Loop-Ready Winter Snow Video Background.** Il
 riferimento, con i dati letti dalla pagina pubblica del video (ottobre 2026):
@@ -168,19 +180,18 @@ schermo) e diventa un livello in fusione Schermo. I crediti restano al canale.
 ```
 index.html                 l'app: CSS, markup, Web Audio, shader, export
 demo/cover.jpg             copertina 1600×900 generata
-demo/neve.mp4              neve su fondo nero, 960×540, 6 s, loop esatto
 demo/mix.wav               brano completo (12 s, 120 BPM, 32 kHz)
 demo/kick.wav              solo cassa
 demo/bass808.wav           solo 808
 demo/hat.wav               solo hi-hat
 strumenti/genera_demo.py   rigenera demo/ (numpy + Pillow)
-strumenti/genera_neve.py   rigenera demo/neve.mp4 (numpy + ffmpeg)
 strumenti/pacchetto_da_video.py  costruisce un pacchetto da un tuo filmato
 strumenti/serve.py         server statico per l'uso in locale
 ```
 
-Le tracce sono sintetizzate da `genera_demo.py`, il loop di neve da
-`genera_neve.py`: nessun campione né filmato esterno, nessuna licenza da chiedere.
+Le tracce sono sintetizzate da `genera_demo.py`: nessun campione esterno, nessuna
+licenza da chiedere. L'unico filmato di terzi che l'app cita è l'overlay di neve,
+e resta sul sito del suo autore.
 
 ## Da un video al pacchetto
 
@@ -195,11 +206,19 @@ python3 strumenti/pacchetto_da_video.py "https://youtu.be/…" --uscita demo-vid
 Demucs (se installato) separa batteria e basso, poi lo strumento filtra la cassa
 (30–170 Hz), l'808 (25–250 Hz) e gli hi-hat (sopra i 6 kHz), riscrive tutto a
 32 kHz come il pacchetto di serie, prende un fotogramma a metà brano per la
-copertina e copia il filmato a 720p senza audio in `filmato.mp4`. Se c'è
-`filmato.mp4` l'app lo mette come base al posto della copertina: la neve e il
-titolo restano strati sopra. `--mono` dimezza lo spazio, `--inizio`/`--durata`
-tagliano una parte, `--senza-filmato` lascia solo le tracce, `--altezza 540`
-alleggerisce il video.
+copertina e copia il filmato a 720p senza audio in `filmato.mp4`. `--mono`
+dimezza lo spazio, `--inizio`/`--durata` tagliano una parte, `--senza-filmato`
+lascia solo le tracce, `--altezza 540` alleggerisce il video.
+
+Con la scomposizione, il manifesto elenca una pila di quattro strati dal fondo
+alla cima: `sfondo.jpg` (il fondale senza l'opera), `buio.png` (un nero che entra
+solo sul colpo), `immagine.png` (l'opera ritagliata, con `effetti: ["tremolio"]`)
+e `neve.mp4`. La neve non è un surrogato disegnato in casa: lo strato dichiara la
+`fonte` (il video di Enchanted Studios su YouTube, con pagina e download) e il
+file non viaggia col pacchetto. Se `neve.mp4` non c'è, l'app mostra sotto lo stack
+una carta che lo chiede: **Carica il file** e lo strato entra al suo posto, con
+`reattivo: 0.94` e fusione Schermo, quindi la neve compare solo sul colpo. Non
+c'è nessun titolo aggiunto in automatico: la pila è solo quello che si vede.
 
 Per provare un pacchetto senza toccare `demo/`, la cartella si sceglie
 dall'indirizzo:
@@ -214,9 +233,10 @@ Senza parametri l'app carica `demo/`. `demo-video/` sta nel `.gitignore` perché
 un pacchetto fatto da un video può contenere un brano che non è tuo: in locale
 sì, sul sito pubblicato no.
 
-Un avvertimento onesto: dal video **non** si ricavano gli strati. Un filmato
-già montato è un'immagine sola (più zoom e particelle, se ci sono), quindi non
-se ne separano titolo, neve e sfondo: quelli li genera l'app.
+Un avvertimento onesto: dal video **non** si ricavano gli strati veri. Un filmato
+già montato è un'immagine sola (più zoom e particelle, se ci sono), quindi lo
+strumento separa quello che un fotogramma permette — l'opera dal fondale, il nero
+da accendere sul colpo — e la neve resta il video del suo autore, caricato a mano.
 
 
 ## Limiti

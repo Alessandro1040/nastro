@@ -312,6 +312,59 @@
   .effetto__nome{display:block;font-family:var(--serif);font-size:1rem;font-weight:500;line-height:1.2}
   .effetto__sotto{display:block;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muto);margin-top:3px}
   .effetto.is-attivo .effetto__sotto{color:#e7b6ac}
+  .effetto__ord{
+    float:right;min-width:15px;height:15px;border-radius:50%;background:var(--accento);
+    color:#fff;font-family:var(--sans);font-size:.55rem;line-height:15px;text-align:center;
+    margin-left:4px;
+  }
+
+  /* --- catena: più effetti in fila sullo stesso livello -------------------- */
+  .catena{
+    border:1px solid var(--bordo);border-radius:var(--raggio);background:var(--fondo-2);
+    padding:7px 9px 4px;margin-bottom:8px;
+  }
+  .catena[hidden]{display:none}
+  .catena__testa{
+    display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.18em;
+    font-size:.56rem;color:var(--dim);margin-bottom:2px;
+  }
+  .catena__conta{letter-spacing:.14em;color:var(--muto);font-family:var(--sans)}
+  .catena__voce{display:flex;align-items:center;gap:6px;padding:3px 0}
+  .catena__voce+.catena__voce{border-top:1px solid var(--bordo)}
+  .catena__num{
+    flex:none;width:15px;height:15px;border-radius:50%;background:var(--accento-soft);
+    color:var(--accento-hi);font-family:var(--sans);font-size:.55rem;
+    line-height:15px;text-align:center;
+  }
+  .catena__nome{flex:1;font-size:.76rem;color:var(--testo);line-height:1.35}
+  .catena__nome small{display:block;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muto)}
+  .catena__voce .mini{width:18px;height:18px;font-size:.6rem}
+  .mini:disabled{opacity:.28;cursor:default}
+  .parametri__testa{
+    margin:12px 0 2px;font-family:var(--maiuscoletto);text-transform:uppercase;
+    letter-spacing:.18em;font-size:.56rem;color:var(--dim);
+  }
+  .parametri__testa:first-child{margin-top:2px}
+  .desc{white-space:pre-line}
+
+  /* --- strati del manifesto che aspettano un file esterno ------------------ */
+  .mancanti{margin-top:12px;display:grid;gap:8px}
+  .mancanti[hidden]{display:none}
+  .mancante{
+    border:1px dashed var(--bordo-2);border-radius:var(--raggio);background:var(--fondo-2);
+    padding:10px 12px;
+  }
+  .mancante__titolo{display:block;font-family:var(--serif);font-size:.95rem;font-weight:500;color:var(--testo)}
+  .mancante__testo{margin:4px 0 8px;font-size:.7rem;line-height:1.5;color:var(--muto)}
+  .mancante__testo b{color:var(--dim);font-weight:500}
+  .mancante__fila{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .mancante__link{
+    font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accento-hi);text-decoration:none;border-bottom:1px solid var(--bordo-2);
+    padding-bottom:1px;
+  }
+  .mancante__link:hover{border-color:var(--accento)}
 
   /* --- esempi (loop locale + riferimento esterno) -------------------------- */
   .esempi{margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--bordo)}
@@ -413,6 +466,8 @@
   .mini:hover{border-color:var(--bordo-2);color:var(--testo)}
   .mini.is-attivo{border-color:var(--accento);color:var(--accento-hi)}
   .mini--testo{width:auto;padding:0 6px;font-size:.6rem;letter-spacing:.1em;font-family:var(--sans)}
+  .mini--via{font-size:.8rem}
+  .mini--via:hover{border-color:var(--accento);color:var(--accento-hi);background:var(--accento-soft)}
 
   /* --- tracce audio -------------------------------------------------------- */
   .piste{display:grid;gap:6px}
@@ -575,6 +630,8 @@
           La linea del tempo dura quanto la sorgente più lunga: un video più corto si
           ripete da capo finché il progetto non finisce.
         </p>
+
+        <div class="mancanti" id="strati-mancanti" hidden></div>
       </section>
 
       <!-- 2. livello scelto -->
@@ -586,6 +643,7 @@
         <p class="vuoto" id="nessun-livello">Scegli un livello dallo stack per dargli un effetto.</p>
 
         <div id="scheda-livello" hidden>
+          <div class="catena" id="catena-effetti" hidden></div>
           <div class="effetti" id="effetti"></div>
           <p class="desc" id="desc-effetto"></p>
           <div id="parametri-effetto"></div>
@@ -604,6 +662,10 @@
             <output id="out-opacita">100%</output>
             <input type="range" id="rng-opacita" min="0" max="100" step="1" value="100">
           </label>
+          <label class="slider">Reattivo sul colpo
+            <output id="out-reattivo">0%</output>
+            <input type="range" id="rng-reattivo" min="0" max="100" step="1" value="0">
+          </label>
 
           <div class="slider--due">
             <label class="campo">Fusione
@@ -620,12 +682,23 @@
                 <option value="1">Adatta intera</option>
               </select>
             </label>
+            <label class="campo">Banda del livello
+              <select id="sel-banda-livello">
+                <option value="">Segui il trigger</option>
+                <option value="kick">Kick · 40–170 Hz</option>
+                <option value="basso">808 · 25–90 Hz</option>
+                <option value="cassa808">Cassa + 808 · 25–170 Hz</option>
+                <option value="snare">Snare · 180–3 kHz</option>
+                <option value="hat">Hi-hat · 4,5–10 kHz</option>
+                <option value="tutto">Mix intero · 30 Hz–16 kHz</option>
+              </select>
+            </label>
           </div>
 
           <div class="fila" style="margin-top:12px">
             <button class="btn btn--piccolo" type="button" id="btn-su">↑ Su</button>
             <button class="btn btn--piccolo" type="button" id="btn-giu">↓ Giù</button>
-            <button class="btn btn--piccolo" type="button" id="btn-via">Rimuovi</button>
+            <button class="btn btn--piccolo" type="button" id="btn-via" title="Elimina il livello">Elimina</button>
           </div>
         </div>
       </section>
@@ -651,6 +724,7 @@
             <select id="sel-banda">
               <option value="kick">Kick · 40–170 Hz</option>
               <option value="basso">808 · 25–90 Hz</option>
+              <option value="cassa808">Cassa + 808 · 25–170 Hz</option>
               <option value="snare">Snare · 180–3 kHz</option>
               <option value="hat">Hi-hat · 4,5–10 kHz</option>
               <option value="tutto">Tutto · 30 Hz–16 kHz</option>
@@ -778,6 +852,7 @@
   const BANDE = {
     kick:  { lo: 40,   hi: 170,   modo: "impulso",   nome: "Kick" },
     basso: { lo: 25,   hi: 90,    modo: "sostenuto", nome: "808 / basso" },
+    cassa808: { lo: 25, hi: 170,   modo: "impulso",   nome: "Cassa + 808" },
     snare: { lo: 180,  hi: 3000,  modo: "impulso",   nome: "Snare" },
     hat:   { lo: 4500, hi: 10000, modo: "impulso",   nome: "Hi-hat" },
     tutto: { lo: 30,   hi: 16000, modo: "impulso",   nome: "Mix intero" }
@@ -838,6 +913,20 @@
         "sulla grancassa.",
       params: [{ id: "spinta", nome: "Spinta", min: 0, max: 1, step: 0.01, def: 0.22,
         fmt: (v) => "+" + Math.round(v * 100) + "%" }]
+    },
+    {
+      id: "tremolio",
+      nome: "Tremolio",
+      sotto: "Scossa sul colpo",
+      desc: "Il livello si sposta a scatti di pochi pixel seguendo la forza del colpo: " +
+        "sul kick trema e fuori dal colpo torna fermo. L'ampiezza è in percentuale " +
+        "della larghezza del frame, quindi la scossa è la stessa su ogni schermo.",
+      params: [
+        { id: "ampiezza", nome: "Ampiezza", min: 0.1, max: 4, step: 0.05, def: 0.9,
+          fmt: (v) => v.toFixed(2).replace(".", ",") + " %" },
+        { id: "scatti", nome: "Scatti", min: 4, max: 60, step: 1, def: 24,
+          fmt: (v) => Math.round(v) + " Hz" }
+      ]
     },
     {
       id: "flash",
@@ -920,19 +1009,6 @@
           fmt: (v) => "×" + v.toFixed(1).replace(".", ",") }
       ],
       esempi: [
-        {
-          tipo: "loop",
-          nome: "Neve · loop locale",
-          file: "neve.mp4",
-          meta: "960 × 540 · 6 s · 30 fps · senza audio",
-          nota: "Disegnato da strumenti/genera_neve.py: fiocchi veri, loop esatto, nessun " +
-            "filmati di terzi. Su fondo nero va in fusione Schermo, così resta sopra la " +
-            "cover senza coprirla. L'effetto Neve del livello sotto continua a lavorare.",
-          effetto: "nessuno",
-          fusione: "schermo",
-          opacita: 0.9,
-          forza: 0.8
-        },
         {
           tipo: "video",
           titolo: "Free Snowfall Overlay — 4K Loop-Ready Winter Snow Video Background",
@@ -1023,7 +1099,8 @@
     registrando: false,
     manuale: -1,
     ultimaMisura: 0,
-    mouseSopra: false
+    mouseSopra: false,
+    stratiMancanti: []    // strati del manifesto con un video esterno ancora da caricare
   };
 
   const dom = {
@@ -1050,6 +1127,7 @@
 
     livelliElenco: $("#livelli-elenco"),
     livelliVuoto: $("#livelli-vuoto"),
+    mancanti: $("#strati-mancanti"),
     livelliStato: $("#livelli-stato"),
     fileLivelli: $("#file-livelli"),
 
@@ -1057,6 +1135,7 @@
     scheda: $("#scheda-livello"),
     nessunLivello: $("#nessun-livello"),
     effetti: $("#effetti"),
+    catena: $("#catena-effetti"),
     descEffetto: $("#desc-effetto"),
     parametri: $("#parametri-effetto"),
     esempi: $("#esempi-effetto"),
@@ -1067,7 +1146,10 @@
     rngAttacco: $("#rng-attacco"),
     outOpacita: $("#out-opacita"),
     rngOpacita: $("#rng-opacita"),
+    outReattivo: $("#out-reattivo"),
+    rngReattivo: $("#rng-reattivo"),
     selFusione: $("#sel-fusione"),
+    selBandaLivello: $("#sel-banda-livello"),
     selAdatta: $("#sel-adatta"),
     btnSu: $("#btn-su"),
     btnGiu: $("#btn-giu"),
@@ -1106,11 +1188,50 @@
   function pistaDaId(id) {
     return stato.piste.filter(function (p) { return p.id === id; })[0] || null;
   }
-  function effettoDelLivello(livello) {
-    return effettoDi(livello.effetto);
+  /* --- catena degli effetti -------------------------------------------------
+     Un livello può portare più effetti, uno dopo l'altro: il secondo legge il
+     risultato del primo, così "Neve poi Tremolio" non è "Tremolio poi Neve".
+     L'ordine è quello dell'elenco, dal primo applicato all'ultimo. "nessuno"
+     non entra mai in catena: vuol dire "togli tutto". Ogni effetto tiene i suoi
+     parametri in livello.parametri[id], quindi la catena non li mescola. */
+  const MAX_EFFETTI = 4;
+  function effettiDelLivello(livello) {
+    if (!livello || !Array.isArray(livello.effetti)) return [];
+    return livello.effetti.filter(function (id) {
+      return id !== "nessuno" && effettoDi(id).id === id;
+    });
   }
-  function parametriDelLivello(livello) {
-    return livello.parametri[livello.effetto] || {};
+  function haEffetto(livello, id) {
+    return effettiDelLivello(livello).indexOf(id) >= 0;
+  }
+  function nomeEffetti(livello) {
+    const ids = effettiDelLivello(livello);
+    if (!ids.length) return "Nessun effetto";
+    return ids.map(function (id) { return effettoDi(id).nome; }).join(" + ");
+  }
+  function parametriDiEffetto(livello, id) {
+    if (!livello.parametri[id]) livello.parametri[id] = {};
+    return livello.parametri[id];
+  }
+  /* Tiene l'elenco pulito: niente doppioni, niente id sconosciuti, tetto a
+     quattro passaggi (oltre, il colpo diventa un mosaico di passaggi). */
+  function impostaEffetti(livello, ids) {
+    const puliti = [];
+    (ids || []).forEach(function (id) {
+      if (id === "nessuno" || effettoDi(id).id !== id) return;
+      if (puliti.indexOf(id) >= 0 || puliti.length >= MAX_EFFETTI) return;
+      puliti.push(id);
+    });
+    livello.effetti = puliti;
+    livello.misuraDaFare = true;
+    return puliti;
+  }
+  /* L'opacità che il livello mostra davvero. Con "reattivo" a 0 è quella scritta
+     nella scheda; alzandolo, il livello compare solo mentre il colpo è aperto:
+     serve agli strati che devono esistere sul kick (un buio, una neve, un lampo). */
+  function opacitaReale(livello) {
+    const reattivo = clamp(livello.reattivo || 0, 0, 1);
+    return clamp(livello.opacita * (1 - reattivo * (1 - livello.forzaVisiva)), 0, 1);
   }
   /* Il tempo lo detta la sorgente più lunga: tracce audio (col loro ritardo) e video. */
   function durataTotale() {
@@ -1661,11 +1782,12 @@
       larghezza: media.larghezza,
       altezza: media.altezza,
       durata: media.durata,
-      effetto: primo ? "contorno" : "nessuno",
+      effetti: primo ? ["contorno"] : [],
       parametri: parametriIniziali(),
       forza: 1,
       attacco: 0.012,
       opacita: 1,
+      reattivo: 0,           // 0 = sempre visibile, 1 = solo mentre il colpo è aperto
       fusione: "normale",
       adatta: 0,             // 0 = riempi il frame, 1 = adatta intera
       banda: "",             // vuota = segui il trigger globale
@@ -1774,6 +1896,8 @@
     aggiornaTrasporto();
     aggiornaSchermoVuoto();
     aggiornaHud();
+    programmaRicalcolo();
+    avviso("Livello eliminato: " + livello.nome + ".", false);
   }
 
   function spostaLivello(id, delta) {
@@ -1799,8 +1923,10 @@
       livello.tela.height = altezza;
     }
     const g = livello.pennello;
-    g.fillStyle = "#08090a";
-    g.fillRect(0, 0, larghezza, altezza);
+    /* Il fondo è trasparente, non nero: così uno strato ritagliato (per esempio
+       l'immagine di un pacchetto scomposto) lascia vedere quelli sotto invece di
+       coprirli con un rettangolo scuro. */
+    g.clearRect(0, 0, larghezza, altezza);
     const media = livello.el;
     if (!media) return;
     let dl, da;
@@ -1953,7 +2079,7 @@
 
   function aggiornaNotaNormalizzazione() {
     const livello = livelloScelto();
-    const attivo = !!livello && livello.effetto === "contorno";
+    const attivo = !!livello && haEffetto(livello, "contorno");
     dom.notaNormalizzazione.hidden = !attivo;
     if (!attivo) return;
     if (!livello.sobelMag) {
@@ -1970,7 +2096,7 @@
      non si blocca il disegno, si aggiornano a turno. */
   function misuraSeServe(adesso) {
     const scelti = stato.livelli.filter(function (l) {
-      if (l.effetto !== "contorno") return false;
+      if (!haEffetto(l, "contorno")) return false;
       if (!l.sobelMag) return true;
       if (l.tipo === "video" && stato.playing && adesso - l.ultimaMisura > 1.5) return true;
       return l.misuraDaFare;
@@ -2008,7 +2134,10 @@
     "uniform float uP4;",
     "uniform float uP5;",
     "uniform float uSobel;",
-    "vec2 uvMedia() { return vec2(vUv.x, 1.0 - vUv.y); }",
+    "uniform float uCapovolta;",
+    /* La riga 0 del media (tela o video) sta in alto, quindi va girata; i passaggi
+       della catena scrivono già dritto e si leggono con uCapovolta = 0. */
+    "vec2 uvMedia() { return uCapovolta > 0.5 ? vec2(vUv.x, 1.0 - vUv.y) : vUv; }",
     "vec3 originale() { return texture2D(uSorgente, uvMedia()).rgb; }",
     "float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }",
     ""
@@ -2201,6 +2330,21 @@
     "}"
   ].join("\n");
 
+  /* Tremolio: il livello si sposta a scatti. Il caso è fisso per "scatto" (floor
+     del tempo), così la scossa vibra invece di scivolare, e la forza del colpo
+     decide quanto si vede. L'alpha viaggia con la sorgente: gli strati ritagliati
+     restano trasparenti dove non c'è immagine. */
+  FRAMMENTI.tremolio = TESTA_FRAMMENTO + [
+    "float caso(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }",
+    "void main() {",
+    "  float scatto = floor(uTempo * max(1.0, uP1));",
+    "  vec2 verso = vec2(caso(vec2(scatto, 3.0)), caso(vec2(scatto, 17.0))) - 0.5;",
+    "  vec2 spost = verso * (clamp(uP0, 0.0, 4.0) / 100.0) * clamp(uForza, 0.0, 1.0);",
+    "  vec4 col = texture2D(uSorgente, uvMedia() + spost);",
+    "  gl_FragColor = vec4(col.rgb, col.a);",
+    "}"
+  ].join("\n");
+
   const FRAMMENTO_COPIA = [
     "precision highp float;",
     "varying vec2 vUv;",
@@ -2208,7 +2352,7 @@
     "uniform float uFlippata;",
     "void main() {",
     "  vec2 uv = uFlippata > 0.5 ? vec2(vUv.x, 1.0 - vUv.y) : vUv;",
-    "  gl_FragColor = vec4(texture2D(uSorgente, uv).rgb, 1.0);",
+    "  gl_FragColor = texture2D(uSorgente, uv);",
     "}"
   ].join("\n");
 
@@ -2223,8 +2367,9 @@
     "uniform float uModo;",
     "void main() {",
     "  vec3 sotto = texture2D(uSotto, vUv).rgb;",
-    "  vec3 sopra = texture2D(uSopra, vUv).rgb;",
-    "  float a = clamp(uOpacita, 0.0, 1.0);",
+    "  vec4 sopra4 = texture2D(uSopra, vUv);",
+    "  vec3 sopra = sopra4.rgb;",
+    "  float a = clamp(uOpacita * sopra4.a, 0.0, 1.0);",
     "  vec3 col;",
     "  if (uModo < 0.5) {",
     "    col = mix(sotto, sopra, a);",
@@ -2309,6 +2454,9 @@
     let altezza = canvas.height;
     let ausiliari = [];
     let pila = [];
+    /* Due bersagli per il ping-pong interno alla catena di effetti: leggo uno,
+       scrivo l'altro, così nessun passaggio legge mentre scrive. */
+    let passaggi = [];
     const medie = new Map();
     const mediaVersione = new Map();
     const uscite = new Map();
@@ -2339,8 +2487,10 @@
     function preparaTutto() {
       ausiliari.forEach(liberaBersaglio);
       pila.forEach(liberaBersaglio);
+      passaggi.forEach(liberaBersaglio);
       ausiliari = [creaBersaglio(larghezza, altezza), creaBersaglio(larghezza, altezza)];
       pila = [creaBersaglio(larghezza, altezza), creaBersaglio(larghezza, altezza)];
+      passaggi = [creaBersaglio(larghezza, altezza), creaBersaglio(larghezza, altezza)];
       uscite.forEach(function (voce) {
         liberaBersaglio(voce.a);
         liberaBersaglio(voce.b);
@@ -2473,32 +2623,22 @@
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
-    /* Un livello: media → (sfocatura) → shader → texture del livello. Il ping-pong
-       per livello serve alla scia: ogni livello ha la sua storia, non quella comune. */
-    function disegnaLivello(livello) {
-      const sorgente = aggiornaMedia(livello);
-      const voce = bersagli(livello);
-      const lettura = voce.giro === 0 ? voce.a : voce.b;
-      const scrittura = voce.giro === 0 ? voce.b : voce.a;
-      const id = livello.effetto;
-      const attivo = Object.prototype.hasOwnProperty.call(programmi, id) ? id : null;
-      const parametri = parametriDelLivello(livello);
-
-      if (!attivo) {
-        copiaIn(sorgente, scrittura, true);
-        voce.giro = 1 - voce.giro;
-        return scrittura.texture;
-      }
+    /* Un livello: media → primo effetto → secondo → … → texture del livello.
+       Ogni passaggio legge quello prima (uSorgente), tranne il primo che legge il
+       media: per questo uCapovolta vale 1 solo lì. Il ping-pong per livello serve
+       alla scia: ogni livello ha la sua storia, non quella comune. */
+    function passaEffetto(livello, id, sorgente, daMedia, precedente, bersaglio) {
+      const parametri = parametriDiEffetto(livello, id);
 
       if (id === "contorno") {
         const scala = dom.vista.width / Math.max(1, livello.larghezza);
         const pesi = noccioloGaussiano((parametri.blur || 1.2) * scala);
-        passoGaussiano(programmi.sfocatura, sorgente, ausiliari[0], true, true, pesi);
+        passoGaussiano(programmi.sfocatura, sorgente, ausiliari[0], true, daMedia, pesi);
         passoGaussiano(programmi.sfocatura, ausiliari[0].texture, ausiliari[1],
           false, false, pesi);
       }
 
-      const programma = programmi[attivo];
+      const programma = programmi[id];
       gl.useProgram(programma.programma);
       preparaQuad(programma);
 
@@ -2506,17 +2646,18 @@
       gl.bindTexture(gl.TEXTURE_2D, sorgente);
       gl.uniform1i(uniforme(programma, "uSorgente"), 0);
       gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, lettura.texture);
+      gl.bindTexture(gl.TEXTURE_2D, precedente);
       gl.uniform1i(uniforme(programma, "uPrec"), 1);
       gl.activeTexture(gl.TEXTURE2);
       gl.bindTexture(gl.TEXTURE_2D, ausiliari[1].texture);
       gl.uniform1i(uniforme(programma, "uSfocata"), 2);
 
+      gl.uniform1f(uniforme(programma, "uCapovolta"), daMedia ? 1 : 0);
       gl.uniform1f(uniforme(programma, "uForza"), clamp(livello.forzaVisiva, 0, 1));
       gl.uniform1f(uniforme(programma, "uTempo"), livello.clock);
       gl.uniform2f(uniforme(programma, "uRisoluzione"), larghezza, altezza);
       gl.uniform1f(uniforme(programma, "uSobel"), livello.p99 || 1);
-      const effetto = effettoDelLivello(livello);
+      const effetto = effettoDi(id);
       for (let i = 0; i < 6; i += 1) {
         const p = effetto.params[i];
         let valore = 0;
@@ -2527,9 +2668,37 @@
         gl.uniform1f(uniforme(programma, "uP" + i), valore);
       }
 
-      gl.bindFramebuffer(gl.FRAMEBUFFER, scrittura.fbo);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, bersaglio.fbo);
       gl.viewport(0, 0, larghezza, altezza);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    function disegnaLivello(livello) {
+      const sorgente = aggiornaMedia(livello);
+      const voce = bersagli(livello);
+      const precedente = voce.giro === 0 ? voce.a : voce.b;
+      const scrittura = voce.giro === 0 ? voce.b : voce.a;
+      /* "velocità" agisce sul media, non sui pixel: non è un passaggio. */
+      const catena = effettiDelLivello(livello).filter(function (id) {
+        return Object.prototype.hasOwnProperty.call(programmi, id);
+      });
+
+      if (!catena.length) {
+        copiaIn(sorgente, scrittura, true);
+        voce.giro = 1 - voce.giro;
+        return scrittura.texture;
+      }
+
+      let ingresso = sorgente;
+      let daMedia = true;
+      catena.forEach(function (id, indice) {
+        const ultimo = indice === catena.length - 1;
+        const bersaglio = ultimo ? scrittura : passaggi[indice % 2];
+        passaEffetto(livello, id, ingresso, daMedia, precedente.texture, bersaglio);
+        ingresso = bersaglio.texture;
+        daMedia = false;
+      });
+
       voce.giro = 1 - voce.giro;
       return scrittura.texture;
     }
@@ -2570,7 +2739,7 @@
           return f.id === voce.livello.fusione;
         })[0];
         const modo = fusione ? FUSIONI.indexOf(fusione) : 0;
-        componi(pila[pilaCorrente].texture, voce.texture, modo, voce.livello.opacita);
+        componi(pila[pilaCorrente].texture, voce.texture, modo, opacitaReale(voce.livello));
       });
       mostra(pila[pilaCorrente].texture);
     }
@@ -2724,7 +2893,7 @@
       livello._telaFatta = false;
     });
     stato.livelli.forEach(function (livello) {
-      if (livello.effetto === "contorno") livello.misuraDaFare = true;
+      if (haEffetto(livello, "contorno")) livello.misuraDaFare = true;
     });
     aggiornaTrasporto();
   }
@@ -2736,7 +2905,7 @@
     if (livello.tipo !== "video" || !livello.el) return;
     const v = livello.el;
     const velocita = livello.parametri.velocita;
-    const attivo = livello.effetto === "velocita";
+    const attivo = haEffetto(livello, "velocita");
     const spinta = attivo ? velocita.spinta : 0;
     const durata = durataVideo(v);
     let target = clamp(1 + spinta * livello.forzaVisiva, 0.25, 4);
@@ -2846,7 +3015,7 @@
       const durataVideoLivello = livello.tipo === "video" ? durataVideo(livello.el) : 0;
       meta.textContent = [
         durataVideoLivello ? "video " + Math.round(durataVideoLivello) + "s" : livello.tipo,
-        effettoDelLivello(livello).nome,
+        nomeEffetti(livello),
         Math.round(livello.opacita * 100) + "%",
         livello.fusione
       ].join(" · ");
@@ -2894,6 +3063,19 @@
       azioni.appendChild(occhio);
       azioni.appendChild(su);
       azioni.appendChild(giu);
+
+      /* Eliminare il livello dalla riga, senza passare dalla scheda. */
+      const via = document.createElement("button");
+      via.type = "button";
+      via.className = "mini mini--via";
+      via.title = "Elimina il livello";
+      via.textContent = "×";
+      via.addEventListener("click", function (evento) {
+        evento.stopPropagation();
+        rimuoviLivello(livello.id);
+      });
+      azioni.appendChild(via);
+
       riga.appendChild(azioni);
 
       riga.addEventListener("click", function () {
@@ -2912,13 +3094,29 @@
     });
   }
 
+  /* La griglia è un interruttore: un clic aggiunge l'effetto in fondo alla catena,
+     un altro lo toglie. Il numero sul bottone è la posizione nell'ordine, così si
+     vede subito che "Neve 1, Tremolio 2" non è la stessa cosa al contrario. */
   function disegnaEffetti(livello) {
     dom.effetti.innerHTML = "";
+    const catena = effettiDelLivello(livello);
     EFFETTI.forEach(function (effetto) {
+      const posizione = catena.indexOf(effetto.id);
+      const acceso = posizione >= 0;
       const bottone = document.createElement("button");
       bottone.type = "button";
-      bottone.className = "effetto" + (effetto.id === livello.effetto ? " is-attivo" : "");
-      bottone.setAttribute("aria-pressed", effetto.id === livello.effetto ? "true" : "false");
+      bottone.className = "effetto" + (acceso ? " is-attivo" : "");
+      bottone.setAttribute("aria-pressed", acceso ? "true" : "false");
+      if (effetto.id === "nessuno") bottone.title = "Togli tutti gli effetti dal livello";
+      else bottone.title = acceso ? "Togli dalla catena" : "Aggiungi alla catena";
+
+      if (acceso) {
+        const ordine = document.createElement("span");
+        ordine.className = "effetto__ord";
+        ordine.textContent = String(posizione + 1);
+        bottone.appendChild(ordine);
+      }
+
       const nome = document.createElement("span");
       nome.className = "effetto__nome";
       nome.textContent = effetto.nome;
@@ -2928,69 +3126,182 @@
       bottone.appendChild(nome);
       bottone.appendChild(sotto);
       bottone.addEventListener("click", function () {
-        if (livello.effetto === effetto.id) return;
-        livello.effetto = effetto.id;
-        livello.misuraDaFare = true;
-        disegnaEffetti(livello);
-        dom.descEffetto.textContent = effetto.desc;
-        disegnaParametri(livello);
-        disegnaEsempi(livello);
-        aggiornaNotaNormalizzazione();
-        disegnaLivelli();
-        aggiornaHud();
+        const adesso = effettiDelLivello(livello);
+        if (effetto.id === "nessuno") {
+          if (!adesso.length) return;
+          impostaEffetti(livello, []);
+        } else if (adesso.indexOf(effetto.id) >= 0) {
+          impostaEffetti(livello, adesso.filter(function (id) { return id !== effetto.id; }));
+        } else {
+          if (adesso.length >= MAX_EFFETTI) {
+            avviso("Al massimo " + MAX_EFFETTI + " effetti per livello: togline via uno.", true);
+            return;
+          }
+          impostaEffetti(livello, adesso.concat(effetto.id));
+        }
+        aggiornaSchedaEffetti(livello);
       });
       dom.effetti.appendChild(bottone);
     });
+    disegnaCatena(livello);
   }
 
+  /* L'elenco ordinato sopra la griglia: chi viene prima, chi dopo, e le frecce
+     per cambiare l'ordine senza togliere e rimettere l'effetto. */
+  function disegnaCatena(livello) {
+    const ids = effettiDelLivello(livello);
+    dom.catena.innerHTML = "";
+    dom.catena.hidden = !ids.length;
+    if (!ids.length) return;
+
+    const testa = document.createElement("div");
+    testa.className = "catena__testa";
+    const titolo = document.createElement("span");
+    titolo.textContent = "Catena";
+    const conta = document.createElement("span");
+    conta.className = "catena__conta";
+    conta.textContent = ids.length === 1
+      ? "1 effetto"
+      : ids.length + " effetti · dal primo all'ultimo";
+    testa.append(titolo, conta);
+    dom.catena.appendChild(testa);
+
+    ids.forEach(function (id, indice) {
+      const effetto = effettoDi(id);
+      const voce = document.createElement("div");
+      voce.className = "catena__voce";
+
+      const numero = document.createElement("span");
+      numero.className = "catena__num";
+      numero.textContent = String(indice + 1);
+
+      const nome = document.createElement("span");
+      nome.className = "catena__nome";
+      nome.append(effetto.nome);
+      const sotto = document.createElement("small");
+      sotto.textContent = effetto.sotto;
+      nome.appendChild(sotto);
+
+      const prima = bottoneCatena("↑", "Applica prima", indice === 0, function () {
+        const ordine = ids.slice();
+        ordine.splice(indice, 1);
+        ordine.splice(indice - 1, 0, id);
+        impostaEffetti(livello, ordine);
+        aggiornaSchedaEffetti(livello);
+      });
+      const dopo = bottoneCatena("↓", "Applica dopo", indice === ids.length - 1, function () {
+        const ordine = ids.slice();
+        ordine.splice(indice, 1);
+        ordine.splice(indice + 1, 0, id);
+        impostaEffetti(livello, ordine);
+        aggiornaSchedaEffetti(livello);
+      });
+      const via = bottoneCatena("×", "Togli dalla catena", false, function () {
+        impostaEffetti(livello, ids.filter(function (altro) { return altro !== id; }));
+        aggiornaSchedaEffetti(livello);
+      });
+
+      voce.append(numero, nome, prima, dopo, via);
+      dom.catena.appendChild(voce);
+    });
+  }
+
+  function bottoneCatena(testo, titolo, spento, azione) {
+    const bottone = document.createElement("button");
+    bottone.type = "button";
+    bottone.className = "mini";
+    bottone.textContent = testo;
+    bottone.title = titolo;
+    bottone.disabled = spento;
+    bottone.addEventListener("click", azione);
+    return bottone;
+  }
+
+  /* Le descrizioni: quella dell'effetto quando è solo, la fila intera quando sono
+     più d'uno (l'ordine conta, quindi si legge dal primo all'ultimo). */
+  function descrizioneCatena(livello) {
+    const ids = effettiDelLivello(livello);
+    if (!ids.length) return effettoDi("nessuno").desc;
+    if (ids.length === 1) return effettoDi(ids[0]).desc;
+    const fila = ids.map(function (id) { return effettoDi(id).nome; }).join(" → ");
+    const dettagli = ids.map(function (id) {
+      return effettoDi(id).nome + ": " + effettoDi(id).desc;
+    }).join("\n");
+    return fila + " · ogni effetto legge il risultato del precedente.\n" + dettagli;
+  }
+
+  /* Tutto ciò che dipende dalla catena si ridisegna da qui. */
+  function aggiornaSchedaEffetti(livello) {
+    disegnaEffetti(livello);
+    dom.descEffetto.textContent = descrizioneCatena(livello);
+    disegnaParametri(livello);
+    disegnaEsempi(livello);
+    aggiornaNotaNormalizzazione();
+    disegnaLivelli();
+    aggiornaHud();
+  }
+
+  /* I parametri di ogni effetto in catena, con un'intestazione quando sono più
+     d'uno: gli slider restano quelli dell'effetto a cui appartengono. */
   function disegnaParametri(livello) {
     dom.parametri.innerHTML = "";
-    const effetto = effettoDelLivello(livello);
-    const valori = parametriDelLivello(livello);
-    if (!effetto.params.length) return;
+    const ids = effettiDelLivello(livello);
 
-    effetto.params.forEach(function (p) {
-      const etichetta = document.createElement("label");
-      etichetta.className = "slider";
-      etichetta.append(p.nome);
+    ids.forEach(function (id) {
+      const effetto = effettoDi(id);
+      if (!effetto.params.length) return;
+      const valori = parametriDiEffetto(livello, id);
 
-      if (p.tipo === "bool") {
-        const casella = document.createElement("input");
-        casella.type = "checkbox";
-        casella.checked = !!valori[p.id];
-        casella.addEventListener("input", function () {
-          valori[p.id] = casella.checked;
-          if (livello.effetto === "contorno") {
-            livello.misuraDaFare = true;
-            aggiornaNotaNormalizzazione();
-          }
-        });
-        etichetta.appendChild(casella);
-      } else {
-        const uscita = document.createElement("output");
-        const cursore = document.createElement("input");
-        cursore.type = "range";
-        cursore.min = String(p.min);
-        cursore.max = String(p.max);
-        cursore.step = String(p.step);
-        cursore.value = String(valori[p.id]);
-        uscita.textContent = p.fmt(valori[p.id]);
-        cursore.addEventListener("input", function () {
-          const v = parseFloat(cursore.value);
-          valori[p.id] = v;
-          uscita.textContent = p.fmt(v);
-          if (livello.effetto === "contorno") {
-            livello.misuraDaFare = true;
-            aggiornaNotaNormalizzazione();
-          }
-        });
-        etichetta.appendChild(uscita);
-        etichetta.appendChild(cursore);
+      if (ids.length > 1) {
+        const testa = document.createElement("p");
+        testa.className = "parametri__testa";
+        testa.textContent = (ids.indexOf(id) + 1) + " · " + effetto.nome;
+        dom.parametri.appendChild(testa);
       }
-      dom.parametri.appendChild(etichetta);
+
+      const toccaContorno = function () {
+        if (id !== "contorno") return;
+        livello.misuraDaFare = true;
+        aggiornaNotaNormalizzazione();
+      };
+
+      effetto.params.forEach(function (p) {
+        const etichetta = document.createElement("label");
+        etichetta.className = "slider";
+        etichetta.append(p.nome);
+
+        if (p.tipo === "bool") {
+          const casella = document.createElement("input");
+          casella.type = "checkbox";
+          casella.checked = !!valori[p.id];
+          casella.addEventListener("input", function () {
+            valori[p.id] = casella.checked;
+            toccaContorno();
+          });
+          etichetta.appendChild(casella);
+        } else {
+          const uscita = document.createElement("output");
+          const cursore = document.createElement("input");
+          cursore.type = "range";
+          cursore.min = String(p.min);
+          cursore.max = String(p.max);
+          cursore.step = String(p.step);
+          cursore.value = String(valori[p.id]);
+          uscita.textContent = p.fmt(valori[p.id]);
+          cursore.addEventListener("input", function () {
+            const v = parseFloat(cursore.value);
+            valori[p.id] = v;
+            uscita.textContent = p.fmt(v);
+            toccaContorno();
+          });
+          etichetta.appendChild(uscita);
+          etichetta.appendChild(cursore);
+        }
+        dom.parametri.appendChild(etichetta);
+      });
     });
 
-    if (effetto.id === "velocita" && livello.tipo !== "video") {
+    if (haEffetto(livello, "velocita") && livello.tipo !== "video") {
       const nota = document.createElement("p");
       nota.className = "nota";
       nota.textContent = "Questo livello è un'immagine: la velocità ha effetto solo sui video. " +
@@ -3002,10 +3313,12 @@
   /* ---------------------------------------------------------------- esempi --- */
   /* Un effetto può portarsi dietro un esempio: un loop nostro da aggiungere al
      progetto e, quando esiste, il riferimento esterno col link, il canale e i
-     dati del video. Compaiono sotto i parametri, solo per quell'effetto. */
+     dati del video. Compaiono sotto i parametri, per gli effetti in catena. */
   function disegnaEsempi(livello) {
-    const effetto = effettoDelLivello(livello);
-    const esempi = effetto.esempi || [];
+    const esempi = [];
+    effettiDelLivello(livello).forEach(function (id) {
+      (effettoDi(id).esempi || []).forEach(function (esempio) { esempi.push(esempio); });
+    });
     dom.esempi.innerHTML = "";
     dom.esempi.hidden = !esempi.length;
     if (!esempi.length) return;
@@ -3021,47 +3334,8 @@
     dom.esempi.appendChild(testa);
 
     esempi.forEach(function (esempio) {
-      dom.esempi.appendChild(esempio.tipo === "loop"
-        ? cartaEsempioLocale(esempio)
-        : cartaEsempioVideo(esempio));
+      dom.esempi.appendChild(cartaEsempioVideo(esempio));
     });
-  }
-
-  function cartaEsempioLocale(esempio) {
-    const carta = document.createElement("div");
-    carta.className = "esempio";
-
-    const titolo = document.createElement("strong");
-    titolo.className = "esempio__titolo";
-    titolo.textContent = esempio.nome;
-
-    const meta = document.createElement("p");
-    meta.className = "esempio__meta";
-    meta.textContent = esempio.meta;
-
-    const azioni = document.createElement("div");
-    azioni.className = "esempio__azioni";
-
-    const aggiungi = document.createElement("button");
-    aggiungi.type = "button";
-    aggiungi.className = "btn btn--piccolo";
-    aggiungi.textContent = "Aggiungi al progetto";
-    aggiungi.addEventListener("click", function () { aggiungiEsempioNeve(esempio); });
-
-    const scegli = document.createElement("button");
-    scegli.type = "button";
-    scegli.className = "btn btn--fantasma btn--piccolo";
-    scegli.textContent = "Usa un mio file";
-    scegli.addEventListener("click", function () { scegliFileNeve(esempio); });
-
-    azioni.append(aggiungi, scegli);
-
-    const nota = document.createElement("p");
-    nota.className = "esempio__licenza";
-    nota.textContent = esempio.nota;
-
-    carta.append(titolo, meta, azioni, nota);
-    return carta;
   }
 
   function cartaEsempioVideo(esempio) {
@@ -3169,6 +3443,8 @@
     dom.sceltoNome.textContent = livello ? livello.nome : "";
     if (!livello) {
       dom.effetti.innerHTML = "";
+      dom.catena.innerHTML = "";
+      dom.catena.hidden = true;
       dom.parametri.innerHTML = "";
       dom.esempi.innerHTML = "";
       dom.esempi.hidden = true;
@@ -3177,7 +3453,7 @@
       return;
     }
     disegnaEffetti(livello);
-    dom.descEffetto.textContent = effettoDelLivello(livello).desc;
+    dom.descEffetto.textContent = descrizioneCatena(livello);
     disegnaParametri(livello);
     disegnaEsempi(livello);
 
@@ -3187,7 +3463,10 @@
     dom.outAttacco.textContent = millisecondi(livello.attacco);
     dom.rngOpacita.value = String(Math.round(livello.opacita * 100));
     dom.outOpacita.textContent = Math.round(livello.opacita * 100) + "%";
+    dom.rngReattivo.value = String(Math.round((livello.reattivo || 0) * 100));
+    dom.outReattivo.textContent = Math.round((livello.reattivo || 0) * 100) + "%";
     dom.selFusione.value = livello.fusione;
+    dom.selBandaLivello.value = livello.banda || "";
     dom.selAdatta.value = String(livello.adatta);
     aggiornaNotaNormalizzazione();
   }
@@ -3196,7 +3475,7 @@
     const livello = livelloScelto();
     const visibili = stato.livelli.filter(function (l) { return !l.spento; });
     dom.hudEffetto.textContent = stato.vista === "solo"
-      ? "A · " + (livello ? effettoDelLivello(livello).nome : "nessun livello")
+      ? "A · " + (livello ? nomeEffetti(livello) : "nessun livello")
       : "B · " + visibili.length + (visibili.length === 1 ? " livello" : " livelli");
     dom.hudMedia.textContent = dom.vista.width + " × " + dom.vista.height +
       " · " + stato.fps + " fps";
@@ -3472,7 +3751,7 @@
       if (livello.forzaVisiva < 0.001) livello.forzaVisiva = 0;
 
       const neve = livello.parametri.neve;
-      const spintaNeve = livello.effetto === "neve" ? 1 + neve.velocita * livello.forzaVisiva : 1;
+      const spintaNeve = haEffetto(livello, "neve") ? 1 + neve.velocita * livello.forzaVisiva : 1;
       livello.clock += dt * spintaNeve;
 
       if (livello.forzaVisiva > massimo) massimo = livello.forzaVisiva;
@@ -3740,39 +4019,6 @@
     g.fill();
   }
 
-  function disegnaAura(g, l, a) {
-    g.fillStyle = "#000";
-    g.fillRect(0, 0, l, a);
-    const centro = { x: l * 0.5, y: a * 0.52 };
-    const aura = g.createRadialGradient(centro.x, centro.y, 10, centro.x, centro.y, a * 0.62);
-    aura.addColorStop(0, "rgba(255,122,92,.95)");
-    aura.addColorStop(0.35, "rgba(224,85,60,.42)");
-    aura.addColorStop(0.7, "rgba(90,30,20,.16)");
-    aura.addColorStop(1, "rgba(0,0,0,0)");
-    g.fillStyle = aura;
-    g.fillRect(0, 0, l, a);
-  }
-
-  function disegnaTitolo(g, l, a) {
-    g.fillStyle = "#000";
-    g.fillRect(0, 0, l, a);
-    g.textAlign = "center";
-    g.fillStyle = "#f2ece4";
-    g.font = "500 " + Math.round(a * 0.2) + "px \"Cormorant Garamond\", Georgia, serif";
-    g.fillText("Nastro", l / 2, a * 0.52);
-    g.fillStyle = "rgba(224,85,60,.95)";
-    g.font = "400 " + Math.round(a * 0.032) + "px Inter, Helvetica, sans-serif";
-    g.letterSpacing = "0.3em";
-    g.fillText("STUDIO A LIVELLI", l / 2, a * 0.62);
-    g.letterSpacing = "0em";
-    g.strokeStyle = "rgba(242,236,228,.22)";
-    g.lineWidth = 1;
-    g.beginPath();
-    g.moveTo(l * 0.32, a * 0.56);
-    g.lineTo(l * 0.68, a * 0.56);
-    g.stroke();
-  }
-
   function fileDaTela(nome, disegna) {
     const c = telaDemo(1280, 720);
     disegna(c.getContext("2d"), c.width, c.height);
@@ -3810,6 +4056,148 @@
     }
   }
 
+  /* Un pacchetto può dichiarare i suoi strati nel manifesto: è il caso del video
+     scomposto in sfondo, immagine e buio. "file" è un file della cartella, oppure
+     uno dei disegni che l'app sa già fare (trama). Uno strato con "fonte" esterna
+     (un video YouTube da scaricare a mano) resta in attesa: al suo posto compare
+     una carta che chiede il file, e appena arriva entra nello stack con gli
+     stessi parametri. */
+  async function montaDaManifesto(voci, mancanti) {
+    let base = null;
+    let scelto = null;
+    let quanti = 0;
+    for (let i = 0; i < voci.length; i += 1) {
+      const voce = voci[i] || {};
+      if (!voce.file) continue;
+      let file = null;
+      try {
+        if (voce.file === "trama") file = await fileDaTela("Trama.png", disegnaTrama);
+        else file = await scaricaFile(voce.file);
+      } catch (errore) {
+        console.warn("strato non caricato:", voce.file, errore.message);
+        if (voce.fonte && mancanti) mancanti.push(voce);
+        continue;
+      }
+      const livello = await aggiungiLivello(file);
+      if (!livello) continue;
+      applicaVoceDemo(livello, voce);
+      if (!scelto && voce.scelto) scelto = livello;
+      if (!base) base = livello;
+      quanti += 1;
+    }
+    return { base: scelto || base, quanti: quanti };
+  }
+
+  /* I valori di uno strato del manifesto, filtrati: se un campo manca o non ha
+     senso resta il valore di fabbrica del livello. */
+  function applicaVoceDemo(livello, voce) {
+    if (voce.nome) livello.nome = voce.nome;
+    /* Il manifesto può dire "effetti": [ ... ] oppure, come i pacchetti vecchi,
+       un solo "effetto". In entrambi i casi si finisce nella stessa catena. */
+    if (Array.isArray(voce.effetti)) impostaEffetti(livello, voce.effetti);
+    else if (voce.effetto) impostaEffetti(livello, [voce.effetto]);
+    effettiDelLivello(livello).forEach(function (id) {
+      const valori = livello.parametri[id];
+      const suoi = voce.parametri && voce.parametri[id];
+      if (!valori || !suoi) return;
+      Object.keys(suoi).forEach(function (chiave) {
+        if (chiave in valori) valori[chiave] = suoi[chiave];
+      });
+    });
+    if (typeof voce.opacita === "number") livello.opacita = clamp(voce.opacita, 0, 1);
+    if (typeof voce.reattivo === "number") livello.reattivo = clamp(voce.reattivo, 0, 1);
+    if (typeof voce.forza === "number") livello.forza = clamp(voce.forza, 0, 1);
+    if (typeof voce.attacco === "number") livello.attacco = clamp(voce.attacco, 0, 1);
+    if (voce.fusione && FUSIONI.some(function (f) { return f.id === voce.fusione; })) {
+      livello.fusione = voce.fusione;
+    }
+    if (typeof voce.adatta === "number" || typeof voce.adatta === "boolean") {
+      livello.adatta = voce.adatta ? 1 : 0;
+      livello._telaFatta = false;
+    }
+    if (voce.banda && BANDE[voce.banda]) livello.banda = voce.banda;
+    if (voce.spento) livello.spento = true;
+  }
+
+  /* Uno strato del manifesto che punta a un video esterno (quello di YouTube) non
+     si può scaricare da qui: la carta dice dove prenderlo e accoglie il file
+     scaricato a mano, con gli stessi parametri dello strato previsto. */
+  function disegnaStratiMancanti() {
+    const voci = stato.stratiMancanti;
+    dom.mancanti.innerHTML = "";
+    dom.mancanti.hidden = !voci.length;
+    if (!voci.length) return;
+
+    voci.forEach(function (voce, indice) {
+      const fonte = voce.fonte || {};
+      const carta = document.createElement("div");
+      carta.className = "mancante";
+
+      const titolo = document.createElement("strong");
+      titolo.className = "mancante__titolo";
+      titolo.textContent = voce.nome || voce.file;
+
+      const testo = document.createElement("p");
+      testo.className = "mancante__testo";
+      testo.append("Manca ");
+      const file = document.createElement("b");
+      file.textContent = voce.file;
+      testo.append(file);
+      testo.append(": è il video di " + (fonte.canale || "questa fonte") +
+        ", non un surrogato. Scaricalo, poi caricalo qui: entra nello stack con gli " +
+        "stessi parametri.");
+
+      const fila = document.createElement("div");
+      fila.className = "mancante__fila";
+      if (fonte.url || fonte.download) {
+        const link = document.createElement("a");
+        link.className = "mancante__link";
+        link.href = fonte.download || fonte.url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = fonte.canale ? "Video di " + fonte.canale : "Pagina del video";
+        fila.appendChild(link);
+      }
+      const bottone = document.createElement("button");
+      bottone.type = "button";
+      bottone.className = "btn btn--piccolo";
+      bottone.textContent = "Carica il file";
+      bottone.addEventListener("click", function () { chiediFileMancante(indice); });
+      fila.appendChild(bottone);
+
+      carta.append(titolo, testo, fila);
+      dom.mancanti.appendChild(carta);
+    });
+  }
+
+  function chiediFileMancante(indice) {
+    const voce = stato.stratiMancanti[indice];
+    if (!voce) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "video/*,image/*";
+    input.hidden = true;
+    document.body.appendChild(input);
+    input.addEventListener("change", async function () {
+      const file = input.files && input.files[0];
+      input.remove();
+      if (!file) return;
+      const livello = await aggiungiLivello(file);
+      if (!livello) return;
+      applicaVoceDemo(livello, voce);
+      stato.stratiMancanti.splice(indice, 1);
+      stato.durata = durataTotale();
+      disegnaStratiMancanti();
+      disegnaLivelli();
+      disegnaScheda();
+      aggiornaTrasporto();
+      aggiornaHud();
+      programmaRicalcolo();
+      avviso("Strato \"" + (voce.nome || voce.file) + "\" al suo posto.", false);
+    });
+    input.click();
+  }
+
   /* Se la cartella demo/ è servita da un server, uso i file veri. Da file:// la
      fetch non passa, quindi la demo si sintetizza sul momento. */
   async function demoDaFile() {
@@ -3842,10 +4230,23 @@
     aggiornaGuadagni();
     disegnaPiste();
 
+    /* Se il manifesto elenca gli strati, la demo è quella pila: ogni strato ha
+       il suo effetto e la sua banda, e il video resta nel pacchetto ma non serve
+       più come base. Senza "livelli" vale la composizione di sempre. */
+    const manifesto = await leggiManifesto();
+    stato.stratiMancanti = [];
+    if (manifesto && Array.isArray(manifesto.livelli) && manifesto.livelli.length) {
+      const composta = await montaDaManifesto(manifesto.livelli, stato.stratiMancanti);
+      if (composta.quanti) {
+        return { base: composta.base, composto: true, banda: manifesto.banda || "cassa808" };
+      }
+      stato.stratiMancanti = [];
+      console.warn("il manifesto elenca strati che non si caricano: torno alla base");
+    }
+
     /* Se il manifesto dice che c'è anche il filmato, la base è il video; la
        copertina resta per i pacchetti che il video non ce l'hanno. */
     let base = null;
-    const manifesto = await leggiManifesto();
     if (manifesto && manifesto.filmato) {
       try {
         const filmato = await scaricaFile(manifesto.filmato, "video/mp4");
@@ -3859,7 +4260,7 @@
       base = await aggiungiLivello(cover);
       if (base) base.nome = "Cover";
     }
-    return base;
+    return { base: base, composto: false, banda: "kick" };
   }
 
   async function demoProcedurale() {
@@ -3871,39 +4272,24 @@
     return base;
   }
 
-  async function rifinisciDemo(base) {
-    const aura = await aggiungiLivello(await fileDaTela("Aura.png", disegnaAura));
-    if (aura) {
-      aura.effetto = "neve";
-      aura.parametri.neve.densita = 0.34;
-      aura.parametri.neve.velocita = 3.4;
-      aura.fusione = "somma";
-      aura.opacita = 0.55;
-      aura.forza = 0.9;
-      aura.attacco = 0.02;
-    }
-
-    const titolo = await aggiungiLivello(await fileDaTela("Titolo.png", disegnaTitolo));
-    if (titolo) {
-      titolo.effetto = "nessuno";
-      titolo.fusione = "schermo";
-      titolo.opacita = 0.92;
-      titolo.adatta = 1;
-      titolo.forza = 0.55;
-      titolo._telaFatta = false;
-    }
-
-    if (base) {
-      // Il contorno serve a muovere una copertina ferma; su un filmato lo lascio
-      // spento, altrimenti si perde il video e resta solo il bordo.
-      base.effetto = base.tipo === "video" ? "nessuno" : "contorno";
-      base.fusione = "normale";
-      base.forza = 1;
-      base.attacco = 0.012;
+  async function rifinisciDemo(esito) {
+    const base = esito ? esito.base : null;
+    if (!esito || !esito.composto) {
+      /* Niente strati inventati: la demo è solo la base (copertina o filmato).
+         La neve del pacchetto è un video esterno che l'utente carica, e il
+         titolo non si aggiunge più da solo. */
+      if (base) {
+        // Il contorno serve a muovere una copertina ferma; su un filmato lo lascio
+        // spento, altrimenti si perde il video e resta solo il bordo.
+        impostaEffetti(base, base.tipo === "video" ? [] : ["contorno"]);
+        base.fusione = "normale";
+        base.forza = 1;
+        base.attacco = 0.012;
+      }
     }
 
     stato.scelto = base ? base.id : (stato.livelli[0] ? stato.livelli[0].id : null);
-    stato.banda = "kick";
+    stato.banda = esito && esito.banda ? esito.banda : "kick";
     stato.modo = "impulso";
     stato.trigger = "mix";
     stato.t = 0;
@@ -3921,31 +4307,10 @@
   }
 
   /* ---------------------------------------------------------------- esempi --- */
-  /* Un esempio può essere un loop del pacchetto (demo/) o un file che porti tu:
-     in entrambi i casi nasce un livello sopra lo stack, già in fusione Schermo,
-     così la neve si somma alla scena invece di coprirla. */
-  async function aggiungiEsempioNeve(esempio) {
-    segnala("carico " + esempio.file + "…", "busy");
-    try {
-      // Il loop di neve è roba dell'effetto, non del pacchetto: sta sempre in demo/.
-      const file = await scaricaFile(esempio.file, "video/mp4", "demo");
-      const livello = await aggiungiLivello(file);
-      if (!livello) return;
-      livello.nome = esempio.nome || "Neve · esempio";
-      applicaEsempioNeve(livello, esempio);
-      avviso("Neve di esempio aggiunta sopra lo stack: è in fusione Schermo, quindi " +
-        "la cover resta leggibile e le tracce non cambiano.", false);
-    } catch (errore) {
-      console.warn("Loop di esempio non raggiungibile:", errore.message);
-      avviso("Con doppio clic (file://) il browser non lascia leggere demo/. Avvia " +
-        "strumenti/serve.py, oppure scegli il video a mano.", true);
-      scegliFileNeve(esempio);
-    } finally {
-      segnala(stato.piste.length ? "pronto" : "in attesa dei file",
-        stato.piste.length ? "ok" : "");
-    }
-  }
-
+  /* L'esempio è il video che pubblica il canale: non viaggia col pacchetto, quindi
+     o hai già il file e lo carichi, o apri il link. In entrambi i casi nasce un
+     livello sopra lo stack, già in fusione Schermo, così la neve si somma alla
+     scena invece di coprirla. */
   function scegliFileNeve(esempio) {
     const input = document.createElement("input");
     input.type = "file";
@@ -3966,14 +4331,15 @@
 
   function applicaEsempioNeve(livello, esempio) {
     const dati = esempio || {};
-    livello.effetto = dati.effetto || "nessuno";
-    livello.misuraDaFare = true;
-    const valori = livello.parametri[livello.effetto];
-    if (valori && dati.preset) {
+    if (Array.isArray(dati.effetti)) impostaEffetti(livello, dati.effetti);
+    else impostaEffetti(livello, dati.effetto ? [dati.effetto] : []);
+    effettiDelLivello(livello).forEach(function (id) {
+      const valori = livello.parametri[id];
+      if (!valori || !dati.preset) return;
       Object.keys(dati.preset).forEach(function (chiave) {
         if (chiave in valori) valori[chiave] = dati.preset[chiave];
       });
-    }
+    });
     livello.fusione = dati.fusione || "schermo";
     livello.opacita = typeof dati.opacita === "number" ? dati.opacita : 0.85;
     livello.forza = typeof dati.forza === "number" ? dati.forza : 0.8;
@@ -3997,20 +4363,27 @@
       if (stato.livelli.length || stato.piste.length) azzera(true);
       assicuraGrafo();
 
-      let base = null;
+      let esito = null;
       let origine = "file";
       try {
-        base = await demoDaFile();
+        esito = await demoDaFile();
       } catch (errore) {
         console.warn("Demo dal pacchetto non disponibile:", errore.message);
-        base = await demoProcedurale();
+        esito = { base: await demoProcedurale(), composto: false, banda: "kick" };
         origine = "sintetica";
       }
-      await rifinisciDemo(base);
+      await rifinisciDemo(esito);
+      disegnaStratiMancanti();
 
+      const mancanti = stato.stratiMancanti.length;
       avviso(origine === "file"
-        ? "Demo pronta: cover col contorno, due tracce mute per provare il trigger, " +
-          "un'aura con la neve e il titolo in fusione schermo. Premi Riproduci."
+        ? (esito.composto
+          ? "Demo scomposta in strati: sul colpo lo sfondo si scurisce, l'immagine " +
+            "trema e la neve compare solo lì. Le tracce mute guidano il trigger: premi Riproduci." +
+            (mancanti ? " " + (mancanti === 1 ? "Uno strato aspetta" : mancanti + " strati aspettano") +
+              " il suo video: lo carichi dalla carta qui sotto." : "")
+          : "Demo pronta: la base del pacchetto con il contorno e le tracce mute per il " +
+            "trigger. Premi Riproduci.")
         : "I file in demo/ non sono raggiungibili da qui, quindi ho sintetizzato tutto " +
           "al momento. Premi Riproduci.", false);
     } catch (errore) {
@@ -4043,6 +4416,7 @@
     stato.piste = [];
 
     stato.scelto = null;
+    stato.stratiMancanti = [];
     stato.t = 0;
     stato.durata = 0;
     stato.vista = "tutti";
@@ -4064,6 +4438,7 @@
     aggiornaTrigger();
     aggiornaTrasporto();
     aggiornaSchermoVuoto();
+    disegnaStratiMancanti();
     aggiornaHud();
     disegnaOnda(0);
     etichettaPlay();
@@ -4146,6 +4521,20 @@
       livello.opacita = parseFloat(dom.rngOpacita.value) / 100;
       dom.outOpacita.textContent = Math.round(livello.opacita * 100) + "%";
       disegnaLivelli();
+    });
+    dom.rngReattivo.addEventListener("input", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.reattivo = parseFloat(dom.rngReattivo.value) / 100;
+      dom.outReattivo.textContent = Math.round(livello.reattivo * 100) + "%";
+      disegnaLivelli();
+    });
+    dom.selBandaLivello.addEventListener("change", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.banda = dom.selBandaLivello.value;
+      disegnaLivelli();
+      aggiornaHud();
     });
     dom.selFusione.addEventListener("change", function () {
       const livello = livelloScelto();

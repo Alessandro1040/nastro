@@ -8,13 +8,15 @@
 Scrive nella cartella indicata, con i nomi che l'app si aspetta:
 
     cover.jpg     un fotogramma del video (l'immagine di partenza)
-    filmato.mp4   il video stesso, 720p H.264 senza audio: se c'è, l'app lo usa
-                  come base al posto della copertina
+    filmato.mp4   il video stesso, 720p H.264 senza audio
+    sfondo.jpg    il fotogramma sfocato e spento: il fondo della scena
+    immagine.png  l'opera ritagliata, col resto trasparente: è lo strato che trema
+    buio.png      un nero pieno: l'app lo accende solo sul colpo
     mix.wav       il brano completo, come sta nel video
     kick.wav      la cassa isolata
     bass808.wav   il basso/808 isolato
     hat.wav       gli hi-hat isolati
-    pacchetto.json  il manifesto: durata, BPM, colpi e se c'è il video
+    pacchetto.json  il manifesto: durata, BPM, colpi, pila dei livelli
 
 Come lavora:
 
@@ -24,10 +26,20 @@ Come lavora:
   3. filtra le bande giuste e riscrive tutto a 32 kHz, come il pacchetto che
      sta in demo/;
   4. prende un fotogramma a metà brano per la copertina;
-  5. copia il filmato a 720p senza audio, così l'app può partire dal video.
+  5. copia il filmato a 720p senza audio;
+  6. scompone un fotogramma in strati: trova il riquadro dell'opera (la parte
+     netta dentro il fondo sfocato), la ritaglia su un PNG trasparente, sfoca e
+     spegne il resto per farne lo sfondo, aggiunge un nero da accendere sul
+     colpo. Il manifesto elenca la pila con i valori di partenza: sfondo fermo,
+     buio reattivo, immagine che trema sul colpo, neve sul colpo.
 
-Il video NON viene scomposto in strati: da un filmato già montato non si
-separano titolo, neve e sfondo. Quelli li genera l'app (Titolo, Aura, Neve).
+La neve sul colpo non si disegna in casa: lo strato cita il video che l'autore
+pubblica su YouTube (canale, pagina, download) e il file non viaggia col
+pacchetto. Se non c'è, l'app mostra la carta che chiede di caricarlo e lo mette
+al suo posto; il titolo non viene aggiunto in automatico. La scomposizione
+riguarda quello che un fotogramma permette, cioè l'opera e il fondo. Se il video
+è già pieno schermo non c'è nessun riquadro da ritagliare, e il pacchetto resta
+col solo filmato (o con --senza-strati).
 Le dipendenze obbligatorie sono ffmpeg, numpy, scipy e soundfile; demucs e
 librosa, se presenti, migliorano il risultato.
 """
@@ -139,6 +151,163 @@ def prepara_filmato(
         "-movflags", "+faststart", str(destinazione),
     ]
     comando(*parti)
+
+
+# ---------------------------------------------------------------- strati ---
+def leggi_fotogramma(video: Path, quando: float, larghezza: int = 480) -> np.ndarray:
+    """Un fotogramma in scala di grigi, ridotto: serve solo a trovare i bordi."""
+    esito = subprocess.run(
+        ["ffmpeg", "-v", "error", "-ss", f"{quando:.3f}", "-i", str(video),
+         "-frames:v", "1", "-vf", f"scale={larghezza}:-2", "-pix_fmt", "gray",
+         "-f", "rawvideo", "-"],
+        capture_output=True,
+    )
+    if esito.returncode != 0 or not esito.stdout:
+        messaggio = esito.stderr.decode("utf-8", "replace")[:200]
+        raise RuntimeError("ffmpeg non ha dato il fotogramma: " + messaggio)
+    altezza = len(esito.stdout) // larghezza
+    fotogramma = np.frombuffer(esito.stdout, dtype=np.uint8)[: altezza * larghezza]
+    return fotogramma.reshape(altezza, larghezza)
+
+
+def trova_riquadro(fotogramma: np.ndarray) -> tuple[int, int, int, int] | None:
+    """Il rettangolo della carta (l'immagine incorniciata) dentro il fotogramma.
+
+    Il montaggio tipico di questi video è un poster fermo e netto sopra uno
+    sfondo sfocato: la cornice è un salto di luminanza verticale e orizzontale,
+    quindi si guardano i profili medi delle colonne e delle righe e si prende il
+    primo salto forte partendo dal margine. Non il più forte: sulla cornice
+    dorata i salti si ripetono a raggiera e il massimo cade dentro l'immagine.
+    Il rettangolo si allarga poi di qualche pixel, perché un filo di sfondo ai
+    bordi è meglio di una cornice tagliata. Se il risultato non è credibile —
+    video già pieno schermo, rettangolo troppo piccolo, nessun salto di
+    luminanza — torna None: non c'è niente da scomporre.
+    """
+    alto, largo = fotogramma.shape
+    if alto < 8 or largo < 8:
+        return None
+    grigio = fotogramma.astype(np.float32)
+    salto_col = np.abs(np.diff(grigio.mean(axis=0)))
+    salto_riga = np.abs(np.diff(grigio.mean(axis=1)))
+    if salto_col.size < 2 or salto_riga.size < 2:
+        return None
+
+    def primo_bordo(salti: np.ndarray, da_sinistra: bool) -> int | None:
+        soglia = max(6.0, float(salti.max()) * 0.3)
+        indici = range(len(salti)) if da_sinistra else range(len(salti) - 1, -1, -1)
+        return next((i for i in indici if salti[i] >= soglia), None)
+
+    bordi = (primo_bordo(salto_col, True), primo_bordo(salto_riga, True),
+             primo_bordo(salto_col, False), primo_bordo(salto_riga, False))
+    if any(b is None for b in bordi):
+        return None
+    sinistra, sopra, destra, sotto = (int(b) for b in bordi)
+
+    margine = max(2, round(largo * 0.004))
+    x0, y0 = max(0, sinistra - margine), max(0, sopra - margine)
+    x1, y1 = min(largo, destra + 1 + margine), min(alto, sotto + 1 + margine)
+    larghezza, altezza = x1 - x0, y1 - y0
+
+    if larghezza < largo * 0.25 or altezza < alto * 0.25:
+        return None
+    if larghezza > largo * 0.99 or altezza > alto * 0.99:
+        return None
+    if not 0.8 <= larghezza / altezza <= 1.25:
+        return None
+
+    # Dentro e fuori devono essere due luminanze diverse, altrimenti il
+    # rettangolo è solo la zona più movimentata di un video pieno schermo.
+    dentro = float(grigio[y0:y1, x0:x1].mean())
+    fuori = np.concatenate([grigio[:, :x0].ravel(), grigio[:, x1:].ravel()])
+    if not fuori.size or min(dentro, fuori.mean()) <= 0:
+        return None
+    if min(dentro, fuori.mean()) / max(dentro, fuori.mean()) > 0.92:
+        return None
+
+    return x0, y0, larghezza, altezza
+
+
+def prepara_strati(
+    video: Path,
+    cartella: Path,
+    quando: float,
+    riquadro: tuple[int, int, int, int],
+    larghezza: int,
+    altezza: int,
+) -> None:
+    """Scompone il fotogramma in tre file che l'app impila da sola.
+
+    sfondo.jpg    il margine del fotogramma, stirato su tutto il quadro: il
+                  fondale del video senza l'opera dentro (sfocare il fotogramma
+                  intero lascerebbe l'opera doppia, dietro la sua copia);
+    immagine.png  l'opera ritagliata con la sua cornice, col resto trasparente;
+    buio.png      un nero pieno: l'app lo accende solo sul colpo (reattivo).
+    """
+    x, y, w, h = riquadro
+    # La fascia a sinistra dell'opera è fondale puro: la stiro su tutto, la
+    # riduco a una manciata di pixel e la rimetto in grande, che è il modo più
+    # economico di sfocarla senza lasciare struttura.
+    fascia = max(8, x - 12)
+    spunto = max(2, round(80 * altezza / larghezza))
+    comando(
+        "ffmpeg", "-y", "-v", "error", "-ss", f"{quando:.3f}", "-i", str(video),
+        "-frames:v", "1", "-vf",
+        f"scale={larghezza}:{altezza},crop={fascia}:{altezza}:0:0,"
+        f"scale=80:{spunto},scale={larghezza}:{altezza}:flags=bicubic,"
+        f"gblur=sigma={max(8, round(altezza / 40))},"
+        f"eq=brightness=-0.10:saturation=0.80",
+        "-q:v", "4", str(cartella / "sfondo.jpg"),
+    )
+    comando(
+        "ffmpeg", "-y", "-v", "error", "-ss", f"{quando:.3f}", "-i", str(video),
+        "-filter_complex",
+        f"[0:v]scale={larghezza}:{altezza},format=rgba,crop={w}:{h}:{x}:{y},"
+        f"pad={larghezza}:{altezza}:{x}:{y}:color=black@0[fuori]",
+        "-map", "[fuori]", "-frames:v", "1", "-pix_fmt", "rgba",
+        str(cartella / "immagine.png"),
+    )
+    comando(
+        "ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "color=c=black:s=32x32",
+        "-frames:v", "1", str(cartella / "buio.png"),
+    )
+
+
+NEVE_VIDEO = "neve.mp4"
+NEVE_FONTE = {
+    "tipo": "youtube",
+    "videoId": "NDV9RovS6U8",
+    "titolo": "Free Snowfall Overlay — 4K Loop-Ready Winter Snow Video Background",
+    "canale": "Enchanted Studios",
+    "url": "https://www.youtube.com/watch?v=NDV9RovS6U8",
+    "download": "https://www.enchanted.media/downloads/snow-overlay-footage-free-clip/",
+}
+
+
+def livelli_demo() -> list[dict]:
+    """La pila che l'app monta per un pacchetto scomposto, dal fondo alla cima.
+
+    Lo sfondo è il fondale del video, senza l'opera dentro; il buio è un nero che
+    entra solo sul colpo, così la scena si spegne sul kick e sull'808; l'immagine
+    ritagliata trema sul colpo; la neve sul colpo è il video esterno pubblicato su
+    YouTube, non un surrogato disegnato in casa: il file non viaggia col pacchetto
+    (i crediti restano al canale), quindi in "fonte" ci sono pagina e download, e
+    se manca l'app mostra la carta che chiede di caricarlo. Niente titolo: non si
+    aggiunge più niente che non sia nel video.
+    """
+    banda = "cassa808"
+    return [
+        {"file": "sfondo.jpg", "nome": "Sfondo", "effetti": [],
+         "opacita": 1.0, "banda": banda},
+        {"file": "buio.png", "nome": "Buio sul colpo", "effetti": [],
+         "opacita": 0.86, "reattivo": 1.0, "attacco": 0.01, "banda": banda},
+        {"file": "immagine.png", "nome": "Immagine", "effetti": ["tremolio"],
+         "opacita": 1.0, "forza": 0.85, "attacco": 0.008, "banda": banda,
+         "scelto": True,
+         "parametri": {"tremolio": {"ampiezza": 0.9, "scatti": 24}}},
+        {"file": NEVE_VIDEO, "nome": "Neve sul colpo", "effetti": [],
+         "fusione": "schermo", "opacita": 0.95, "reattivo": 0.94, "attacco": 0.01,
+         "banda": banda, "fonte": NEVE_FONTE},
+    ]
 
 
 # ----------------------------------------------------------------- audio ---
@@ -261,8 +430,11 @@ def main() -> int:
     argomenti.add_argument("--mono", action="store_true", help="tracce mono (metà dello spazio)")
     argomenti.add_argument("--senza-filmato", action="store_true",
                            help="niente video nel pacchetto: solo tracce e copertina")
+    argomenti.add_argument("--senza-strati", action="store_true",
+                           help="niente scomposizione: solo filmato e copertina, "
+                                "senza sfondo/immagine/buio")
     argomenti.add_argument("--altezza", type=int, default=720,
-                           help="altezza del filmato nel pacchetto (default 720)")
+                           help="altezza del filmato e degli strati (default 720)")
     argomenti = argomenti.parse_args()
 
     for programma in ("ffmpeg", "ffprobe"):
@@ -311,25 +483,57 @@ def main() -> int:
                             argomenti.inizio, argomenti.durata, argomenti.altezza)
             print(f"filmato: {argomenti.altezza}p, senza audio")
 
+        # La scomposizione: se il video è un'immagine sopra un fondo sfocato, la
+        # ritaglio e la impilo; se non lo è, resta il solo filmato.
+        strati = False
+        if not argomenti.senza_strati:
+            quando = argomenti.inizio + durata * 0.5
+            try:
+                fotogramma = leggi_fotogramma(video, quando)
+                scala = argomenti.altezza / max(1, info["altezza"])
+                larghezza = int(round(info["larghezza"] * scala / 2)) * 2
+                riquadro = trova_riquadro(fotogramma)
+                if riquadro:
+                    k = larghezza / fotogramma.shape[1]
+                    x, y, w, h = (round(v * k) for v in riquadro)
+                    x = max(0, min(x, larghezza - w))
+                    y = max(0, min(y, argomenti.altezza - h))
+                    prepara_strati(video, uscita, quando, (x, y, w, h),
+                                   larghezza, argomenti.altezza)
+                    strati = True
+                    print(f"strati: immagine {w}×{h} dentro {larghezza}×{argomenti.altezza}, "
+                          f"sfondo sfocato e buio sul colpo")
+                else:
+                    print("strati: nessuna immagine riconoscibile, resta il solo filmato")
+            except RuntimeError as errore:
+                print("strati non riusciti:", errore)
+
     ritmo = conta_colpi(uscita / "kick.wav", uscita / "mix.wav")
     bpm = f"{ritmo['bpm']} BPM, " if ritmo["bpm"] else ""
     print(f"ritmo: {bpm}{ritmo['colpi']} colpi di cassa")
 
     # Il manifesto serve all'app per sapere com'è fatto il pacchetto senza
-    # indovinare: se non c'è, resta valido il comportamento di sempre.
+    # indovinare: se non c'è, resta valido il comportamento di sempre. Con
+    # "livelli" l'app monta la pila scomposta invece di usare il filmato intero.
     manifesto = {
         "nome": uscita.name,
+        "sorgente": argomenti.sorgente,
         "durata": round(durata, 3),
         "bpm": ritmo["bpm"],
         "colpi": ritmo["colpi"],
         "filmato": None if argomenti.senza_filmato else "filmato.mp4",
     }
+    if strati:
+        manifesto["banda"] = "cassa808"
+        manifesto["livelli"] = livelli_demo()
     (uscita / "pacchetto.json").write_text(
         json.dumps(manifesto, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     nomi = ["cover.jpg"]
     if (uscita / "filmato.mp4").exists():
         nomi.append("filmato.mp4")
+    if strati:
+        nomi += ["sfondo.jpg", "immagine.png", "buio.png"]
     nomi += ["mix.wav", "kick.wav", "bass808.wav", "hat.wav"]
     totale = sum((uscita / nome).stat().st_size for nome in nomi)
     print(f"\npacchetto in {uscita} ({totale / 1e6:.1f} MB):")
