@@ -188,3 +188,18 @@ lui. La scia e il ping-pong costano memoria in proporzione a risoluzione e numer
 di livelli: a 1080p con molti livelli conviene 720p. L'effetto Velocità agisce solo
 sui video (sulle immagini non c'è nulla da accelerare) e non tocca l'audio.
 
+
+## Pubblicazione
+
+Il sito è su GitHub Pages (ramo `main`, radice del repo):
+**https://alessandro1040.github.io/nastro/**
+
+Per aggiornarlo basta un push:
+
+```bash
+git add -A && git commit -m "cosa cambia" && git push
+```
+
+Pages ricostruisce da solo in un minuto circa. Il file `.nojekyll` evita che Jekyll
+tocchi la pagina; tutti i percorsi sono relativi, quindi l'app funziona sia in
+locale sia nella sottocartella di Pages.
