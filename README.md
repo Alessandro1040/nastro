@@ -175,11 +175,32 @@ demo/bass808.wav           solo 808
 demo/hat.wav               solo hi-hat
 strumenti/genera_demo.py   rigenera demo/ (numpy + Pillow)
 strumenti/genera_neve.py   rigenera demo/neve.mp4 (numpy + ffmpeg)
+strumenti/pacchetto_da_video.py  costruisce un pacchetto da un tuo filmato
 strumenti/serve.py         server statico per l'uso in locale
 ```
 
 Le tracce sono sintetizzate da `genera_demo.py`, il loop di neve da
 `genera_neve.py`: nessun campione né filmato esterno, nessuna licenza da chiedere.
+
+## Da un video al pacchetto
+
+Se hai già un filmato con il tuo brano, `pacchetto_da_video.py` ne ricava le
+tracce per il trigger e la copertina:
+
+```
+python3 strumenti/pacchetto_da_video.py mio-video.mp4 --uscita demo-mio
+python3 strumenti/pacchetto_da_video.py "https://youtu.be/…" --uscita demo-mio
+```
+
+Demucs (se installato) separa batteria e basso, poi lo strumento filtra la cassa
+(30–170 Hz), l'808 (25–250 Hz) e gli hi-hat (sopra i 6 kHz), riscrive tutto a
+32 kHz come il pacchetto di serie e prende un fotogramma a metà brano per la
+copertina. `--mono` dimezza lo spazio, `--inizio`/`--durata` tagliano una parte.
+
+Un avvertimento onesto: dal video **non** si ricavano gli strati. Un filmato
+già montato è un'immagine sola (più zoom e particelle, se ci sono), quindi non
+se ne separano titolo, neve e sfondo: quelli li genera l'app.
+
 
 ## Limiti
 
