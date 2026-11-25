@@ -1,6 +1,149 @@
 {
   "nome": "demo",
-  "durata": 12.0,
-  "bpm": 120,
-  "filmato": null
+  "sorgente": "Off The Wall (Remix) [Instrumental] — Remixes Collection Vol. 3 (Raedius Productions), estratto da 66.73 s per 16.00 s",
+  "durata": 16.0,
+  "bpm": 112.35,
+  "colpi": 40,
+  "filmato": null,
+  "banda": "cassa808",
+  "livelli": [
+    {
+      "file": "sfondo.jpg",
+      "nome": "Sfondo",
+      "effetti": [],
+      "opacita": 1.0,
+      "banda": "cassa808",
+      "adatta": 0
+    },
+    {
+      "file": "sfondo-fuoco.mp4",
+      "nome": "Fuoco · velo",
+      "effetti": [],
+      "fusione": "schermo",
+      "opacita": 0.08,
+      "banda": "cassa808",
+      "fonte": {
+        "tipo": "youtube",
+        "videoId": "5jqPvtdGoUU",
+        "titolo": "Burning Fire Background | 30 minutes | 4K screensaver loops",
+        "canale": "Boss of Screensavers",
+        "url": "https://www.youtube.com/watch?v=5jqPvtdGoUU",
+        "nota": "estratto da 0:24, bianco e nero, 3840x2160, loop di 58,27 s"
+      },
+      "adatta": 0
+    },
+    {
+      "file": "buio.png",
+      "nome": "Buio sul colpo",
+      "effetti": [],
+      "opacita": 0.42,
+      "reattivo": 1.0,
+      "attacco": 0.01,
+      "finoAlSuono": true,
+      "banda": "cassa808",
+      "adatta": 0
+    },
+    {
+      "file": "neve.mp4",
+      "nome": "Neve",
+      "effetti": [],
+      "fusione": "schermo",
+      "opacita": 1.0,
+      "reattivo": 1.0,
+      "finoAlSuono": true,
+      "attacco": 0.02,
+      "banda": "cassa808",
+      "fonte": {
+        "tipo": "youtube",
+        "videoId": "NDV9RovS6U8",
+        "titolo": "Free Snowfall Overlay — 4K Loop-Ready Winter Snow Video Background",
+        "canale": "Enchanted Studios",
+        "url": "https://www.youtube.com/watch?v=NDV9RovS6U8",
+        "download": "https://www.enchanted.media/downloads/snow-overlay-footage-free-clip/"
+      },
+      "adatta": 0
+    },
+    {
+      "file": "cover.jpg",
+      "nome": "Cover",
+      "effetti": [
+        "tremolio",
+        "saturo"
+      ],
+      "opacita": 1.0,
+      "forza": 0.85,
+      "attacco": 0.008,
+      "banda": "cassa808",
+      "scelto": true,
+      "adatta": 1,
+      "parametri": {
+        "tremolio": {
+          "ampiezza": 0.9,
+          "scatti": 24
+        },
+        "saturo": {
+          "sat": 0.35
+        }
+      }
+    }
+  ],
+  "eventi": {
+    "cassa808": [
+      [0.046, 0.29, 0.88, 0.29],
+      [0.202, 0.14, 0.91, 0.14],
+      [0.479, 0.14, 1.0, 0.14],
+      [0.561, 0.08, 0.81, 0.1],
+      [0.839, 0.6, 0.45, 1.05],
+      [1.279, 0.12, 0.95, 0.12],
+      [1.582, 0.3, 0.45, 0.3],
+      [2.051, 0.6, 0.45, 0.88],
+      [2.342, 0.13, 0.98, 0.13],
+      [2.607, 0.12, 1.0, 0.12],
+      [3.045, 0.6, 0.45, 0.97],
+      [3.339, 0.19, 0.84, 0.19],
+      [3.408, 0.12, 0.98, 0.12],
+      [3.683, 0.31, 0.45, 0.31],
+      [4.17, 0.6, 0.45, 0.9],
+      [4.472, 0.12, 0.98, 0.12],
+      [4.518, 0.08, 0.84, 0.1],
+      [4.736, 0.13, 1.0, 0.13],
+      [5.182, 0.49, 0.45, 0.49],
+      [5.536, 0.12, 1.0, 0.12],
+      [5.825, 0.6, 0.45, 2.0],
+      [6.599, 0.12, 1.0, 0.12],
+      [6.864, 0.14, 0.96, 0.14],
+      [6.94, 0.08, 0.95, 0.1],
+      [7.475, 0.6, 0.45, 2.0],
+      [7.664, 0.12, 1.0, 0.12],
+      [7.755, 0.08, 0.79, 0.1],
+      [8.381, 0.6, 0.45, 1.56],
+      [8.595, 0.12, 0.96, 0.12],
+      [8.673, 0.18, 0.97, 0.18],
+      [8.976, 0.14, 1.0, 0.14],
+      [9.331, 0.6, 0.45, 1.07],
+      [9.794, 0.12, 0.99, 0.12],
+      [10.093, 0.28, 0.45, 0.28],
+      [10.556, 0.6, 0.45, 0.9],
+      [10.857, 0.12, 0.98, 0.12],
+      [11.122, 0.13, 1.0, 0.13],
+      [11.566, 0.52, 0.45, 0.52],
+      [11.923, 0.12, 1.0, 0.12],
+      [12.19, 0.33, 0.45, 0.33],
+      [12.685, 0.6, 0.45, 0.87],
+      [12.987, 0.12, 1.0, 0.12],
+      [13.251, 0.13, 0.99, 0.13],
+      [13.697, 0.6, 0.45, 2.0],
+      [14.049, 0.12, 0.94, 0.12],
+      [14.142, 0.6, 0.62, 1.5],
+      [14.36, 0.6, 0.47, 1.32],
+      [14.679, 0.6, 0.45, 1.03],
+      [14.778, 0.6, 0.45, 0.93],
+      [15.017, 0.6, 0.45, 0.69],
+      [15.116, 0.12, 1.0, 0.12],
+      [15.212, 0.43, 0.61, 0.43],
+      [15.358, 0.23, 0.95, 0.23],
+      [15.456, 0.18, 0.8, 0.18],
+      [15.554, 0.15, 0.45, 0.15]
+    ]
+  }
 }

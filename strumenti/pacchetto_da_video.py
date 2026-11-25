@@ -48,6 +48,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -64,6 +65,7 @@ SR_SORGENTE = 44_100
 CASSA = (30.0, 170.0)     # la banda che l'app ascolta per il kick
 BASSO = (25.0, 250.0)     # l'808 sta sotto i 250 Hz
 HAT = (6_000.0, None)     # gli hi-hat stanno sopra i 6 kHz
+CASSA808 = (25.0, 170.0)  # la banda "cassa + 808" dell'app: lì si misura quanto dura il colpo
 
 
 def comando(*parti: str) -> str:
@@ -246,16 +248,17 @@ def prepara_strati(
     x, y, w, h = riquadro
     # La fascia a sinistra dell'opera è fondale puro: la stiro su tutto, la
     # riduco a una manciata di pixel e la rimetto in grande, che è il modo più
-    # economico di sfocarla senza lasciare struttura.
+    # economico di sfocarla senza lasciare struttura. La luminosità resta quella
+    # del video: scurirla faceva sembrare nero il fondale dietro l'opera.
     fascia = max(8, x - 12)
-    spunto = max(2, round(80 * altezza / larghezza))
+    spunto = max(2, round(45 * altezza / larghezza))
     comando(
         "ffmpeg", "-y", "-v", "error", "-ss", f"{quando:.3f}", "-i", str(video),
         "-frames:v", "1", "-vf",
         f"scale={larghezza}:{altezza},crop={fascia}:{altezza}:0:0,"
-        f"scale=80:{spunto},scale={larghezza}:{altezza}:flags=bicubic,"
-        f"gblur=sigma={max(8, round(altezza / 40))},"
-        f"eq=brightness=-0.10:saturation=0.80",
+        f"scale=96:{spunto},scale={larghezza}:{altezza}:flags=bicubic,"
+        f"gblur=sigma={max(6, round(altezza / 90))},"
+        f"eq=brightness=0.03:saturation=1.15",
         "-q:v", "4", str(cartella / "sfondo.jpg"),
     )
     comando(
@@ -286,27 +289,42 @@ NEVE_FONTE = {
 def livelli_demo() -> list[dict]:
     """La pila che l'app monta per un pacchetto scomposto, dal fondo alla cima.
 
-    Lo sfondo è il fondale del video, senza l'opera dentro; il buio è un nero che
-    entra solo sul colpo, così la scena si spegne sul kick e sull'808; l'immagine
-    ritagliata trema sul colpo; la neve sul colpo è il video esterno pubblicato su
-    YouTube, non un surrogato disegnato in casa: il file non viaggia col pacchetto
-    (i crediti restano al canale), quindi in "fonte" ci sono pagina e download, e
-    se manca l'app mostra la carta che chiede di caricarlo. Niente titolo: non si
-    aggiunge più niente che non sia nel video.
+    Sfondo, buio, neve, immagine: è l'ordine che si legge nello stack (l'ultimo
+    della lista sta sopra). Lo sfondo è il fondale del video, senza l'opera dentro;
+    il buio è un nero che entra sul colpo, e non lo copre: al 42% la scena si
+    abbassa quel tanto che si vede il colpo, senza fare notte. Resta accesa finché
+    suona l'808 (`finoAlSuono`), non un attimo. Sopra il buio la neve, così i
+    fiocchi non si scuriscono; sotto l'immagine, così cade solo sul fondale e non
+    sull'opera in primo piano. In cima l'immagine ritagliata che trema sul colpo.
+    La neve è il video esterno pubblicato su YouTube. Non viaggia col pacchetto
+    (i crediti restano al canale): in "fonte" ci sono pagina, download e id, e se il
+    file non c'è l'app lo chiede allo scaricatore locale, oppure mostra la carta che
+    invita a caricarlo. Niente titolo: non si aggiunge più niente che non sia nel
+    video.
     """
     banda = "cassa808"
     return [
+        # "adatta": 0 = riempi il frame. Sfondo, buio e neve sono lastre da
+        # fondale: il buio in particolare è un PNG 32 × 32, e se l'app lo
+        # inquadrasse "intero" scurirebbe solo un quadrato al centro invece di
+        # tutto lo sfondo. L'immagine in primo piano invece resta intera.
         {"file": "sfondo.jpg", "nome": "Sfondo", "effetti": [],
-         "opacita": 1.0, "banda": banda},
+         "opacita": 1.0, "banda": banda, "adatta": 0},
         {"file": "buio.png", "nome": "Buio sul colpo", "effetti": [],
-         "opacita": 0.86, "reattivo": 1.0, "attacco": 0.01, "banda": banda},
-        {"file": "immagine.png", "nome": "Immagine", "effetti": ["tremolio"],
+         "opacita": 0.42, "reattivo": 1.0, "attacco": 0.01, "finoAlSuono": True,
+         "banda": banda, "adatta": 0},
+        # La neve è il segno del colpo, non il fondale: reattiva al 100%, quindi
+        # c'è sul kick e sull'808 e si ritira nel silenzio fra un colpo e l'altro.
+        # Dura quanto il suono, come il buio, e sta sotto l'opera: si vede sul
+        # fondale, non sopra l'immagine in primo piano.
+        {"file": NEVE_VIDEO, "nome": "Neve", "effetti": [],
+         "fusione": "schermo", "opacita": 1.0, "reattivo": 1.0, "attacco": 0.02,
+         "finoAlSuono": True, "banda": banda, "fonte": NEVE_FONTE, "adatta": 0},
+        {"file": "immagine.png", "nome": "Immagine", "effetti": ["tremolio", "saturo"],
          "opacita": 1.0, "forza": 0.85, "attacco": 0.008, "banda": banda,
-         "scelto": True,
-         "parametri": {"tremolio": {"ampiezza": 0.9, "scatti": 24}}},
-        {"file": NEVE_VIDEO, "nome": "Neve sul colpo", "effetti": [],
-         "fusione": "schermo", "opacita": 0.95, "reattivo": 0.94, "attacco": 0.01,
-         "banda": banda, "fonte": NEVE_FONTE},
+         "scelto": True, "adatta": 1,
+         "parametri": {"tremolio": {"ampiezza": 0.9, "scatti": 24},
+                       "saturo": {"sat": 0.35}}},
     ]
 
 
@@ -400,7 +418,109 @@ def conta_eventi(mono: np.ndarray, banda: tuple[float, float], passo: float = 0.
     return len(uniti)
 
 
+def inviluppo(x: np.ndarray, passo: float = 0.001, finestra: float = 0.020) -> np.ndarray:
+    """Energia della banda a 1 ms di passo, mediata su 20 ms.
+
+    A 1 ms l'energia di una banda bassa non è ancora un inviluppo: una finestra più
+    corta di un ciclo segue la forma d'onda e sembra salire e scendere a ogni
+    oscillazione. La media su 20 ms (qualche ciclo a 25–170 Hz) dà il livello, e il
+    passo di 1 ms tiene il colpo al suo posto.
+    """
+    from scipy.ndimage import uniform_filter1d  # noqa: PLC0415 - serve solo qui
+
+    quanti = len(x) // max(1, int(round(passo * SR_SORGENTE)))
+    if not quanti:
+        return np.zeros(1)
+    energia = uniform_filter1d(x.astype(np.float64) ** 2,
+                               max(1, int(round(finestra * SR_SORGENTE))), mode="nearest")
+    return np.sqrt(np.maximum(energia[:: int(round(passo * SR_SORGENTE))][:quanti], 0.0))
+
+
+def attacchi(mono: np.ndarray, banda: tuple[float, float], *, altezza: float = 0.20,
+             prominenza: float = 0.30, distanza: float = 0.06,
+             passo: float = 0.001) -> list[float]:
+    """Dove comincia un colpo: un picco che si stacca dal livello che ha intorno.
+
+    L'inviluppo della banda, normalizzato al suo 99,5° percentile, si legge con
+    `find_peaks`: un colpo è un massimo alto almeno `altezza` e sollevato di
+    `prominenza` sopra il minimo che ha ai lati, a non meno di `distanza` dal
+    colpo precedente.
+
+    La prominenza è quello che distingue un colpo da un ondeggio. Nella coda di
+    una cassa l'inviluppo risale anche di un terzo (il rimbombo della stanza, il
+    bleed dell'808): un criterio che guarda solo la salita li conta tutti, e in
+    una battuta densa diventano dieci trigger in mezzo secondo. Un colpo vero
+    invece scende e risale di netto, quindi si stacca dal minimo che ha intorno.
+
+    Il tempo riportato è dove comincia la salita, non il picco: il colpo deve
+    partire col suo attacco, e il massimo arriva 10–20 ms dopo.
+    """
+    from scipy.signal import find_peaks  # noqa: PLC0415 - serve solo qui
+
+    e = inviluppo(filtra(mono, banda), passo)
+    e = e / (float(np.percentile(e, 99.5)) or 1.0)
+    picchi, proprieta = find_peaks(e, height=altezza, prominence=prominenza,
+                                   distance=max(1, int(round(distanza / passo))))
+    colpi: list[float] = []
+    for i in picchi:
+        # Dal picco si torna indietro fino al 20% del picco: lì comincia il colpo.
+        # La soglia bassa attraversa le increspature della coda (che stanno tutte
+        # sopra il 20%), e il tetto di 80 ms impedisce di scivolare nel colpo prima.
+        soglia = e[i] * 0.20
+        j = int(i)
+        while j > 0 and j > i - 80 and e[j - 1] > soglia:
+            j -= 1
+        colpi.append(round(j * passo, 3))
+    return colpi
+
+
+def colpi_trigger(cassa: Path, basso: Path, mix: Path) -> dict[str, list[list[float]]]:
+    """Gli attacchi di cassa e 808, con la loro durata sul brano: i trigger del video.
+
+    Sono cercati sulle tracce separate perché nel mix l'808 tiene su l'inviluppo
+    della banda bassa e la cassa che suona sopra non si distingue più. La durata
+    invece si misura sul mix: è quanto il colpo si sente davvero, ed è quella che
+    l'app usa per tenere acceso l'effetto.
+    """
+    su_cassa = attacchi(leggi(cassa).mean(axis=1), CASSA,
+                        altezza=0.20, prominenza=0.30, distanza=0.06)
+    # L'808 si tiene più basso di altezza e di stacco: è suonato legato e spesso
+    # sotto la cassa, e i suoi colpi veri arrivano anche a metà livello.
+    su_basso = attacchi(leggi(basso).mean(axis=1), (25.0, 90.0),
+                        altezza=0.15, prominenza=0.25, distanza=0.09)
+
+    # Cassa e 808 sullo stesso battere sono un colpo solo.
+    uniti: list[list[float]] = []
+    for t in sorted(su_cassa + su_basso):
+        if uniti and t - uniti[-1][0] < 0.045:
+            continue
+        uniti.append([t, 0.0])
+
+    # Durata e forza sul mix: dal picco fin dove la banda bassa resta su.
+    e = inviluppo(filtra(leggi(mix).mean(axis=1), CASSA808))
+    quanti = len(e)
+    e = e / (float(np.percentile(e, 99.5)) or 1.0)
+    for colpo in uniti:
+        i = min(quanti - 1, int(round(colpo[0] / 0.001)))
+        cima = i + int(np.argmax(e[i:i + 80]))          # il picco subito dopo l'attacco
+        picco = float(e[cima])
+        j = cima
+        while j < quanti - 1 and j < cima + 2000 and e[j] > picco * 0.3:
+            j += 1
+        # Due durate, perché servono a due cose diverse. `d` è il colpo: attacco e
+        # corpo, al massimo 0,6 s, ed è quello che fa tremare l'immagine. `s` è il
+        # suono intero, fin dove tiene l'808: è la tenuta del buio e della neve, che
+        # devono restare accesi finché la nota suona, non un attimo.
+        suono = (j - i) * 0.001
+        colpo[1] = round(min(0.6, max(0.08, suono)), 2)
+        colpo.append(round(min(1.0, max(0.45, picco)), 2))
+        colpo.append(round(min(2.0, max(0.1, suono)), 2))
+
+    return {"cassa808": uniti}
+
+
 def conta_colpi(cassa: Path, mix: Path) -> dict:
+
     """Colpi di cassa (rilevatore locale) e BPM (librosa, se c'è)."""
     dati, _ = sf.read(cassa, always_2d=True)
     colpi = conta_eventi(dati.mean(axis=1), CASSA)
@@ -417,6 +537,20 @@ def conta_colpi(cassa: Path, mix: Path) -> dict:
         except Exception as errore:
             print("il BPM salta:", errore)
     return {"bpm": bpm, "colpi": colpi}
+
+
+def scrivi_manifesto(percorso: Path, manifesto: dict) -> None:
+    """Scrive il manifesto, con ogni colpo su una riga sola.
+
+    Con `indent=2` un colpo ([tempo, durata, forza, suono]) diventa sette righe, e
+    un brano di un minuto supera le cinquecento righe: si legge male e si modifica
+    peggio. Gli elenchi di soli numeri restano quindi compatti, quanti che siano.
+    """
+    testo = json.dumps(manifesto, indent=2, ensure_ascii=False)
+    numero = r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?"
+    testo = re.sub(r"\[\s+(" + numero + r"(?:,\s+" + numero + r")*)\s+\]",
+                   lambda m: "[" + re.sub(r",\s+", ", ", m.group(1)) + "]", testo)
+    percorso.write_text(testo + "\n", encoding="utf-8")
 
 
 # ------------------------------------------------------------------- main ---
@@ -512,6 +646,13 @@ def main() -> int:
     bpm = f"{ritmo['bpm']} BPM, " if ritmo["bpm"] else ""
     print(f"ritmo: {bpm}{ritmo['colpi']} colpi di cassa")
 
+    # I trigger, presi dalle tracce separate: cassa e 808 con la loro durata.
+    eventi = {}
+    if all((uscita / nome).exists() for nome in ("kick.wav", "bass808.wav", "mix.wav")):
+        eventi = colpi_trigger(uscita / "kick.wav", uscita / "bass808.wav", uscita / "mix.wav")
+        print("trigger: " + ", ".join(
+            f"{len(v)} colpi sulla banda {k}" for k, v in eventi.items()))
+
     # Il manifesto serve all'app per sapere com'è fatto il pacchetto senza
     # indovinare: se non c'è, resta valido il comportamento di sempre. Con
     # "livelli" l'app monta la pila scomposta invece di usare il filmato intero.
@@ -526,8 +667,9 @@ def main() -> int:
     if strati:
         manifesto["banda"] = "cassa808"
         manifesto["livelli"] = livelli_demo()
-    (uscita / "pacchetto.json").write_text(
-        json.dumps(manifesto, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if eventi:
+        manifesto["eventi"] = eventi
+    scrivi_manifesto(uscita / "pacchetto.json", manifesto)
 
     nomi = ["cover.jpg"]
     if (uscita / "filmato.mp4").exists():

@@ -366,6 +366,35 @@
   }
   .mancante__link:hover{border-color:var(--accento)}
 
+  /* --- composizione da due immagini e dagli stems --------------------------- */
+  .componi{margin-top:8px}
+  .componi__corpo{
+    padding:10px 12px;border:1px dashed var(--bordo-2);border-radius:var(--raggio);
+    background:var(--fondo-2);
+  }
+  .componi__intro{margin:0 0 10px;font-size:.7rem;line-height:1.5;color:var(--muto)}
+  .componi__posta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .componi__nome{
+    font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muto);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+    flex:1 1 120px;
+  }
+  .componi__nome.is-pieno{color:var(--testo);letter-spacing:.06em;text-transform:none;font-size:.72rem}
+  /* I file audio scelti per la composizione: uno per riga, ognuno con la sua ×,
+     così si aggiungono e si tolgono prima di "Componi ed esporta". */
+  .componi__file-elenco{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 10px}
+  .componi__file-elenco:empty{display:none}
+  .componi__file{
+    display:inline-flex;align-items:center;gap:4px;max-width:100%;
+    padding:2px 2px 2px 8px;border:1px solid var(--bordo-2);border-radius:999px;
+    background:var(--pannello-2);
+  }
+  .componi__file>span{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:13em;
+    font-size:.66rem;color:var(--testo);
+  }
+  .componi__file>button{width:18px;height:18px;font-size:.72rem}
+
   /* --- esempi (loop locale + riferimento esterno) -------------------------- */
   .esempi{margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--bordo)}
   .esempi[hidden]{display:none}
@@ -485,6 +514,124 @@
   .pista__corsia{display:flex;align-items:center;gap:8px;font-size:.6rem;color:var(--muto);letter-spacing:.08em;text-transform:uppercase}
   .pista__corsia input{flex:1;min-width:0}
   .pista__corsia output{font-variant-numeric:tabular-nums;color:var(--dim);font-size:.62rem;min-width:36px;text-align:right}
+  .pista__meta .is-controllo{color:var(--accento);letter-spacing:.14em}
+
+  /* --- controllo totale (audio, MIDI, mano) -------------------------------- */
+  .controllo{
+    margin-top:14px;padding-top:13px;border-top:1px solid var(--bordo);
+    display:grid;gap:9px;
+  }
+  .controllo__testa{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .controllo__titolo{
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.2em;
+    font-size:.62rem;color:var(--dim);
+  }
+  .controllo__stato{
+    border:1px solid var(--bordo);border-radius:999px;padding:2px 9px;
+    font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muto);
+    white-space:nowrap;transition:.2s var(--ease);
+  }
+  .controllo__stato.is-acceso{
+    border-color:var(--accento);color:var(--accento-hi);background:var(--accento-soft);
+  }
+  .controllo__intro{margin:0;font-size:.71rem;line-height:1.5;color:var(--muto)}
+  .controllo__intro b{color:var(--dim);font-weight:500}
+  .controllo__info{
+    display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;
+    font-size:.62rem;color:var(--muto);min-height:18px;
+  }
+  .controllo__info b{
+    font-family:var(--serif);font-size:.84rem;font-weight:500;color:var(--testo);
+    max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .controllo__dato{
+    font-variant-numeric:tabular-nums;letter-spacing:.06em;text-transform:uppercase;
+    font-size:.56rem;border-left:1px solid var(--bordo);padding-left:9px;
+  }
+  .controllo__dato:empty{display:none}
+  /* --- brani dal sito ------------------------------------------------------- */
+  .campo input[type=text]{
+    width:100%;padding:7px 9px;border-radius:var(--raggio);
+    border:1px solid var(--bordo);background:var(--fondo-2);color:var(--testo);
+    font-size:.74rem;font-variant-numeric:tabular-nums;
+  }
+  .campo input[type=text]:focus{outline:2px solid rgba(224,85,60,.35);outline-offset:1px}
+  /* L'elenco dei brani: una riga per brano, la testata della raccolta quando
+     cambia. Scorre da sola, così il pannello non cresce con l'archivio. */
+  .sito-elenco{
+    display:flex;flex-direction:column;gap:1px;max-height:266px;overflow-y:auto;
+    padding:3px;border:1px solid var(--bordo);border-radius:var(--raggio);
+    background:var(--fondo-2);overscroll-behavior:contain;
+  }
+  .sito-elenco:empty{display:none}
+  .sito-elenco__testa{
+    position:sticky;top:0;z-index:1;margin:0;padding:7px 7px 4px;
+    background:var(--fondo-2);
+    font-family:var(--maiuscoletto);text-transform:uppercase;letter-spacing:.16em;
+    font-size:.56rem;color:var(--muto);
+  }
+  .sito-elenco__testa:first-child{padding-top:3px}
+  .sito-brano{
+    display:flex;align-items:baseline;gap:8px;width:100%;padding:5px 7px;
+    border:0;border-radius:var(--raggio);background:none;color:var(--dim);
+    font-family:var(--sans);font-size:.74rem;line-height:1.3;text-align:left;
+    cursor:pointer;transition:background .16s var(--ease),color .16s var(--ease);
+  }
+  .sito-brano:hover{background:rgba(242,236,228,.06);color:var(--testo)}
+  .sito-brano.is-scelto{
+    background:var(--accento-soft);color:var(--testo);
+    box-shadow:inset 2px 0 0 var(--accento);
+  }
+  .sito-brano__nome{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sito-brano__dati{
+    flex:0 0 auto;font-variant-numeric:tabular-nums;font-size:.58rem;
+    letter-spacing:.06em;color:var(--muto);
+  }
+  .sito-brano.is-scelto .sito-brano__dati{color:var(--accento-hi)}
+  .sito-brano--fuori{font-style:italic;color:var(--dim)}
+  .sito-conteggio{margin:0;font-size:.6rem;letter-spacing:.04em;color:var(--muto)}
+  .sito-conteggio:empty{display:none}
+  .gesto{display:grid;gap:7px;margin-top:2px}
+  .gesto__pad{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:11px 12px;border:1px dashed var(--bordo-2);border-radius:var(--raggio);
+    background:var(--fondo-2);color:var(--dim);font-family:var(--sans);
+    cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;
+    transition:.18s var(--ease);text-align:left;
+  }
+  .gesto__pad:hover{border-color:var(--accento);color:var(--testo)}
+  .gesto__pad.is-premuto{
+    border-style:solid;border-color:var(--accento);background:var(--accento-soft);
+    color:var(--accento-hi);box-shadow:0 0 26px rgba(224,85,60,.18) inset;
+  }
+  .gesto__mano{font-size:1.35rem;line-height:1}
+  .gesto__testo{font-size:.7rem;letter-spacing:.02em;line-height:1.35}
+  .gesto__testo small{
+    display:block;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muto);
+  }
+  .gesto__comandi{display:flex;gap:6px;flex-wrap:wrap}
+  .gesto__comandi .btn{flex:1 1 auto}
+  .gesto__comandi .btn.is-attivo{
+    border-color:var(--accento);color:var(--accento-hi);background:var(--accento-soft);
+  }
+  .mano-palco{
+    position:absolute;right:12px;bottom:12px;z-index:4;
+    display:flex;align-items:center;gap:6px;padding:7px 11px;
+    border:1px solid rgba(255,255,255,.22);border-radius:999px;
+    background:rgba(15,16,17,.62);color:rgba(255,255,255,.85);
+    font-family:var(--sans);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+    cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;
+    backdrop-filter:blur(6px);transition:.18s var(--ease);
+  }
+  .mano-palco span{font-size:1rem;line-height:1}
+  .mano-palco:hover{border-color:var(--accento);color:#fff}
+  .mano-palco.is-premuto{
+    border-color:var(--accento);background:rgba(224,85,60,.9);color:#fff;
+    box-shadow:0 0 28px rgba(224,85,60,.45);
+  }
+  .mano-palco[hidden]{display:none}
+
   .slider input[type=checkbox]{
     accent-color:var(--accento);width:14px;height:14px;margin:0;justify-self:end;
   }
@@ -575,6 +722,10 @@
             <span id="hud-media">1280 × 720</span>
           </div>
         </div>
+        <button class="mano-palco" id="pad-palco" type="button" hidden
+          title="Tieni premuto: tutti gli effetti restano accesi finché tieni">
+          <span aria-hidden="true">✋</span> Mano
+        </button>
         <div class="schermo__vuoto" id="schermo-vuoto">
           <strong>Qui va lo stack</strong>
           <span>Aggiungi un video o un'immagine, poi le tracce audio.</span>
@@ -623,12 +774,106 @@
         <div class="fila" style="margin-top:10px">
           <label class="btn btn--fantasma btn--piccolo" for="file-livelli">+ Video o immagine</label>
           <input type="file" id="file-livelli" accept="image/*,video/*" multiple hidden>
+          <label class="btn btn--fantasma btn--piccolo" for="file-livelli-audio">+ Audio</label>
+          <input type="file" id="file-livelli-audio" accept="audio/*" multiple hidden>
+          <button class="btn btn--fantasma btn--piccolo" type="button" id="btn-componi"
+            aria-expanded="false" aria-controls="componi">Componi come nel video</button>
         </div>
+
+        <div class="componi__corpo" id="componi" hidden>
+          <p class="componi__intro">
+            Due immagini e l'audio, un pulsante: esce lo stack identico a quello della
+            demo video — sfondo, velo di fuoco, buio sul colpo, neve e immagine che trema
+            e si satura — con gli stessi numeri del pacchetto <code>demo-video</code>.
+            Ogni strato ascolta lo stem o la banda che scegli qui sotto, e con
+            <em>Registra</em> il file è già sul disco alla fine.
+          </p>
+          <div class="componi__posta">
+            <label class="btn btn--fantasma btn--piccolo" for="componi-sfondo">Sfondo</label>
+            <input type="file" id="componi-sfondo" accept="image/*" hidden>
+            <output class="componi__nome" id="out-componi-sfondo">nessuna immagine</output>
+          </div>
+          <div class="componi__posta">
+            <label class="btn btn--fantasma btn--piccolo" for="componi-primo">Primo layer</label>
+            <input type="file" id="componi-primo" accept="image/*" hidden>
+            <output class="componi__nome" id="out-componi-primo">nessuna immagine</output>
+          </div>
+          <div class="componi__posta">
+            <label class="btn btn--fantasma btn--piccolo" for="componi-stems">+ Mix o stems</label>
+            <input type="file" id="componi-stems" accept="audio/*" multiple hidden>
+            <output class="componi__nome" id="out-componi-stems">nessun file</output>
+            <button class="mini mini--testo" type="button" id="btn-componi-audio-via"
+              title="Toglie tutto l'audio scelto per la composizione" hidden>Togli l'audio</button>
+          </div>
+          <div class="componi__file-elenco" id="componi-audio-elenco"></div>
+          <p class="componi__intro">
+            Un file solo è il mix: lo separo io con Demucs (lo scaricatore su :5070) e
+            tengo batteria e basso. In tutti e due i casi passo un gate sulla banda del
+            colpo: dove non c'è un colpo netto il campione va a zero — niente ronzio.
+            Con <em>Sorgente del colpo</em> scegli se gli effetti devono seguire il mix,
+            lo stem della batteria o quello dell'808: l'analisi ascolta solo quella traccia.
+          </p>
+          <label class="campo">Sorgente del colpo
+            <select id="componi-sorgente">
+              <option value="insieme" selected>Insieme · batteria + 808 (come il video)</option>
+              <option value="batteria">Batteria · stem separato (Demucs)</option>
+              <option value="basso">808 / basso · stem separato (Demucs)</option>
+            </select>
+          </label>
+          <label class="campo">Banda del colpo
+            <select id="componi-banda">
+              <option value="cassa808" selected>808 + kick · 25–170 Hz</option>
+              <option value="kick">Solo kick · 40–170 Hz</option>
+              <option value="basso">Solo 808 · 25–90 Hz</option>
+              <option value="tutto">Mix intero · 30–16 kHz</option>
+            </select>
+          </label>
+          <label class="interruttore"><input type="checkbox" id="componi-fuoco" checked>
+            Fuoco · velo (video esterno)</label>
+          <div class="componi__posta">
+            <label class="btn btn--fantasma btn--piccolo" for="componi-fuoco-file">File del fuoco</label>
+            <input type="file" id="componi-fuoco-file" accept="video/*" hidden>
+            <output class="componi__nome" id="out-componi-fuoco">lo prendo io</output>
+          </div>
+          <label class="interruttore"><input type="checkbox" id="componi-neve" checked>
+            Neve sul colpo (video esterno)</label>
+          <div class="componi__posta">
+            <label class="btn btn--fantasma btn--piccolo" for="componi-neve-file">File della neve</label>
+            <input type="file" id="componi-neve-file" accept="video/*" hidden>
+            <output class="componi__nome" id="out-componi-neve">lo prendo io</output>
+          </div>
+          <label class="campo">Chi accende l'animazione
+            <select id="componi-controllo">
+              <option value="auto" selected>Il brano · i suoi colpi (come nel video)</option>
+              <option value="midi">Un file MIDI · le sue note</option>
+              <option value="mano">La mia mano · registro i click</option>
+            </select>
+          </label>
+          <div class="componi__posta" id="componi-midi-fila" hidden>
+            <label class="btn btn--fantasma btn--piccolo" for="componi-midi">MIDI del controllo</label>
+            <input type="file" id="componi-midi"
+              accept=".mid,.midi,audio/midi,audio/x-midi,application/x-midi" hidden>
+            <output class="componi__nome" id="out-componi-midi">nessun file</output>
+          </div>
+          <p class="componi__intro">
+            Con <em>MIDI</em> le note tengono accesi fuoco, neve, buio e immagine — una nota
+            lunga tiene la scena accesa, il silenzio la spegne. Con <em>la mia mano</em> il
+            brano riparte da capo e registra i tuoi click sul pad (o il tasto <b>H</b>): poi
+            li ripete da solo, e il video esce già con l'animazione giusta.
+          </p>
+          <label class="interruttore"><input type="checkbox" id="componi-registra" checked>
+            Registra il video appena composto (WebM, in tempo reale)</label>
+          <div class="fila" style="margin-top:10px">
+            <button class="btn btn--piccolo" type="button" id="btn-componi-fai">Componi ed esporta</button>
+          </div>
+        </div>
+
         <p class="nota" id="nota-livelli">
-          Trascina i file anche sullo schermo. Il primo livello nasce col Contorno nero;
-          quelli aggiunti dopo restano puliti, così puoi sovrapporre una scritta o un logo.
-          La linea del tempo dura quanto la sorgente più lunga: un video più corto si
-          ripete da capo finché il progetto non finisce.
+          Trascina i file anche sullo schermo: i video e le immagini diventano livelli,
+          gli audio vanno nelle tracce del punto 4. Il primo livello nasce col Contorno
+          nero; quelli aggiunti dopo restano puliti, così puoi sovrapporre una scritta o
+          un logo. La linea del tempo dura quanto la sorgente più lunga: un video più
+          corto si ripete da capo finché il progetto non finisce.
         </p>
 
         <div class="mancanti" id="strati-mancanti" hidden></div>
@@ -666,6 +911,22 @@
             <output id="out-reattivo">0%</output>
             <input type="range" id="rng-reattivo" min="0" max="100" step="1" value="0">
           </label>
+
+          <label class="slider">Larghezza
+            <output id="out-larghezza">100%</output>
+            <input type="range" id="rng-larghezza" min="10" max="200" step="1" value="100">
+          </label>
+          <p class="nota" id="nota-larghezza">
+            Ridimensiona il livello mantenendo le proporzioni: 100% è la misura
+            dell'inquadratura scelta. Per il primo piano della demo usa
+            <b>Adatta intera</b> e 100%.
+          </p>
+          <div class="fila" style="margin-top:8px">
+            <button class="btn btn--piccolo" type="button" id="btn-formato-demo"
+              title="Adatta l'intera immagine dentro il frame 1280 × 720 del primo piano della demo, senza deformarla">
+              Formato demo · 1280 × 720
+            </button>
+          </div>
 
           <div class="slider--due">
             <label class="campo">Fusione
@@ -750,6 +1011,64 @@
         </label>
 
         <p class="nota" id="nota-trigger">L'effetto dura quanto il colpo rilevato, poi sfuma con la coda.</p>
+
+        <div class="controllo" id="blocco-controllo">
+          <div class="controllo__testa">
+            <span class="controllo__titolo">Controllo totale</span>
+            <span class="controllo__stato" id="controllo-stato">colpi automatici</span>
+          </div>
+          <p class="controllo__intro">
+            Un <b>audio qualsiasi</b> o un <b>MIDI</b>: finché c'è suono tutti gli effetti
+            restano accesi insieme, quando tace si spengono. Oppure tieni premuto col mouse.
+          </p>
+          <div class="fila">
+            <label class="btn btn--fantasma btn--piccolo" for="file-controllo-audio">Carica audio</label>
+            <input type="file" id="file-controllo-audio" accept="audio/*" hidden>
+            <label class="btn btn--fantasma btn--piccolo" for="file-controllo-midi">Carica MIDI</label>
+            <input type="file" id="file-controllo-midi"
+              accept=".mid,.midi,audio/midi,audio/x-midi,application/x-midi" hidden>
+          </div>
+          <label class="campo">Chi decide
+            <select id="sel-controllo">
+              <option value="auto">Colpi automatici</option>
+              <option value="mano">Solo mano (tieni premuto)</option>
+            </select>
+          </label>
+          <div class="controllo__info">
+            <b id="controllo-nome">nessun file</b>
+            <span class="controllo__dato" id="controllo-bpm"></span>
+            <span class="controllo__dato" id="controllo-durata"></span>
+          </div>
+          <label class="slider">Soglia del silenzio
+            <output id="out-soglia">12%</output>
+            <input type="range" id="rng-soglia" min="1" max="60" step="1" value="12">
+          </label>
+          <label class="slider">Rilascio del controllo
+            <output id="out-rilascio">120 ms</output>
+            <input type="range" id="rng-rilascio" min="0" max="600" step="10" value="120">
+          </label>
+          <label class="slider">Allinea al video
+            <output id="out-allinea">0 ms</output>
+            <input type="range" id="rng-allinea" min="-3000" max="3000" step="10" value="0">
+          </label>
+          <label class="interruttore"><input type="checkbox" id="chk-controllo-loop" checked>
+            Ripeti il controllo col video</label>
+          <div class="gesto">
+            <button class="gesto__pad" id="pad-mano" type="button">
+              <span class="gesto__mano" aria-hidden="true">✋</span>
+              <span class="gesto__testo">Tieni premuto<small>tutti gli effetti accesi</small></span>
+            </button>
+            <div class="gesto__comandi">
+              <button class="btn btn--piccolo" id="btn-gesto-registra" type="button">● Registra gesto</button>
+              <button class="btn btn--piccolo" id="btn-gesto-ripeti" type="button" disabled>↻ Ripeti</button>
+              <button class="btn btn--fantasma btn--piccolo" id="btn-gesto-pulisci" type="button" disabled>Pulisci</button>
+            </div>
+            <p class="nota" id="nota-gesto">
+              Tieni premuto qui o premi <b>H</b>: gli effetti si accendono solo mentre tieni.
+              <b>Registra gesto</b> riparte da capo, prende i tuoi click e poi li ripete col mouse.
+            </p>
+          </div>
+        </div>
       </section>
 
       <!-- 4. audio -->
@@ -767,10 +1086,57 @@
           <label class="btn btn--fantasma btn--piccolo" for="file-audio">+ Aggiungi audio</label>
           <input type="file" id="file-audio" accept="audio/*" multiple hidden>
         </div>
+
+        <div class="controllo" id="blocco-sito">
+          <div class="controllo__testa">
+            <span class="controllo__titolo">Brani dal sito</span>
+            <span class="controllo__stato" id="sito-stato">da leggere</span>
+          </div>
+          <p class="controllo__intro">
+            I brani di <b>Raedius Productions</b> — le raccolte (il Vol. 3 dei remix compreso)
+            e l'archivio, in una lista sola. Cerca un titolo, ascoltalo, poi decidi: aggiungerlo
+            alle tracce, metterlo <b>al posto dell'audio</b> che c'è, o montarci subito la scena
+            di «Componi come nel video» con la sua copertina.
+          </p>
+          <label class="campo">Indirizzo del sito
+            <input type="text" id="inp-sito-url" spellcheck="false" autocomplete="off"
+              value="http://127.0.0.1:7862/" aria-label="Indirizzo del sito di Raedius">
+          </label>
+          <div class="fila">
+            <button class="btn btn--fantasma btn--piccolo" type="button" id="btn-sito-leggi">Leggi il catalogo</button>
+          </div>
+          <label class="campo">Cerca un brano
+            <input type="search" id="inp-sito-cerca" spellcheck="false" autocomplete="off"
+              placeholder="titolo, artista, raccolta…" aria-label="Cerca un brano del sito"
+              aria-controls="sito-elenco" disabled>
+          </label>
+          <div class="sito-elenco" id="sito-elenco" role="listbox" aria-label="Brani del sito"></div>
+          <p class="sito-conteggio" id="sito-conteggio">Il catalogo non è ancora letto.</p>
+          <div class="controllo__info">
+            <b id="sito-nome">nessun brano</b>
+            <span class="controllo__dato" id="sito-dati"></span>
+          </div>
+          <div class="fila">
+            <button class="btn btn--fantasma btn--piccolo" type="button" id="btn-sito-ascolta" disabled>Ascolta</button>
+            <button class="btn btn--piccolo" type="button" id="btn-sito-carica" disabled>+ Alle tracce</button>
+            <button class="btn btn--fantasma btn--piccolo" type="button" id="btn-sito-sostituisci" disabled>Al posto dell'audio</button>
+            <button class="btn btn--fantasma btn--piccolo" type="button" id="btn-sito-componi" disabled>Componi la scena</button>
+          </div>
+          <audio id="audio-sito" preload="none" hidden></audio>
+          <p class="nota" id="nota-sito">
+            Il catalogo è quello del sito in locale: nella sua cartella,
+            <code>python3 strumenti/serve.py</code> (porta 7862). Se un giorno il sito va in
+            rete, incolla qui il suo indirizzo. Il catalogo si legge come script, i brani e
+            le copertine si scaricano: servono le intestazioni CORS del server del sito
+            (le manda anche GitHub Pages). Se un audio non è a catalogo, incolla il suo
+            percorso nella ricerca (<code>assets/audio/…mp3</code>) e l'elenco te lo propone.
+          </p>
+        </div>
+
         <p class="nota" id="nota-audio">
           <b>M</b> muta la traccia, <b>S</b> la mette in solo: con un solo acceso si sentono
-          solo le tracce in solo. Il trigger può ascoltare il mix o una traccia sola,
-          anche se è muta.
+          solo le tracce in solo. La <b>×</b> toglie la traccia dal progetto. Il trigger può
+          ascoltare il mix o una traccia sola, anche se è muta.
         </p>
       </section>
 
@@ -785,6 +1151,8 @@
             <option value="480">480p · veloce</option>
             <option value="720" selected>720p · equilibrata</option>
             <option value="1080">1080p · pesante</option>
+            <option value="1440">1440p · molto pesante</option>
+            <option value="2160">2160p · 4K (3840 × 2160)</option>
           </select>
         </label>
         <label class="campo">Fotogrammi al secondo
@@ -799,6 +1167,11 @@
           registrazione si ferma da sola alla fine della traccia. Salva video + audio in
           <b>WebM</b> (MP4 dove il browser lo preferisce). Per un MP4 universale:
           <code>ffmpeg -i nastro.webm -c:v libx264 -c:a aac out.mp4</code>.
+          <br>
+          Il frame è 16:9: a <b>2160p</b> sono 3840 × 2160, gli stessi pixel del video di
+          4K, quindi la neve ci sta dentro senza ingrandirla. Ogni passaggio della catena
+          costa quattro volte 1080p: se la scena scatta, scendi a 1080p per montare e
+          risali a 2160p solo per registrare.
         </p>
         <button class="btn btn--piccolo" id="btn-azzera" style="width:100%;margin-top:12px">Azzera tutto</button>
       </section>
@@ -922,7 +1295,7 @@
         "sul kick trema e fuori dal colpo torna fermo. L'ampiezza è in percentuale " +
         "della larghezza del frame, quindi la scossa è la stessa su ogni schermo.",
       params: [
-        { id: "ampiezza", nome: "Ampiezza", min: 0.1, max: 4, step: 0.05, def: 0.9,
+        { id: "ampiezza", nome: "Ampiezza", min: 0.1, max: 4, step: 0.05, def: 0.4,
           fmt: (v) => v.toFixed(2).replace(".", ",") + " %" },
         { id: "scatti", nome: "Scatti", min: 4, max: 60, step: 1, def: 24,
           fmt: (v) => Math.round(v) + " Hz" }
@@ -1012,26 +1385,38 @@
         {
           tipo: "video",
           titolo: "Free Snowfall Overlay — 4K Loop-Ready Winter Snow Video Background",
+          nome: "Neve sul colpo",
           canale: "Enchanted Studios",
           canaleUrl: "https://www.youtube.com/@EnchantedStudiosUK",
           url: "https://www.youtube.com/watch?v=NDV9RovS6U8",
           videoId: "NDV9RovS6U8",
           download: "https://www.enchanted.media/downloads/snow-overlay-footage-free-clip/",
           miniatura: "https://i.ytimg.com/vi/NDV9RovS6U8/hqdefault.jpg",
+          /* Il file viaggia con la cartella del pacchetto (?demo=…): se c'è si usa
+             quello, altrimenti lo si chiede allo scaricatore locale di YouTube. */
+          file: "neve.mp4",
           dati: [
             ["Durata", "0:10"],
+            ["Risoluzione", "3840 × 2160 (4K)"],
             ["Pubblicato", "30 settembre 2025"],
             ["Categoria", "Film e animazione"],
-            ["Formato", "4K, loop continuo, senza audio"],
+            ["Formato", "loop continuo, senza audio"],
             ["Visualizzazioni", "13.876 (ottobre 2026)"]
           ],
-          nota: "L'autore lo distribuisce gratis, anche per lavori commerciali, dalla sua pagina " +
-            "di download: prendilo lì e trascinalo nello studio. Il file non è incluso qui, " +
-            "così i crediti restano al canale.",
+          nota: "La neve vera, quella del canale: bianca su fondo nero, in loop, a 4K. " +
+            "L'app se la prende da sola — dal file del pacchetto o dallo scaricatore " +
+            "locale — e la mette in fusione Schermo, reattiva sulla cassa: così compare " +
+            "sul colpo invece di coprire la scena. Se non ha da dove prenderla, scegli " +
+            "il file scaricato dalla pagina dell'autore.",
           fonte: "youtube.com",
-          effetto: "nessuno",
+          effetti: [],
           fusione: "schermo",
-          opacita: 0.75,
+          /* Reattiva al 100%: i fiocchi sono il segno del colpo, quindi entrano
+             sul kick e sull'808 e si ritirano nel silenzio. */
+          opacita: 1,
+          reattivo: 1,
+          finoAlSuono: true,
+          banda: "cassa808",
           forza: 0.7
         }
       ]
@@ -1092,14 +1477,38 @@
     risoluzione: 720,
     fps: 30,
     eventiPerBanda: {},   // banda -> elenco eventi
+    eventiFissi: {},      // colpi dichiarati dal pacchetto (vincono sull'analisi)
     forma: null,          // inviluppo della banda scelta, per l'onda
     formaBanda: "kick",
     versioneAnalisi: 0,
     analisiInCorso: false,
     registrando: false,
     manuale: -1,
+    /* Un solo interruttore per tutti gli effetti: il suono di un file audio, le
+       note di un MIDI o il dito sul pad. "tipo" dice chi comanda; "premuto" è il
+       gesto dal vivo, "rec" i gesti registrati. */
+    controllo: {
+      tipo: "auto",        // auto | audio | midi | mano
+      nome: "",
+      pistaId: null,
+      audio: null,         // { norm, gate, forma, passo, durata }
+      midi: null,          // { eventi, forma, durata, bpm, ... }
+      offset: 0,           // secondi: positivo = il controllo arriva dopo
+      soglia: 0.12,
+      rilascio: 0.12,
+      loop: true,
+      premuto: false,
+      hTasto: false,
+      rec: [],             // [{ t0, t1 }] gesti registrati, in secondi del video
+      recInCorso: false,
+      recPlay: false,
+      recTratto: null
+    },
     ultimaMisura: 0,
     mouseSopra: false,
+    /* I file audio scelti in "Componi come nel video": stanno qui e non
+       nell'input perché un <input file> non si può svuotare voce per voce. */
+    componiAudio: [],
     stratiMancanti: []    // strati del manifesto con un video esterno ancora da caricare
   };
 
@@ -1130,6 +1539,31 @@
     mancanti: $("#strati-mancanti"),
     livelliStato: $("#livelli-stato"),
     fileLivelli: $("#file-livelli"),
+    fileLivelliAudio: $("#file-livelli-audio"),
+    componi: $("#btn-componi"),
+    componiCorpo: $("#componi"),
+    componiSfondo: $("#componi-sfondo"),
+    componiPrimo: $("#componi-primo"),
+    componiStems: $("#componi-stems"),
+    componiAudioElenco: $("#componi-audio-elenco"),
+    btnComponiAudioVia: $("#btn-componi-audio-via"),
+    componiNeve: $("#componi-neve"),
+    componiFuoco: $("#componi-fuoco"),
+    componiSorgente: $("#componi-sorgente"),
+    componiRegistra: $("#componi-registra"),
+    componiBanda: $("#componi-banda"),
+    componiFai: $("#btn-componi-fai"),
+    componiControllo: $("#componi-controllo"),
+    componiMidi: $("#componi-midi"),
+    componiMidiFila: $("#componi-midi-fila"),
+    componiFuocoFile: $("#componi-fuoco-file"),
+    componiNeveFile: $("#componi-neve-file"),
+    outComponiFuoco: $("#out-componi-fuoco"),
+    outComponiNeve: $("#out-componi-neve"),
+    outComponiMidi: $("#out-componi-midi"),
+    outComponiSfondo: $("#out-componi-sfondo"),
+    outComponiPrimo: $("#out-componi-primo"),
+    outComponiStems: $("#out-componi-stems"),
 
     sceltoNome: $("#scelto-nome"),
     scheda: $("#scheda-livello"),
@@ -1148,6 +1582,9 @@
     rngOpacita: $("#rng-opacita"),
     outReattivo: $("#out-reattivo"),
     rngReattivo: $("#rng-reattivo"),
+    outLarghezza: $("#out-larghezza"),
+    rngLarghezza: $("#rng-larghezza"),
+    btnFormatoDemo: $("#btn-formato-demo"),
     selFusione: $("#sel-fusione"),
     selBandaLivello: $("#sel-banda-livello"),
     selAdatta: $("#sel-adatta"),
@@ -1168,10 +1605,49 @@
     rngMaster: $("#rng-master"),
     notaTrigger: $("#nota-trigger"),
 
+    bloccoControllo: $("#blocco-controllo"),
+    controlloStato: $("#controllo-stato"),
+    controlloNome: $("#controllo-nome"),
+    controlloBpm: $("#controllo-bpm"),
+    controlloDurata: $("#controllo-durata"),
+    fileControlloAudio: $("#file-controllo-audio"),
+    fileControlloMidi: $("#file-controllo-midi"),
+    selControllo: $("#sel-controllo"),
+    outSoglia: $("#out-soglia"),
+    rngSoglia: $("#rng-soglia"),
+    outRilascio: $("#out-rilascio"),
+    rngRilascio: $("#rng-rilascio"),
+    outAllinea: $("#out-allinea"),
+    rngAllinea: $("#rng-allinea"),
+    chkControlloLoop: $("#chk-controllo-loop"),
+    padMano: $("#pad-mano"),
+    padPalco: $("#pad-palco"),
+    btnGestoRegistra: $("#btn-gesto-registra"),
+    btnGestoRipeti: $("#btn-gesto-ripeti"),
+    btnGestoPulisci: $("#btn-gesto-pulisci"),
+    notaGesto: $("#nota-gesto"),
+
     audioStato: $("#audio-stato"),
     pisteElenco: $("#piste-elenco"),
     pisteVuoto: $("#piste-vuoto"),
     fileAudio: $("#file-audio"),
+    bloccoAudio: $("#audio"),
+
+    bloccoSito: $("#blocco-sito"),
+    sitoStato: $("#sito-stato"),
+    sitoUrl: $("#inp-sito-url"),
+    btnSitoLeggi: $("#btn-sito-leggi"),
+    sitoCerca: $("#inp-sito-cerca"),
+    sitoElenco: $("#sito-elenco"),
+    sitoConteggio: $("#sito-conteggio"),
+    sitoNome: $("#sito-nome"),
+    sitoDati: $("#sito-dati"),
+    btnSitoAscolta: $("#btn-sito-ascolta"),
+    btnSitoCarica: $("#btn-sito-carica"),
+    btnSitoSostituisci: $("#btn-sito-sostituisci"),
+    btnSitoComponi: $("#btn-sito-componi"),
+    audioSito: $("#audio-sito"),
+    notaSito: $("#nota-sito"),
 
     selRisoluzione: $("#sel-risoluzione"),
     selFps: $("#sel-fps"),
@@ -1242,11 +1718,17 @@
     stato.livelli.forEach(function (l) {
       if (l.tipo !== "video") return;
       /* La durata si rilegge dal media: certi file la dichiarano solo dopo un
-         po' (WebM senza indice), e la linea del tempo deve seguire quella vera. */
-      const vera = durataVideo(l.el);
-      if (vera > 0) durata = Math.max(durata, vera);
-      else if (isFinite(l.durata)) durata = Math.max(durata, l.durata);
+         po' (WebM senza indice), e la linea del tempo deve seguire quella vera.
+         Il tetto vale per gli strati che devono solo fare da velo a un brano. */
+      const vera = durataVideo(l.el) || (isFinite(l.durata) ? l.durata : 0);
+      const tetto = typeof l.limiteDurata === "number" ? l.limiteDurata : Infinity;
+      if (vera > 0) durata = Math.max(durata, Math.min(vera, tetto));
     });
+    /* Un MIDI non è una traccia audio ma ha comunque un suo tempo: se dura più
+       del filmato, il progetto lo segue e il video si ripete sotto il controllo. */
+    if (stato.controllo && stato.controllo.midi) {
+      durata = Math.max(durata, stato.controllo.midi.durata);
+    }
     return durata > 0 ? durata : 12;
   }
   /* Con un solo acceso si sentono solo le tracce in solo; il mix del trigger segue
@@ -1273,13 +1755,17 @@
   }
 
   /* Il canvas decide la griglia di tutti i livelli: si ridimensiona prima di
-     disegnare, non durante, così le texture non vengono ricreate a ogni fotogramma. */
+     disegnare, non durante, così le texture non vengono ricreate a ogni fotogramma.
+     Il lato si ferma sotto i limiti della GPU (le schede di oggi dichiarano 8192 o
+     16384): 2160p sono 3840 × 2160, un quarto di un 8K e dodici volte i pixel di 720p. */
+  const LATO_MASSIMO = 8192;
+
   function preparaCanvas() {
-    const altezza = stato.risoluzione;
-    const larghezza = Math.max(2, Math.round(altezza * 16 / 9 / 2) * 2);
-    if (dom.vista.width !== larghezza || dom.vista.height !== altezza) {
-      dom.vista.width = larghezza;
-      dom.vista.height = altezza;
+    const alto = Math.min(LATO_MASSIMO, Math.max(2, Math.round(stato.risoluzione / 2) * 2));
+    const largo = Math.min(LATO_MASSIMO, Math.max(2, Math.round(alto * 16 / 9 / 2) * 2));
+    if (dom.vista.width !== largo || dom.vista.height !== alto) {
+      dom.vista.width = largo;
+      dom.vista.height = alto;
       return true;
     }
     return false;
@@ -1371,6 +1857,15 @@
     if (pista.nodo) pista.nodo.disconnect();
     stato.piste.splice(i, 1);
     if (stato.trigger === "pista:" + id) stato.trigger = "mix";
+    /* Se era la traccia che controlla gli effetti, il controllo torna ai colpi:
+       non si può restare agganciati a un buffer che non c'è più. */
+    if (stato.controllo.pistaId === id) {
+      stato.controllo.pistaId = null;
+      stato.controllo.audio = null;
+      stato.controllo.nome = "";
+      if (stato.controllo.tipo === "audio") stato.controllo.tipo = "auto";
+      disegnaControllo();
+    }
     stato.durata = durataTotale();
     disegnaPiste();
     aggiornaTrigger();
@@ -1393,10 +1888,16 @@
 
   /* ------------------------------------------------------------------ mix --- */
   /* Somma le tracce udibili in un solo canale, rispettando il ritardo d'ingresso.
-     È il segnale che l'analisi usa: se muti la cassa, il trigger non la sente più. */
+     È il segnale che l'analisi usa: se muti la cassa, il trigger non la sente più.
+     Se invece il trigger è agganciato a UNA traccia (uno stem), l'analisi guarda
+     solo quella — anche se è muta: serve a far pilotare gli effetti dalla cassa
+     tenendo il mix zitto. */
   function mixPerAnalisi() {
+    const scelta = stato.trigger !== "mix" ? stato.trigger.slice(6) : null;
     const tracce = stato.piste.filter(function (pista) {
-      return pistaUdibile(pista) && pista.buffer;
+      if (!pista.buffer) return false;
+      if (scelta) return pista.id === scelta;
+      return pistaUdibile(pista);
     });
     if (!tracce.length) return null;
     const sr = tracce[0].buffer.sampleRate;
@@ -1544,22 +2045,63 @@
     }
 
     const rapporto = 2.0 / clamp(sens, 0.3, 3);
+
+    /* Il colpo si riconosce in due modi, perché le due cose sono diverse:
+       - SPILLO: l'inviluppo supera la mediana mobile (cassa, rullante, hat);
+       - ATTACCO: l'inviluppo sale di colpo rispetto ai 120 ms prima e poi tiene
+         (808 e sub: la nota è già alta, la mediana sta a metà del picco, e con il
+         solo rapporto non si accende mai niente).
+       La banda sostenuta usa solo gli attacchi. La banda a impulsi usa gli spilli
+       e, quando la mediana dice che lì dentro c'è anche roba che tiene (cassa +
+       808), ci aggiunge gli attacchi: altrimenti le note lunghe non contano. */
+    const attacchi = [];
+    (function cercaAttacchi() {
+      const indietro = Math.max(3, Math.round(0.12 / passoSecondi));
+      const distanza = Math.round(0.15 / passoSecondi);
+      const salita = clamp(1.45 / sens, 1.12, 2.5);
+      let ultimo = -1e9;
+      for (let i = indietro; i < quanti; i += 1) {
+        const v = normalizzato[i];
+        if (v < 0.05) continue;
+        let minimo = Infinity;
+        for (let j = i - indietro; j < i; j += 1) {
+          if (normalizzato[j] < minimo) minimo = normalizzato[j];
+        }
+        if (v < minimo * salita + 0.012) continue;
+        if (i - ultimo < distanza) continue;
+        ultimo = i;
+        const tetto = v * 0.35;
+        let fine = i;
+        let picco = v;
+        while (fine < quanti && normalizzato[fine] > tetto) {
+          if (normalizzato[fine] > picco) picco = normalizzato[fine];
+          fine += 1;
+        }
+        attacchi.push({ i0: i, i1: fine, picco: picco });
+      }
+    })();
+
     const grezzi = [];
-    let acceso = false, inizio = 0, picco = 0;
-    for (let i = 0; i < quanti; i += 1) {
-      const v = normalizzato[i];
-      const soglia = mediana[i] * rapporto + 0.012;
-      if (!acceso) {
-        if (v > soglia) { acceso = true; inizio = i; picco = v; }
-      } else {
-        if (v > picco) picco = v;
-        if (v < soglia * 0.62 && i - inizio > 2) {
-          acceso = false;
-          grezzi.push({ i0: inizio, i1: i, picco: picco });
+    if (modo !== "sostenuto") {
+      let acceso = false, inizio = 0, picco = 0;
+      for (let i = 0; i < quanti; i += 1) {
+        const v = normalizzato[i];
+        const soglia = mediana[i] * rapporto + 0.012;
+        if (!acceso) {
+          if (v > soglia) { acceso = true; inizio = i; picco = v; }
+        } else {
+          if (v > picco) picco = v;
+          if (v < soglia * 0.62 && i - inizio > 2) {
+            acceso = false;
+            grezzi.push({ i0: inizio, i1: i, picco: picco });
+          }
         }
       }
+      if (acceso) grezzi.push({ i0: inizio, i1: quanti, picco: picco });
     }
-    if (acceso) grezzi.push({ i0: inizio, i1: quanti, picco: picco });
+    const tiene = mediana[quanti >> 1] > 0.15;
+    if (modo === "sostenuto") grezzi.push.apply(grezzi, attacchi);
+    else if (tiene) grezzi.push.apply(grezzi, attacchi);
 
     const minimo = modo === "sostenuto" ? 0.05 : 0.02;
     let eventi = grezzi.map(function (e) {
@@ -1639,6 +2181,49 @@
     const voce = stato.eventiPerBanda[banda];
     return voce && voce.eventi ? voce.eventi : [];
   }
+
+  /* Il pacchetto può dichiarare i suoi colpi nel manifesto: li calcola lo
+     strumento dalle tracce separate, dove la cassa si vede pulita. Nel mix la
+     cassa e l'808 stanno nella stessa banda, e quando l'808 tiene la nota sotto
+     la cassa l'inviluppo non scende mai: l'analisi ne prende uno su tre. Questi
+     vincono sull'analisi — è il modo per far partire ogni effetto esattamente
+     col kick e con l'808, come nel video. Le bande non dichiarate restano
+     all'analisi, quindi cambiando banda si torna a sentire il mix. */
+  function eventiDaManifesto(manifesto) {
+    const fuori = {};
+    const voci = manifesto && manifesto.eventi;
+    if (!voci || typeof voci !== "object") return fuori;
+    Object.keys(voci).forEach(function (banda) {
+      if (!BANDE[banda] || !Array.isArray(voci[banda])) return;
+      const elenco = [];
+      voci[banda].forEach(function (voce) {
+        if (!Array.isArray(voce) || !isFinite(voce[0])) return;
+        elenco.push({
+          t: Math.max(0, voce[0]),
+          d: clamp(typeof voce[1] === "number" ? voce[1] : 0.2, 0.02, 8),
+          v: clamp(typeof voce[2] === "number" ? voce[2] : 1, 0, 1),
+          /* Quanto dura il suono (l'808 può tenere due secondi): i livelli che
+             devono restare accesi fino alla fine della nota leggono questo. */
+          s: clamp(typeof voce[3] === "number" ? voce[3] : 0, 0, 8)
+        });
+      });
+      if (elenco.length) fuori[banda] = elenco;
+    });
+    return fuori;
+  }
+
+  /* I colpi del manifesto si sovrappongono a quelli dell'analisi, banda per banda. */
+  function conEventiFissi(risultato) {
+    const bande = Object.keys(stato.eventiFissi);
+    if (!bande.length) return risultato;
+    const fuori = Object.assign({}, risultato);
+    bande.forEach(function (banda) {
+      const voce = fuori[banda];
+      fuori[banda] = { eventi: stato.eventiFissi[banda], forma: voce ? voce.forma : null };
+    });
+    return fuori;
+  }
+
   function bandaDelLivello(livello) {
     return livello && livello.banda ? livello.banda : stato.banda;
   }
@@ -1682,7 +2267,7 @@
       }
     }
     if (versione !== stato.versioneAnalisi) return;   // nel frattempo è cambiato qualcosa
-    stato.eventiPerBanda = risultato;
+    stato.eventiPerBanda = conEventiFissi(risultato);
     aggiornaForma();
     segnala(stato.playing ? "in riproduzione" : "pronto", "ok");
     aggiornaOndaInfo();
@@ -1697,6 +2282,33 @@
   }
 
   function aggiornaOndaInfo() {
+    const c = stato.controllo;
+    if (c.tipo === "audio" && c.audio) {
+      dom.ondaTitolo.textContent = "Controllo · suono · " + (c.audio.nome || "audio");
+      dom.ondaInfo.textContent = "soglia " + Math.round(c.soglia * 100) +
+        "% · rilascio " + Math.round(c.rilascio * 1000) + " ms";
+      return;
+    }
+    if (c.tipo === "midi" && c.midi) {
+      dom.ondaTitolo.textContent = "Controllo · MIDI · " + (c.midi.nome || "file");
+      dom.ondaInfo.textContent = c.midi.note + " note · " + testoBpm(c.midi) +
+        " · " + c.midi.eventi.length + " segmenti";
+      return;
+    }
+    if (c.tipo === "mano") {
+      dom.ondaTitolo.textContent = "Controllo · mano";
+      if (c.recInCorso) {
+        dom.ondaInfo.textContent = (c.rec.length
+          ? c.rec.length + (c.rec.length === 1 ? " gesto preso" : " gesti presi")
+          : "registro: tieni premuto H o il pad") + " · " + orologio(durataTotale());
+      } else {
+        dom.ondaInfo.textContent = (c.rec.length
+          ? c.rec.length + (c.rec.length === 1 ? " gesto" : " gesti") +
+            (c.recPlay ? " · in ripetizione" : " · pronti")
+          : "tieni premuto H o il pad") + " · " + orologio(durataTotale());
+      }
+      return;
+    }
     const eventi = eventiBanda(stato.banda);
     const nome = BANDE[stato.banda] ? BANDE[stato.banda].nome : stato.banda;
     const sorgente = stato.trigger === "mix"
@@ -1707,6 +2319,10 @@
       ? eventi.length + (eventi.length === 1 ? " colpo" : " colpi") +
         " · " + orologio(durataTotale())
       : "nessun colpo";
+  }
+
+  function formaOndaControllo() {
+    return formaControlloOnda();
   }
 
   /* --------------------------------------------------------------- disegno --- */
@@ -1727,7 +2343,11 @@
     g.fillStyle = "#15171a";
     g.fillRect(0, 0, larghezza, altezza);
 
-    const forma = stato.forma;
+    /* In un modo di controllo la forma è quella del controllo, anche quando è
+       vuota: meglio "nessuna analisi" che far credere che siano i colpi. */
+    const forma = stato.controllo.tipo === "auto"
+      ? stato.forma
+      : formaOndaControllo();
     if (!forma || !forma.length) {
       g.fillStyle = "#2c2e32";
       g.fillRect(0, Math.round(altezza / 2), larghezza, 1);
@@ -1738,6 +2358,7 @@
       return;
     }
 
+    const c = stato.controllo;
     const barre = Math.max(24, Math.min(forma.length, Math.round(larghezza / 2)));
     const passo = forma.length / barre;
     const testa = clamp(attuale / Math.max(0.001, durataTotale()), 0, 1);
@@ -1754,13 +2375,33 @@
       g.fillRect(i * (larghezza / barre), centro - h, Math.max(1, larghezza / barre - 1), h);
     }
 
-    /* I colpi rilevati, come tacche sul fondo. */
-    const eventi = eventiBanda(stato.banda);
-    g.fillStyle = "rgba(242,236,228,.55)";
-    eventi.forEach(function (e) {
-      const x = e.t / Math.max(0.001, durataTotale()) * larghezza;
-      g.fillRect(x, altezza - 3, 1, 3);
-    });
+    /* Soglia del controllo audio, disegnata dove cade sull'inviluppo. */
+    if (c.tipo === "audio" && c.audio) {
+      const y = centro - clamp(c.soglia, 0, 1) * (altezza - 16);
+      g.fillStyle = "rgba(224,85,60,.45)";
+      g.fillRect(0, Math.round(y), larghezza, 1);
+    }
+
+    /* I colpi automatici, come tacche sul fondo. */
+    if (c.tipo === "auto") {
+      const eventi = eventiBanda(stato.banda);
+      g.fillStyle = "rgba(242,236,228,.55)";
+      eventi.forEach(function (e) {
+        const x = e.t / Math.max(0.001, durataTotale()) * larghezza;
+        g.fillRect(x, altezza - 3, 1, 3);
+      });
+    }
+
+    /* Il gesto registrato, come una banda in fondo. */
+    if (c.rec.length) {
+      const totale = Math.max(0.001, durataTotale());
+      g.fillStyle = c.recPlay ? "rgba(224,85,60,.9)" : "rgba(224,85,60,.45)";
+      c.rec.forEach(function (tratto) {
+        const x0 = clamp(tratto.t0 / totale, 0, 1) * larghezza;
+        const x1 = clamp(tratto.t1 / totale, 0, 1) * larghezza;
+        g.fillRect(x0, altezza - 5, Math.max(1, x1 - x0), 4);
+      });
+    }
 
     const x = testa * larghezza;
     g.fillStyle = "#f2ece4";
@@ -1782,14 +2423,27 @@
       larghezza: media.larghezza,
       altezza: media.altezza,
       durata: media.durata,
+      /* Tetto sulla linea del tempo: un velo di fuoco più lungo del brano non deve
+         allungare il progetto (e la registrazione) oltre l'audio. */
+      limiteDurata: Infinity,
       effetti: primo ? ["contorno"] : [],
       parametri: parametriIniziali(),
       forza: 1,
       attacco: 0.012,
       opacita: 1,
       reattivo: 0,           // 0 = sempre visibile, 1 = solo mentre il colpo è aperto
+      finoAlSuono: false,    // true = resta acceso finché il suono non smette (808 lungo)
       fusione: "normale",
-      adatta: 0,             // 0 = riempi il frame, 1 = adatta intera
+      /* Un'immagine appena aggiunta resta intera nel frame, come il primo piano
+         della demo; un video riempie il frame. In entrambi i casi la manopola
+         Larghezza e il selettore Inquadratura cambiano la misura. Fanno
+         eccezione le tinte piatte — il nero del buio è un PNG 32 × 32: con
+         «Adatta intera» diventerebbe un quadrato in mezzo al fondale, e il
+         colpo scurirebbe solo il centro. Una tinta si stende su tutto il
+         frame, come i video, così lo sfondo si abbassa davvero. */
+      adatta: media.tipo === "immagine" &&
+        !(media.larghezza <= 64 && media.altezza <= 64) ? 1 : 0,
+      scala: 1,              // moltiplicatore della misura dell'inquadratura
       banda: "",             // vuota = segui il trigger globale
       spento: false,
       tela: document.createElement("canvas"),
@@ -1911,6 +2565,25 @@
 
   function aggiornaSchermoVuoto() {
     dom.schermo.classList.toggle("is-piena", stato.livelli.length > 0);
+    if (dom.padPalco) dom.padPalco.hidden = stato.livelli.length === 0;
+  }
+
+  /* Quanto è grande il livello sul frame: l'inquadratura dà la base (riempi o
+     adatta), la manopola Larghezza la moltiplica. Le proporzioni non cambiano,
+     quindi l'immagine non si deforma mai. */
+  function scalaBase(livello) {
+    const larghezza = dom.vista.width || 1280;
+    const altezza = dom.vista.height || 720;
+    const l = Math.max(1, livello.larghezza || 0);
+    const a = Math.max(1, livello.altezza || 0);
+    return livello.adatta
+      ? Math.min(larghezza / l, altezza / a)
+      : Math.max(larghezza / l, altezza / a);
+  }
+
+  function misuraDisegnata(livello) {
+    const scala = scalaBase(livello) * (livello.scala || 1);
+    return { dl: livello.larghezza * scala, da: livello.altezza * scala };
   }
 
   /* La tela di ogni livello ha la stessa griglia del canvas: così i pixel di blur
@@ -1929,18 +2602,10 @@
     g.clearRect(0, 0, larghezza, altezza);
     const media = livello.el;
     if (!media) return;
-    let dl, da;
-    if (livello.adatta) {
-      const scala = Math.min(larghezza / livello.larghezza, altezza / livello.altezza);
-      dl = livello.larghezza * scala;
-      da = livello.altezza * scala;
-    } else {
-      const scala = Math.max(larghezza / livello.larghezza, altezza / livello.altezza);
-      dl = livello.larghezza * scala;
-      da = livello.altezza * scala;
-    }
+    const misura = misuraDisegnata(livello);
     try {
-      g.drawImage(media, (larghezza - dl) / 2, (altezza - da) / 2, dl, da);
+      g.drawImage(media, (larghezza - misura.dl) / 2, (altezza - misura.da) / 2,
+        misura.dl, misura.da);
     } catch (errore) {
       /* video non ancora decodificato: si riprova al fotogramma dopo */
     }
@@ -1998,8 +2663,7 @@
       grigio[i] = (pixel[j] * 0.299 + pixel[j + 1] * 0.587 + pixel[j + 2] * 0.114) / 255;
     }
 
-    const scalaTela = Math.max(dom.vista.width / livello.larghezza,
-      dom.vista.height / livello.altezza);
+    const scalaTela = scalaBase(livello) * (livello.scala || 1);
     const sigma = Math.max(0.4, livello.parametri.contorno.blur * scalaTela * k);
     const pesi = noccioloGaussiano(sigma);
 
@@ -2138,7 +2802,12 @@
     /* La riga 0 del media (tela o video) sta in alto, quindi va girata; i passaggi
        della catena scrivono già dritto e si leggono con uCapovolta = 0. */
     "vec2 uvMedia() { return uCapovolta > 0.5 ? vec2(vUv.x, 1.0 - vUv.y) : vUv; }",
-    "vec3 originale() { return texture2D(uSorgente, uvMedia()).rgb; }",
+    "vec4 originale4() { return texture2D(uSorgente, uvMedia()); }",
+    "vec3 originale() { return originale4().rgb; }",
+    /* L'alpha viaggia col colore. Senza, uno strato ritagliato (un PNG con i
+       margini trasparenti) diventa un rettangolo nero sopra lo sfondo, e gli
+       effetti lo nascondono del tutto. */
+    "float alfa() { return texture2D(uSorgente, uvMedia()).a; }",
     "float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }",
     ""
   ].join("\n");
@@ -2155,11 +2824,11 @@
     "void main() {",
     "  vec2 uv = uFlippata > 0.5 ? vec2(vUv.x, 1.0 - vUv.y) : vUv;",
     "  vec2 passo = uDirezione / uRisoluzione;",
-    "  vec3 somma = vec3(0.0);",
+    "  vec4 somma = vec4(0.0);",
     "  for (int i = -4; i <= 4; i += 1) {",
-    "    somma += texture2D(uSorgente, uv + passo * float(i)).rgb * uPesi[i + 4];",
+    "    somma += texture2D(uSorgente, uv + passo * float(i)) * uPesi[i + 4];",
     "  }",
-    "  gl_FragColor = vec4(somma, 1.0);",
+    "  gl_FragColor = vec4(somma.rgb, somma.a);",
     "}"
   ].join("\n");
 
@@ -2187,7 +2856,7 @@
     "  float modulo = length(vec2(gx, gy)) / max(uSobel, 0.0001);",
     "  float bordo = pow(clamp(modulo, 0.0, 1.0), max(uP2, 0.05));",
     "  if (uP3 > 0.5) bordo = 1.0 - bordo;",
-    "  gl_FragColor = vec4(mix(originale(), vec3(bordo), clamp(uForza, 0.0, 1.0)), 1.0);",
+    "  gl_FragColor = vec4(mix(originale(), vec3(bordo), clamp(uForza, 0.0, 1.0)), alfa());",
     "}"
   ].join("\n");
 
@@ -2198,7 +2867,7 @@
     "  float r = texture2D(uSorgente, uv + vec2(distanza, 0.0)).r;",
     "  float b = texture2D(uSorgente, uv - vec2(distanza, 0.0)).b;",
     "  vec3 base = originale();",
-    "  gl_FragColor = vec4(mix(base, vec3(r, base.g, b), uForza), 1.0);",
+    "  gl_FragColor = vec4(mix(base, vec3(r, base.g, b), uForza), alfa());",
     "}"
   ].join("\n");
 
@@ -2206,14 +2875,15 @@
     "void main() {",
     "  float fattore = 1.0 + uP0 * uForza;",
     "  vec2 uv = (uvMedia() - 0.5) / fattore + 0.5;",
-    "  gl_FragColor = vec4(texture2D(uSorgente, uv).rgb, 1.0);",
+    "  vec4 col = texture2D(uSorgente, uv);",
+    "  gl_FragColor = vec4(col.rgb, col.a);",
     "}"
   ].join("\n");
 
   FRAMMENTI.flash = TESTA_FRAMMENTO + [
     "void main() {",
     "  vec3 lampo = mix(vec3(1.0), vec3(1.0, 0.93, 0.86), 0.35);",
-    "  gl_FragColor = vec4(mix(originale(), lampo, clamp(uForza * uP0, 0.0, 1.0)), 1.0);",
+    "  gl_FragColor = vec4(mix(originale(), lampo, clamp(uForza * uP0, 0.0, 1.0)), alfa());",
     "}"
   ].join("\n");
 
@@ -2222,7 +2892,8 @@
     "  float blocco = mix(1.0, max(uP0, 1.0), uForza);",
     "  vec2 celle = floor(uvMedia() * uRisoluzione / blocco);",
     "  vec2 uv = (celle + 0.5) * blocco / uRisoluzione;",
-    "  gl_FragColor = vec4(texture2D(uSorgente, uv).rgb, 1.0);",
+    "  vec4 col = texture2D(uSorgente, uv);",
+    "  gl_FragColor = vec4(col.rgb, col.a);",
     "}"
   ].join("\n");
 
@@ -2238,10 +2909,11 @@
     "  float r = texture2D(uSorgente, spostato + vec2(0.004 * caos, 0.0)).r;",
     "  float g = texture2D(uSorgente, spostato).g;",
     "  float b = texture2D(uSorgente, spostato - vec2(0.004 * caos, 0.0)).b;",
+    "  float trasparenza = texture2D(uSorgente, spostato).a;",
     "  vec3 col = vec3(r, g, b);",
     "  float scan = 0.82 + 0.18 * sin(uv.y * 720.0 * 1.7);",
     "  col *= mix(1.0, scan, clamp(caos, 0.0, 1.0));",
-    "  gl_FragColor = vec4(mix(originale(), col, uForza), 1.0);",
+    "  gl_FragColor = vec4(mix(originale(), col, uForza), mix(alfa(), trasparenza, uForza));",
     "}"
   ].join("\n");
 
@@ -2255,7 +2927,8 @@
     "  vec2 quadrante = vec2(abs(ruotato.x), abs(ruotato.y));",
     "  vec2 uv = vec2(quadrante.x, 1.0 - quadrante.y);",
     "  vec3 col = texture2D(uSorgente, uv).rgb;",
-    "  gl_FragColor = vec4(mix(originale(), col, uForza), 1.0);",
+    "  float trasparenza = texture2D(uSorgente, uv).a;",
+    "  gl_FragColor = vec4(mix(originale(), col, uForza), mix(alfa(), trasparenza, uForza));",
     "}"
   ].join("\n");
 
@@ -2265,7 +2938,7 @@
     "  vec3 vecchio = texture2D(uPrec, vUv).rgb;",
     "  float persistenza = clamp(uP0 * (0.45 + 0.55 * uForza), 0.0, 0.995);",
     "  vec3 col = max(nuovo, vecchio * persistenza);",
-    "  gl_FragColor = vec4(col, 1.0);",
+    "  gl_FragColor = vec4(col, alfa());",
     "}"
   ].join("\n");
 
@@ -2275,7 +2948,7 @@
     "  vec3 base = originale();",
     "  float l = luma(base);",
     "  vec3 col = mix(vec3(l), base, 1.0 + uP0 * uForza);",
-    "  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);",
+    "  gl_FragColor = vec4(clamp(col, 0.0, 1.0), alfa());",
     "}"
   ].join("\n");
 
@@ -2307,7 +2980,7 @@
     "  vec3 ruotato = clamp(ruotaTinta(base, angolo), 0.0, 1.0);",
     "  vec3 colorato = daHsv(vec3(tinta, 0.78, 1.0)) * (0.22 + 0.78 * l);",
     "  vec3 col = mix(ruotato, colorato, clamp(uP1 * uForza, 0.0, 1.0));",
-    "  gl_FragColor = vec4(col, 1.0);",
+    "  gl_FragColor = vec4(col, alfa());",
     "}"
   ].join("\n");
 
@@ -2326,7 +2999,7 @@
     "  float scan = 0.88 + 0.12 * sin(vUv.y * uRisoluzione.y * 1.4 + uTempo * 5.0);",
     "  float quanto = 0.25 + 0.75 * clamp(uForza, 0.0, 1.0);",
     "  vec3 col = base * scan + vec3(neve) * (0.6 + 0.4 * riga) * 0.55;",
-    "  gl_FragColor = vec4(mix(base, clamp(col, 0.0, 1.0), quanto), 1.0);",
+    "  gl_FragColor = vec4(mix(base, clamp(col, 0.0, 1.0), quanto), alfa());",
     "}"
   ].join("\n");
 
@@ -2631,7 +3304,7 @@
       const parametri = parametriDiEffetto(livello, id);
 
       if (id === "contorno") {
-        const scala = dom.vista.width / Math.max(1, livello.larghezza);
+        const scala = scalaBase(livello) * (livello.scala || 1);
         const pesi = noccioloGaussiano((parametri.blur || 1.2) * scala);
         passoGaussiano(programmi.sfocatura, sorgente, ausiliari[0], true, daMedia, pesi);
         passoGaussiano(programmi.sfocatura, ausiliari[0].texture, ausiliari[1],
@@ -2758,6 +3431,18 @@
   let inizioTempo = 0;
   let trascinandoRicerca = false;
 
+  /* Quanto il suono esce dopo il suo tempo. La scheda audio riempie un buffer
+     prima di far uscire il primo campione, e le cuffie Bluetooth aggiungono il
+     loro ritardo: senza questa attesa gli effetti scattano un po' prima del colpo
+     che si sente, e su un impianto lento lo scarto arriva a un quinto di secondo.
+     Chrome dichiara i due pezzi; dove non li dichiara restano zero. */
+  function latenzaAudio() {
+    if (!ctxAudio) return 0;
+    const base = ctxAudio.baseLatency || 0;
+    const uscita = ctxAudio.outputLatency || 0;
+    return clamp(base + uscita, 0, 0.5);
+  }
+
   function posizione() {
     if (!stato.playing) return stato.t;
     /* Il tempo non deve mai superare la fine: il ciclo lo riporta indietro o mette
@@ -2799,10 +3484,19 @@
     stato.piste.forEach(function (pista) {
       if (!pista.buffer) return;
       const attesa = Math.max(0, pista.ritardo - daSecondi);
-      const offset = Math.max(0, daSecondi - pista.ritardo);
-      if (offset >= pista.buffer.duration - 0.01) return;   // in questo giro è già finita
+      let offset = Math.max(0, daSecondi - pista.ritardo);
+      if (pista.loop && pista.buffer.duration > 0.05) {
+        offset = offset % pista.buffer.duration;   // il controllo si ripete col video
+      } else if (offset >= pista.buffer.duration - 0.01) {
+        return;   // in questo giro è già finita
+      }
       const sorgente = c.createBufferSource();
       sorgente.buffer = pista.buffer;
+      if (pista.loop && pista.buffer.duration > 0.05) {
+        sorgente.loop = true;
+        sorgente.loopStart = 0;
+        sorgente.loopEnd = pista.buffer.duration;
+      }
       sorgente.connect(pista.nodo);
       pista.sorgente = sorgente;
       sorgente.start(c.currentTime + attesa, offset);
@@ -3394,10 +4088,19 @@
     if (esempio.url) azioni.appendChild(linkEsempio("Apri su YouTube", esempio.url));
     if (esempio.download) azioni.appendChild(linkEsempio("Download del canale", esempio.download));
 
+    const carica = document.createElement("button");
+    carica.type = "button";
+    carica.className = "btn btn--piccolo";
+    carica.textContent = "Carica il video";
+    carica.title = "Prende il video dell'esempio — dal file del pacchetto o dallo scaricatore " +
+      "locale di YouTube — e lo mette nello stack con questi parametri";
+    carica.addEventListener("click", function () { caricaEsempioVideo(carica, esempio); });
+    azioni.appendChild(carica);
+
     const hoIlFile = document.createElement("button");
     hoIlFile.type = "button";
     hoIlFile.className = "btn btn--fantasma btn--piccolo";
-    hoIlFile.textContent = "Ho già il file";
+    hoIlFile.textContent = "Scegli un file";
     hoIlFile.addEventListener("click", function () { scegliFileNeve(esempio); });
     azioni.appendChild(hoIlFile);
 
@@ -3419,8 +4122,119 @@
     return link;
   }
 
-  /* Il player parte solo se lo chiedi: così la pagina non chiama YouTube finché
-     non serve, e il riquadro resta la miniatura quando sei offline. */
+  /* ------------------------------------------------- il video dell'esempio --- */
+  /* Lo scaricatore locale (SampleLab, porta 5070) sa prendere un video da YouTube:
+     apre un lavoro con `/download` e poi lo serve da `/video/<nome>`. L'app non ha
+     un servizio suo per farlo — usare lo stesso strumento di sempre vuol dire che
+     il file è quello, non un surrogato — e se lo scaricatore non c'è si ripiega
+     sul file che hai già, senza inventare niente. */
+  const SCARICATORE = "http://localhost:5070";
+
+  async function fileDaScaricatore(videoId, nome) {
+    const avvio = await fetch(SCARICATORE + "/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: "https://www.youtube.com/watch?v=" + videoId,
+        format: "mp4"
+      })
+    });
+    if (!avvio.ok) throw new Error("lo scaricatore non risponde (" + avvio.status + ")");
+    const apertura = await avvio.json();
+    const id = apertura.job_id;
+    if (!id) throw new Error("lo scaricatore non ha aperto il lavoro");
+
+    let ultimo = null;
+    for (let giro = 0; giro < 300; giro += 1) {
+      await new Promise(function (ok) { setTimeout(ok, 2000); });
+      const risposta = await fetch(SCARICATORE + "/status/" + encodeURIComponent(id),
+        { cache: "no-store" });
+      if (!risposta.ok) throw new Error("lo scaricatore non dice come va (" + risposta.status + ")");
+      ultimo = await risposta.json();
+      if (ultimo.status === "done") break;
+      if (ultimo.status === "error") throw new Error(ultimo.error || "download fallito");
+      const percento = ultimo.progress && ultimo.progress.percent
+        ? ultimo.progress.percent
+        : 0;
+      segnala("scarico il video da YouTube… " + percento + "%", "busy");
+    }
+    if (!ultimo || ultimo.status !== "done" || !ultimo.filename) {
+      throw new Error("il video da YouTube non è arrivato");
+    }
+
+    segnala("prendo il video scaricato…", "busy");
+    const risposta = await fetch(SCARICATORE + "/video/" + encodeURIComponent(ultimo.filename),
+      { cache: "no-store" });
+    if (!risposta.ok) throw new Error("il video scaricato non si legge (" + risposta.status + ")");
+    const blob = await risposta.blob();
+    return new File([blob], nome || "video.mp4", { type: blob.type || "video/mp4" });
+  }
+
+  /* I video del pacchetto grosso — il velo di fuoco e la neve — stanno solo in
+     demo-video/: è la cartella che sul sito pubblicato non c'è. Quando la demo è
+     quella del brano (demo/), i due video si cercano prima lì e poi in
+     demo-video/, così la scena si compone anche senza scaricatore. */
+  async function scaricaDaPacchetto(nome, tipo) {
+    try {
+      return await scaricaFile(nome, tipo);
+    } catch (errore) {
+      if (cartellaDemo === "demo-video") throw errore;
+      return await scaricaFile(nome, tipo, "demo-video");
+    }
+  }
+
+  /* Nell'ordine: il file che viaggia col pacchetto (nella cartella di `?demo=…`),
+     poi lo scaricatore, poi niente — chi chiama decide il ripiego. */
+  async function pescaVideoEsempio(esempio) {
+    const nome = esempio.file || "video-esempio.mp4";
+    if (esempio.file) {
+      try {
+        return await scaricaDaPacchetto(esempio.file, "video/mp4");
+      } catch (errore) {
+        console.warn("Il video dell'esempio non è nel pacchetto:", errore.message);
+      }
+    }
+    if (esempio.videoId) {
+      segnala("cerco il video di " + (esempio.canale || "YouTube") + "…", "busy");
+      return await fileDaScaricatore(esempio.videoId, nome);
+    }
+    throw new Error("questo esempio non ha un video da prendere");
+  }
+
+  /* Il livello nasce dal video vero e prende i parametri dell'esempio: fusione,
+     opacità, reattivo sulla banda, catena (di serie vuota: la neve è già nel
+     video, un disturbo sopra la sporcherebbe). */
+  async function montaEsempioVideo(file, esempio) {
+    const livello = await aggiungiLivello(file);
+    if (!livello) return null;
+    livello.nome = (esempio && esempio.nome) || file.name.replace(/\.[^.]+$/, "");
+    applicaEsempioNeve(livello, esempio);
+    const banda = BANDE[livello.banda] ? BANDE[livello.banda].nome : "banda del trigger";
+    avviso("Video di " + (esempio.canale || "YouTube") + " nello stack: " +
+      livello.larghezza + " × " + livello.altezza + ", fusione " + livello.fusione +
+      ", opacità " + Math.round(livello.opacita * 100) + "%, reattivo " +
+      Math.round((livello.reattivo || 0) * 100) + "% sulla " + banda + ".", false);
+    return livello;
+  }
+
+  async function caricaEsempioVideo(bottone, esempio) {
+    const testo = bottone.textContent;
+    bottone.disabled = true;
+    bottone.textContent = "prendo il video…";
+    try {
+      await montaEsempioVideo(await pescaVideoEsempio(esempio), esempio);
+    } catch (errore) {
+      console.warn(errore);
+      avviso("Non riesco a prendere il video: " + errore.message +
+        " Scegli il file che hai scaricato.", true);
+      scegliFileNeve(esempio);
+    } finally {
+      bottone.disabled = false;
+      bottone.textContent = testo;
+    }
+  }
+
+
   function apriEsempioVideo(schermo, esempio) {
     if (schermo.classList.contains("is-vivo") || !esempio.videoId) return;
     const riquadro = document.createElement("iframe");
@@ -3449,6 +4263,8 @@
       dom.esempi.innerHTML = "";
       dom.esempi.hidden = true;
       dom.descEffetto.textContent = "";
+      dom.outLarghezza.textContent = "—";
+      dom.rngLarghezza.value = "100";
       aggiornaNotaNormalizzazione();
       return;
     }
@@ -3468,7 +4284,25 @@
     dom.selFusione.value = livello.fusione;
     dom.selBandaLivello.value = livello.banda || "";
     dom.selAdatta.value = String(livello.adatta);
+    dom.rngLarghezza.value = String(Math.round((livello.scala || 1) * 100));
+    aggiornaLarghezza();
     aggiornaNotaNormalizzazione();
+  }
+
+  /* La larghezza è un moltiplicatore dell'inquadratura; l'output dice anche
+     quanti pixel occupa davvero sul frame, così non si va a occhio. */
+  function aggiornaLarghezza() {
+    const livello = livelloScelto();
+    if (!livello) {
+      dom.outLarghezza.textContent = "—";
+      return;
+    }
+    const misura = misuraDisegnata(livello);
+    const tagliata = misura.dl > dom.vista.width + 0.5 ||
+      misura.da > dom.vista.height + 0.5;
+    dom.outLarghezza.textContent = Math.round((livello.scala || 1) * 100) + "% · " +
+      Math.round(misura.dl) + " × " + Math.round(misura.da) + " px" +
+      (tagliata ? " · tagliata" : "");
   }
 
   function aggiornaHud() {
@@ -3480,6 +4314,11 @@
     dom.hudMedia.textContent = dom.vista.width + " × " + dom.vista.height +
       " · " + stato.fps + " fps";
     dom.hudForza.style.width = Math.round((stato.forzaOra || 0) * 100) + "%";
+    const c = stato.controllo;
+    /* La spia segue il gate davvero applicato ai livelli: automatico, file,
+       gesto registrato o dito. Così non resta spenta mentre gli effetti sono accesi. */
+    const acceso = !!c.premuto || (stato.forzaOra || 0) > 0.05;
+    dom.controlloStato.classList.toggle("is-acceso", acceso);
   }
 
   /* ------------------------------------------------------------------ tracce --- */
@@ -3518,10 +4357,16 @@
       nome.textContent = pista.nome;
       const meta = document.createElement("span");
       meta.className = "pista__meta";
-      meta.textContent = orologio(pista.buffer.duration) +
+      if (pista.controllo) {
+        const etichetta = document.createElement("span");
+        etichetta.className = "is-controllo";
+        etichetta.textContent = "controllo · ";
+        meta.appendChild(etichetta);
+      }
+      meta.append(orologio(pista.buffer.duration) +
         (pista.ritardo > 0.001
           ? " · entra a " + pista.ritardo.toFixed(2).replace(".", ",") + " s"
-          : "");
+          : ""));
       testo.appendChild(nome);
       testo.appendChild(meta);
 
@@ -3645,6 +4490,7 @@
         (stato.trigger === "mix" ? "mix delle tracce" : "traccia scelta") +
         ": ogni colpo porta i livelli alla loro forza, poi la coda li riporta a riposo."
       : "Aggiungi una traccia audio: il trigger analizza il mix filtrato nella banda scelta.";
+    aggiornaControllo();
     aggiornaOndaInfo();
   }
 
@@ -3657,6 +4503,18 @@
      acceso per "tieni" e poi sfumato per "coda". Il pulsante "Prova colpo" è un
      evento manuale con la stessa forma, così si vede l'effetto anche senza audio. */
   function forzaEventi(livello, t) {
+    /* Il suono esce dalla scheda audio un attimo dopo il suo tempo: quello che si
+       sente adesso è il brano di `latenzaAudio()` secondi prima. Gli effetti si
+       cercano lì, altrimenti scattano prima del colpo. Qui, e non nel tempo
+       dell'app: l'orologio e i filmati devono restare dove sono. */
+    t -= latenzaAudio();
+    /* Il controllo totale scavalca le bande: un solo gate per tutti i livelli.
+       In modalità mano il gate arriva da forzaManuale(), non da qui. */
+    if (stato.controllo.tipo === "audio" || stato.controllo.tipo === "midi") {
+      if (!stato.playing && stato.t >= durataTotale() - 0.02) return 0;
+      return stato.controllo.tipo === "audio" ? gateAudioA(t) : gateMidiA(t);
+    }
+    if (stato.controllo.tipo === "mano") return 0;
     const eventi = eventiBanda(bandaDelLivello(livello));
     let lo = 0;
     let hi = eventi.length - 1;
@@ -3666,24 +4524,813 @@
       if (eventi[m].t <= t) { trovato = m; lo = m + 1; } else { hi = m - 1; }
     }
     if (trovato < 0) return 0;
-    const e = eventi[trovato];
-    const dentro = t - e.t;
-    const tenuta = Math.max(0.02, stato.tieni);
-    if (dentro < tenuta) return e.v;
-    const dopo = dentro - tenuta;
-    if (dopo >= stato.coda) return 0;
-    return e.v * (1 - dopo / Math.max(0.001, stato.coda));
+    /* Si guarda anche indietro: in una raffica i colpi si sovrappongono, e vale
+       il più forte fra quelli ancora accesi. Ogni colpo resta acceso quanto dura
+       il suo suono — un 808 lungo tiene l'effetto su, una cassa secca lo lascia
+       cadere — e poi sfuma nella coda. Un livello con "finoAlSuono" (il buio, la
+       neve) non si ferma al colpo: resta acceso finché la nota suona davvero. */
+    const coda = Math.max(0.001, stato.coda);
+    let forza = 0;
+    for (let i = trovato; i >= 0 && i > trovato - 8; i -= 1) {
+      const e = eventi[i];
+      const dentro = t - e.t;
+      const tenuta = Math.max(0.02, stato.tieni,
+        (livello.finoAlSuono ? (e.s || e.d) : e.d) || 0);
+      if (dentro < tenuta) {
+        if (e.v > forza) forza = e.v;
+        continue;
+      }
+      const dopo = dentro - tenuta;
+      if (dopo >= coda) continue;
+      const v = e.v * (1 - dopo / coda);
+      if (v > forza) forza = v;
+    }
+    return forza;
   }
 
   function forzaManuale(adesso) {
-    if (stato.manuale < 0) return 0;
+    const c = stato.controllo;
+    let forza = 0;
+    /* Il dito sul pad accende tutto subito, senza aspettare il brano. */
+    if (c.premuto) forza = 1;
+    const rec = forzaRegistrazione(stato.t);
+    if (rec > forza) forza = rec;
+    if (stato.manuale < 0) return forza;
     const dentro = adesso - stato.manuale;
     const tenuta = Math.max(0.02, stato.tieni);
-    if (dentro < 0) return 0;
-    if (dentro < tenuta) return 1;
+    if (dentro < 0) return forza;
+    if (dentro < tenuta) return Math.max(forza, 1);
     const dopo = dentro - tenuta;
-    if (dopo >= stato.coda) { stato.manuale = -1; return 0; }
-    return 1 - dopo / Math.max(0.001, stato.coda);
+    if (dopo >= stato.coda) { stato.manuale = -1; return forza; }
+    return Math.max(forza, 1 - dopo / Math.max(0.001, stato.coda));
+  }
+
+  /* ------------------------------------------------------- controllo totale --- */
+  /* Il gate è uno solo per tutti i livelli: 1 = suono/gesto presente, 0 = silenzio.
+     Ogni livello conserva il suo attacco e la sua coda, ma il via e lo stop sono
+     comuni, così buio, neve, tremolio e brillantezza non partono sfalsati. */
+  function formaDaGate(gate, punti) {
+    if (!gate || !gate.length) return null;
+    const quanti = punti || 1000;
+    const forma = new Float32Array(quanti);
+    for (let k = 0; k < quanti; k += 1) {
+      const a = Math.floor(k / quanti * gate.length);
+      const b = Math.max(a + 1, Math.floor((k + 1) / quanti * gate.length));
+      let massimo = 0;
+      for (let j = a; j < b && j < gate.length; j += 1) {
+        if (gate[j] > massimo) massimo = gate[j];
+      }
+      forma[k] = massimo;
+    }
+    return forma;
+  }
+
+  function formaDaIntervalli(intervalli, durata, punti) {
+    const quanti = punti || 1000;
+    const forma = new Float32Array(quanti);
+    if (!durata || !intervalli || !intervalli.length) return forma;
+    intervalli.forEach(function (voce) {
+      const a = clamp(Math.floor(voce.t0 / durata * quanti), 0, quanti - 1);
+      const b = clamp(Math.ceil(voce.t1 / durata * quanti), a + 1, quanti);
+      for (let k = a; k < b; k += 1) forma[k] = 1;
+    });
+    return forma;
+  }
+
+  function inviluppoControllo(buffer) {
+    const n = buffer.length;
+    const canali = buffer.numberOfChannels;
+    let mono;
+    if (canali === 1) {
+      mono = buffer.getChannelData(0);
+    } else {
+      mono = new Float32Array(n);
+      for (let c = 0; c < canali; c += 1) {
+        const dati = buffer.getChannelData(c);
+        for (let i = 0; i < n; i += 1) mono[i] += dati[i] / canali;
+      }
+    }
+    const inv = inviluppo(mono, buffer.sampleRate);
+    const passo = inv.passo / buffer.sampleRate;
+    /* Il riferimento è il 99,5° percentile: la soglia è una percentuale del
+       suono pieno, non un valore assoluto che cambia col volume del file. */
+    const campioni = [];
+    const salto = Math.max(1, Math.floor(inv.env.length / 120000));
+    for (let i = 0; i < inv.env.length; i += salto) campioni.push(inv.env[i]);
+    campioni.sort(function (a, b) { return a - b; });
+    const riferimento = campioni[Math.floor(campioni.length * 0.995)] || 0;
+    const scala = riferimento > 1e-6 ? 1 / riferimento : 0;
+    const norm = new Float32Array(inv.env.length);
+    for (let i = 0; i < norm.length; i += 1) norm[i] = inv.env[i] * scala;
+    return { norm: norm, passo: passo, durata: n / buffer.sampleRate };
+  }
+
+  function costruisciGateAudio() {
+    const c = stato.controllo;
+    const audio = c.audio;
+    if (!audio || !audio.norm) return;
+    const soglia = clamp(c.soglia, 0.01, 0.95);
+    const rilascio = Math.max(0.005, c.rilascio);
+    const tenuta = 0.05;   // isteresi: un buco breve non fa lampeggiare tutto
+    const attacco = 0.012;
+    const passo = audio.passo;
+    const gate = new Float32Array(audio.norm.length);
+    let acceso = false;
+    let giu = 0;
+    let g = 0;
+    for (let i = 0; i < audio.norm.length; i += 1) {
+      const v = audio.norm[i] > 1e-4 ? audio.norm[i] : 0;
+      if (!acceso) {
+        if (v >= soglia) { acceso = true; giu = 0; }
+      } else if (v < soglia * 0.62) {
+        giu += passo;
+        if (giu >= tenuta) acceso = false;
+      } else {
+        giu = 0;
+      }
+      /* Attacco corto, rilascio lineare lungo quanto lo slider: a orecchio il
+         silenzio spegne subito, senza la coda esponenziale che sembrava un eco. */
+      if (acceso) g = Math.min(1, g + passo / attacco);
+      else g = Math.max(0, g - passo / rilascio);
+      gate[i] = g;
+    }
+    audio.gate = gate;
+    audio.forma = formaDaGate(gate);
+  }
+
+  function gateAudioA(t) {
+    const c = stato.controllo;
+    const audio = c.audio;
+    if (!audio || !audio.gate || !audio.gate.length) return 0;
+    const pista = c.pistaId ? pistaDaId(c.pistaId) : null;
+    let x = t - (pista ? pista.ritardo : 0) - c.offset;
+    if (x < 0) return 0;
+    if (c.loop && audio.durata > 0.05) {
+      x %= audio.durata;
+    } else if (x >= audio.durata) {
+      return 0;
+    }
+    const indice = x / audio.passo;
+    const i = Math.floor(indice);
+    if (i < 0 || i >= audio.gate.length) return 0;
+    const j = Math.min(audio.gate.length - 1, i + 1);
+    const f = indice - i;
+    return audio.gate[i] + (audio.gate[j] - audio.gate[i]) * f;
+  }
+
+  function forzaRegistrazione(t) {
+    const c = stato.controllo;
+    if (!c.recPlay || !c.rec.length) return 0;
+    let x = t;
+    if (c.loop) x %= Math.max(0.001, durataTotale());
+    for (let i = 0; i < c.rec.length; i += 1) {
+      const voce = c.rec[i];
+      if (voce.t0 > x) break;
+      if (x <= voce.t1) return 1;
+    }
+    return 0;
+  }
+
+  function formaControlloOnda() {
+    const c = stato.controllo;
+    if (c.tipo === "audio" && c.audio) return c.audio.forma;
+    if (c.tipo === "mano") {
+      return c.rec.length ? formaDaIntervalli(c.rec, durataTotale()) : null;
+    }
+    if (c.tipo === "midi" && c.midi) {
+      const punti = 900;
+      const totale = Math.max(0.001, durataTotale());
+      const forma = new Float32Array(punti);
+      for (let i = 0; i < punti; i += 1) {
+        forma[i] = gateMidiA(i / (punti - 1) * totale) ? 1 : 0;
+      }
+      return forma;
+    }
+    return null;
+  }
+
+  /* ------------------------------------------------------------- MIDI (SMF) --- */
+  /* Parser Standard MIDI File senza dipendenze: segue la mappa dei tempi (BPM),
+     accoppia note on/off e trasforma le note in segmenti di gate. Se il file ha
+     solo il tempo e nessuna nota, batte un impulso per ogni battito. */
+  function leggiMidi(origine) {
+    const dati = new Uint8Array(origine);
+    let p = 0;
+
+    function u8() {
+      if (p >= dati.length) throw new Error("file MIDI troncato");
+      return dati[p++];
+    }
+    function u16() { return (u8() << 8) | u8(); }
+    function u32() {
+      return ((u8() << 24) | (u8() << 16) | (u8() << 8) | u8()) >>> 0;
+    }
+    function vlq() {
+      let v = 0;
+      let b = 0;
+      let guardia = 0;
+      do {
+        b = u8();
+        v = (v << 7) | (b & 0x7f);
+        guardia += 1;
+      } while ((b & 0x80) && guardia < 8);
+      return v;
+    }
+    function tag() { return String.fromCharCode(u8(), u8(), u8(), u8()); }
+
+    if (tag() !== "MThd") throw new Error("Non è un file MIDI (manca MThd)");
+    const lunghezzaTesta = u32();
+    u16(); // formato
+    u16(); // tracce dichiarate
+    const divisione = u16();
+    p += Math.max(0, lunghezzaTesta - 6);
+
+    function leggiTraccia(fine) {
+      const tempi = [];
+      const note = [];
+      let tick = 0;
+      let stato = 0;
+      while (p < fine) {
+        tick += vlq();
+        if (p >= fine) break;
+        const primo = dati[p];
+        if (primo === 0xFF) {
+          p += 1;
+          const tipo = u8();
+          const lunga = vlq();
+          const da = p;
+          if (tipo === 0x51 && lunga >= 3) {
+            tempi.push({
+              tick: tick,
+              us: (dati[da] << 16) | (dati[da + 1] << 8) | dati[da + 2]
+            });
+          }
+          p = Math.min(fine, da + lunga);
+          stato = 0;
+          continue;
+        }
+        if (primo === 0xF0 || primo === 0xF7) {
+          p += 1;
+          p = Math.min(fine, p + vlq());
+          stato = 0;
+          continue;
+        }
+        let comando;
+        if (primo & 0x80) {
+          comando = primo;
+          stato = primo;
+          p += 1;
+        } else {
+          if (!stato) break;
+          comando = stato;
+        }
+        const alto = comando & 0xF0;
+        if (alto === 0x90 || alto === 0x80) {
+          const nota = u8();
+          const vel = u8();
+          note.push({
+            tick: tick,
+            tipo: alto === 0x90 && vel > 0 ? 1 : 0,
+            nota: nota,
+            canale: comando & 0x0F
+          });
+        } else if (alto === 0xA0 || alto === 0xB0 || alto === 0xE0) {
+          p += 2;
+        } else if (alto === 0xC0 || alto === 0xD0) {
+          p += 1;
+        } else {
+          break;
+        }
+      }
+      return { tempi: tempi, note: note, tickFine: tick };
+    }
+
+    const tracce = [];
+    while (p + 8 <= dati.length) {
+      const id = tag();
+      const lunga = u32();
+      const fine = Math.min(dati.length, p + lunga);
+      if (id === "MTrk") tracce.push(leggiTraccia(fine));
+      p = fine;
+    }
+    if (!tracce.length) throw new Error("Il MIDI non contiene tracce");
+
+    const tempi = [];
+    const note = [];
+    let tickFine = 0;
+    tracce.forEach(function (traccia) {
+      traccia.tempi.forEach(function (t) { tempi.push(t); });
+      traccia.note.forEach(function (n) { note.push(n); });
+      if (traccia.tickFine > tickFine) tickFine = traccia.tickFine;
+    });
+    tempi.sort(function (a, b) { return a.tick - b.tick; });
+    const smpte = (divisione & 0x8000) !== 0;
+    if (!smpte && !divisione) throw new Error("Divisione MIDI non valida");
+    let fps = smpte ? 256 - ((divisione >> 8) & 0xFF) : 0;
+    if (fps === 29) fps = 29.97;   // SMPTE -29 = 30 drop-frame
+    const tickPerFrame = smpte ? ((divisione & 0xFF) || 1) : 1;
+
+    /* Mappa dei cambi di tempo con i secondi già cumulati: una ricerca binaria
+       basta anche per file con migliaia di note e tempo variabile. */
+    const cambi = [];
+    let us = 500000;
+    let precedente = 0;
+    let secondi = 0;
+    cambi.push({ tick: 0, sec: 0, us: us });
+    tempi.forEach(function (t) {
+      if (!(t.us > 0)) return;
+      if (t.tick === precedente) {
+        us = t.us;
+        cambi[cambi.length - 1].us = us;
+        return;
+      }
+      secondi += (t.tick - precedente) * us / 1e6 / divisione;
+      precedente = t.tick;
+      us = t.us;
+      cambi.push({ tick: t.tick, sec: secondi, us: us });
+    });
+
+    function secondiDaTick(tick) {
+      if (smpte) return tick / (fps * tickPerFrame);
+      let lo = 0;
+      let hi = cambi.length - 1;
+      let trovato = 0;
+      while (lo <= hi) {
+        const medio = (lo + hi) >> 1;
+        if (cambi[medio].tick <= tick) { trovato = medio; lo = medio + 1; }
+        else hi = medio - 1;
+      }
+      const c = cambi[trovato];
+      return c.sec + (tick - c.tick) * c.us / 1e6 / divisione;
+    }
+
+    const noteOrdinate = note.map(function (n) {
+      return {
+        tick: n.tick,
+        tipo: n.tipo,
+        canale: n.canale,
+        nota: n.nota,
+        sec: secondiDaTick(n.tick)
+      };
+    }).sort(function (a, b) {
+      return a.tick - b.tick || a.tipo - b.tipo;
+    });
+    const aperti = {};
+    const intervalli = [];
+    noteOrdinate.forEach(function (n) {
+      const chiave = n.canale + ":" + n.nota;
+      if (n.tipo === 1) {
+        if (!aperti[chiave]) aperti[chiave] = [];
+        aperti[chiave].push(n.sec);
+      } else if (aperti[chiave] && aperti[chiave].length) {
+        const inizio = aperti[chiave].shift();
+        intervalli.push({ t0: inizio, t1: Math.max(inizio + 0.01, n.sec) });
+      }
+    });
+    Object.keys(aperti).forEach(function (chiave) {
+      aperti[chiave].forEach(function (inizio) {
+        intervalli.push({ t0: inizio, t1: inizio + 0.08 });
+      });
+    });
+
+    let durata = Math.max(0.1, secondiDaTick(tickFine),
+      intervalli.reduce(function (m, v) { return Math.max(m, v.t1); }, 0));
+
+    /* MIDI di solo tempo (un click, una traccia di battiti): se non ci sono
+       note, ogni battito è un impulso di controllo. */
+    if (!intervalli.length) {
+      if (durata < 1) durata = Math.max(1, 4 * cambi[0].us / 1e6);
+      for (let i = 0; i < cambi.length; i += 1) {
+        const inizio = cambi[i].sec;
+        const fine = i + 1 < cambi.length ? cambi[i + 1].sec : durata;
+        const battito = cambi[i].us / 1e6;
+        if (!(battito > 0.05)) continue;
+        for (let t = inizio; t < fine - 1e-4; t += battito) {
+          intervalli.push({ t0: t, t1: t + Math.min(0.12, battito * 0.5) });
+        }
+      }
+    }
+
+    intervalli.sort(function (a, b) { return a.t0 - b.t0; });
+    const uniti = [];
+    intervalli.forEach(function (voce) {
+      if (!isFinite(voce.t0) || !isFinite(voce.t1)) return;
+      const ultimo = uniti[uniti.length - 1];
+      if (ultimo && voce.t0 <= ultimo.t1 + 0.035) {
+        if (voce.t1 > ultimo.t1) ultimo.t1 = voce.t1;
+      } else {
+        uniti.push({
+          t0: Math.max(0, voce.t0),
+          t1: Math.max(0.01, voce.t1)
+        });
+      }
+    });
+
+    const bpmIniziale = 60000000 / (cambi[0].us || 500000);
+    let bpmMin = bpmIniziale;
+    let bpmMax = bpmIniziale;
+    cambi.forEach(function (c) {
+      const b = 60000000 / (c.us || 500000);
+      if (b < bpmMin) bpmMin = b;
+      if (b > bpmMax) bpmMax = b;
+    });
+    return {
+      eventi: uniti,
+      forma: formaDaIntervalli(uniti, durata),
+      durata: durata,
+      bpm: bpmIniziale,
+      bpmMin: bpmMin,
+      bpmMax: bpmMax,
+      note: note.filter(function (n) { return n.tipo === 1; }).length,
+      dividi: divisione,
+      formato: smpte ? "SMPTE" : "metri"
+    };
+  }
+
+  function gateMidiA(t) {
+    const c = stato.controllo;
+    const midi = c.midi;
+    if (!midi || !midi.eventi.length) return 0;
+    let x = t - c.offset;
+    if (x < 0) return 0;
+    if (c.loop && midi.durata > 0.05) {
+      x %= midi.durata;
+    } else if (x >= midi.durata) {
+      return 0;
+    }
+    let lo = 0;
+    let hi = midi.eventi.length - 1;
+    let trovato = -1;
+    while (lo <= hi) {
+      const medio = (lo + hi) >> 1;
+      if (midi.eventi[medio].t0 <= x) { trovato = medio; lo = medio + 1; }
+      else hi = medio - 1;
+    }
+    if (trovato < 0) return 0;
+    const e = midi.eventi[trovato];
+    if (x <= e.t1) return 1;
+    /* Dopo la nota il controllo non si spegne di colpo: il rilascio è quello
+       scelto, così un MIDI staccato non fa lampeggiare gli effetti. */
+    const dopo = x - e.t1;
+    const rilascio = Math.max(0.001, c.rilascio);
+    return dopo < rilascio ? 1 - dopo / rilascio : 0;
+  }
+
+  function nomeControllo() {
+    const c = stato.controllo;
+    if (c.tipo === "audio" && c.audio) return c.audio.nome || c.nome || "audio";
+    if (c.tipo === "midi" && c.midi) return c.midi.nome || c.nome || "MIDI";
+    return c.nome || "";
+  }
+
+  function testoBpm(midi) {
+    if (!midi) return "";
+    const a = midi.bpmMin.toFixed(2).replace(".", ",");
+    const b = midi.bpmMax.toFixed(2).replace(".", ",");
+    return Math.abs(midi.bpmMax - midi.bpmMin) > 0.05
+      ? "BPM " + a + "–" + b
+      : "BPM " + a;
+  }
+
+  function disegnaOpzioniControllo() {
+    const c = stato.controllo;
+    const scelta = c.tipo;
+    dom.selControllo.innerHTML = "";
+    const voci = [{ valore: "auto", testo: "Colpi automatici" }];
+    if (c.audio) {
+      voci.push({ valore: "audio", testo: "Suono · " + (c.audio.nome || "file audio") });
+    }
+    if (c.midi) {
+      voci.push({ valore: "midi", testo: "MIDI · " + (c.midi.nome || "file MIDI") });
+    }
+    voci.push({ valore: "mano", testo: "Solo mano (tieni premuto)" });
+    voci.forEach(function (voce) {
+      const opzione = document.createElement("option");
+      opzione.value = voce.valore;
+      opzione.textContent = voce.testo;
+      dom.selControllo.appendChild(opzione);
+    });
+    const esiste = voci.some(function (voce) { return voce.valore === scelta; });
+    dom.selControllo.value = esiste ? scelta : "auto";
+    c.tipo = dom.selControllo.value;
+  }
+
+  function aggiornaControllo() {
+    const c = stato.controllo;
+    dom.rngSoglia.value = String(Math.round(c.soglia * 100));
+    dom.outSoglia.textContent = Math.round(c.soglia * 100) + "%";
+    dom.rngRilascio.value = String(Math.round(c.rilascio * 1000));
+    dom.outRilascio.textContent = Math.round(c.rilascio * 1000) + " ms";
+    dom.rngAllinea.value = String(Math.round(c.offset * 1000));
+    dom.outAllinea.textContent = (c.offset > 0 ? "+" : "") +
+      Math.round(c.offset * 1000) + " ms";
+    dom.chkControlloLoop.checked = c.loop;
+
+    dom.controlloNome.textContent = nomeControllo() || "nessun file";
+    dom.controlloBpm.textContent = c.midi && c.tipo === "midi" ? testoBpm(c.midi) : "";
+    const durata = c.tipo === "audio" && c.audio
+      ? c.audio.durata
+      : (c.tipo === "midi" && c.midi ? c.midi.durata : 0);
+    dom.controlloDurata.textContent = durata > 0 ? orologio(durata) : "";
+    if (c.midi && c.tipo === "midi") {
+      dom.controlloBpm.title = c.midi.note + " note · " +
+        (c.midi.formato === "SMPTE" ? "tempo SMPTE" : "metri");
+    } else {
+      dom.controlloBpm.removeAttribute("title");
+    }
+
+    const etichette = {
+      auto: "colpi automatici",
+      audio: "suono",
+      midi: "MIDI",
+      mano: "solo mano"
+    };
+    dom.controlloStato.textContent = etichette[c.tipo] || "auto";
+    /* L'accensione vera la decide aggiornaHud() a ogni fotogramma: qui si
+       riflette subito solo il dito/H, per non aspettare il prossimo HUD. */
+    dom.controlloStato.classList.toggle("is-acceso", !!c.premuto);
+    dom.selControllo.value = c.tipo;
+
+    dom.btnGestoRegistra.textContent = c.recInCorso ? "■ Ferma" : "● Registra gesto";
+    dom.btnGestoRegistra.classList.toggle("is-attivo", c.recInCorso);
+    dom.btnGestoRipeti.disabled = !c.rec.length;
+    dom.btnGestoRipeti.classList.toggle("is-attivo", c.recPlay);
+    dom.btnGestoRipeti.textContent = c.recPlay ? "❚❚ Ripeti" : "↻ Ripeti";
+    dom.btnGestoPulisci.disabled = !c.rec.length && !c.recInCorso;
+
+    if (c.recInCorso) {
+      dom.notaGesto.innerHTML = "Registro: tieni premuto il pad quando vuoi gli effetti. " +
+        (c.rec.length
+          ? "<b>" + c.rec.length + "</b> " + (c.rec.length === 1 ? "gesto preso" : "gesti presi") + "."
+          : "Nessun gesto, per ora.");
+    } else if (c.rec.length) {
+      dom.notaGesto.innerHTML = "<b>" + c.rec.length + "</b> " +
+        (c.rec.length === 1 ? "gesto registrato" : "gesti registrati") + " · " +
+        (c.recPlay ? "in ripetizione col video" : "premi Ripeti per rivederlo");
+    } else {
+      dom.notaGesto.innerHTML = "Tieni premuto qui o premi <b>H</b>: gli effetti si " +
+        "accendono solo mentre tieni. Il pad e <b>H</b> mettono Chi decide su " +
+        "<b>Solo mano</b>: riseleziona la sorgente per tornare al file. " +
+        "<b>Registra gesto</b> riparte da capo, prende i tuoi click e poi li ripete col mouse.";
+    }
+    aggiornaPad();
+  }
+
+  function disegnaControllo() {
+    disegnaOpzioniControllo();
+    aggiornaControllo();
+    aggiornaOndaInfo();
+    disegnaOnda(stato.t);
+  }
+
+  function aggiornaPad() {
+    const premuto = !!(stato.controllo && stato.controllo.premuto);
+    [dom.padMano, dom.padPalco].forEach(function (pad) {
+      if (!pad) return;
+      pad.classList.toggle("is-premuto", premuto);
+      pad.setAttribute("aria-pressed", premuto ? "true" : "false");
+    });
+  }
+
+  function inizioGesto() {
+    const c = stato.controllo;
+    if (c.premuto) return;
+    /* Il pad e H sono la sorgente "mano": mentre tieni, l'automatico e i file
+       non devono continuare a decidere. Chi vuole tornare al file lo riseleziona. */
+    if (c.tipo !== "mano") {
+      c.tipo = "mano";
+      disegnaControllo();
+    }
+    c.premuto = true;
+    if (c.recInCorso && !c.recTratto) c.recTratto = { t0: posizione() };
+    aggiornaPad();
+    aggiornaControllo();
+    assicuraGrafo();
+  }
+
+  function fineGesto() {
+    const c = stato.controllo;
+    if (!c.premuto) return;
+    c.premuto = false;
+    if (c.recInCorso && c.recTratto) {
+      const totale = Math.max(0.001, durataTotale());
+      let t0 = clamp(c.recTratto.t0, 0, totale);
+      let t1 = clamp(posizione(), 0, totale);
+      if (t1 < t0) t1 = totale;   // il gesto ha attraversato il punto di loop
+      if (t1 - t0 > 0.03) c.rec.push({ t0: t0, t1: t1 });
+      c.rec.sort(function (a, b) { return a.t0 - b.t0; });
+      c.recTratto = null;
+    }
+    aggiornaControllo();
+    aggiornaOndaInfo();
+  }
+
+  function avviaRegistrazioneGesto() {
+    const c = stato.controllo;
+    if (c.recInCorso) { fermaRegistrazioneGesto(); return; }
+    if (!stato.livelli.length) {
+      avviso("Aggiungi almeno un livello: il gesto deve avere qualcosa da accendere.", true);
+      return;
+    }
+    c.rec = [];
+    c.recPlay = false;
+    c.recInCorso = true;
+    c.recTratto = null;
+    c.tipo = "mano";
+    disegnaControllo();
+    cerca(0);
+    if (!stato.playing) riproduci();
+    segnala("registro il gesto…", "busy");
+  }
+
+  function fermaRegistrazioneGesto() {
+    const c = stato.controllo;
+    if (!c.recInCorso) return;
+    c.recInCorso = false;
+    if (c.recTratto) {
+      const totale = Math.max(0.001, durataTotale());
+      const t0 = clamp(c.recTratto.t0, 0, totale);
+      const t1 = clamp(posizione(), 0, totale);
+      if (t1 - t0 > 0.03) c.rec.push({ t0: t0, t1: t1 });
+      c.recTratto = null;
+    }
+    c.rec.sort(function (a, b) { return a.t0 - b.t0; });
+    c.recPlay = c.rec.length > 0;
+    if (c.recPlay) {
+      c.tipo = "mano";
+      cerca(0);
+      if (!stato.playing) riproduci();
+      avviso("Gesto registrato: ora riparte da capo e si ripete col video.", false);
+    } else {
+      avviso("Nessun gesto registrato: tieni premuto il pad almeno un istante.", true);
+    }
+    aggiornaControllo();
+    aggiornaOndaInfo();
+    disegnaOnda(stato.t);
+  }
+
+  function ripetiGesto() {
+    const c = stato.controllo;
+    if (!c.rec.length) return;
+    c.tipo = "mano";
+    c.recPlay = !c.recPlay;
+    if (c.recPlay) {
+      cerca(0);
+      if (!stato.playing) riproduci();
+      segnala("gesto in ripetizione", "ok");
+    } else {
+      segnala("gesto fermato", "ok");
+    }
+    disegnaControllo();
+  }
+
+  function pulisciGesto() {
+    const c = stato.controllo;
+    c.rec = [];
+    c.recPlay = false;
+    c.recInCorso = false;
+    c.recTratto = null;
+    aggiornaControllo();
+    aggiornaOndaInfo();
+    disegnaOnda(stato.t);
+  }
+
+  function impostaControlloTipo(tipo) {
+    const c = stato.controllo;
+    if (tipo === "audio" && !c.audio) {
+      avviso("Carica prima un file audio per il controllo.", true);
+      aggiornaControllo();
+      return;
+    }
+    if (tipo === "midi" && !c.midi) {
+      avviso("Carica prima un file MIDI per il controllo.", true);
+      aggiornaControllo();
+      return;
+    }
+    c.tipo = tipo;
+    if (tipo !== "mano") c.recPlay = false;
+    c.premuto = false;
+    c.recTratto = null;
+    disegnaControllo();
+    const etichette = {
+      auto: "colpi automatici",
+      audio: "controllo dal suono",
+      midi: "controllo dal MIDI",
+      mano: "solo mano"
+    };
+    segnala(etichette[tipo] || "controllo", "ok");
+  }
+
+  function cambiaLoopControllo(attivo) {
+    const c = stato.controllo;
+    c.loop = !!attivo;
+    const pista = c.pistaId ? pistaDaId(c.pistaId) : null;
+    if (pista) pista.loop = c.loop;
+    if (stato.playing) {
+      inizioTempo = performance.now() / 1000;
+      avviaPiste(stato.t);
+    }
+    aggiornaControllo();
+    disegnaOnda(stato.t);
+  }
+
+  function azzeraControllo() {
+    const c = stato.controllo;
+    c.tipo = "auto";
+    c.nome = "";
+    c.pistaId = null;
+    c.audio = null;
+    c.midi = null;
+    c.offset = 0;
+    c.soglia = 0.12;
+    c.rilascio = 0.12;
+    c.loop = true;
+    c.premuto = false;
+    c.hTasto = false;
+    c.rec = [];
+    c.recInCorso = false;
+    c.recPlay = false;
+    c.recTratto = null;
+    if (dom.selControllo) disegnaControllo();
+  }
+
+  async function caricaControlloAudio(file) {
+    if (!file) return;
+    const c = stato.controllo;
+    const vecchia = c.pistaId;
+    segnala("preparo il controllo da " + file.name + "…", "busy");
+    const pista = await aggiungiTraccia(file);
+    if (!pista) return;
+    pista.controllo = true;
+    pista.loop = c.loop;
+    const audio = inviluppoControllo(pista.buffer);
+    audio.nome = pista.nome;
+    c.audio = audio;
+    c.pistaId = pista.id;
+    c.nome = pista.nome;
+    c.tipo = "audio";
+    c.recPlay = false;
+    costruisciGateAudio();
+    if (vecchia && vecchia !== pista.id) rimuoviTraccia(vecchia);
+    disegnaPiste();
+    disegnaControllo();
+    stato.durata = durataTotale();
+    aggiornaTrasporto();
+    if (stato.playing) {
+      inizioTempo = performance.now() / 1000;
+      avviaPiste(stato.t);
+    }
+    segnala("controllo audio pronto", "ok");
+    avviso("Controllo audio: \"" + pista.nome + "\" accende tutti gli effetti " +
+      "quando suona e li spegne nel silenzio." +
+      (pista.buffer.duration < stato.durata ? " Si ripete col video." : ""), false);
+  }
+
+  async function caricaControlloMidi(file) {
+    if (!file) return;
+    segnala("leggo il MIDI…", "busy");
+    let midi;
+    try {
+      midi = leggiMidi(await file.arrayBuffer());
+    } catch (errore) {
+      console.error(errore);
+      avviso("Non riesco a leggere \"" + file.name + "\": " + errore.message, true);
+      segnala("MIDI non letto");
+      return;
+    }
+    midi.nome = file.name.replace(/\.[^.]+$/, "");
+    const c = stato.controllo;
+    c.midi = midi;
+    c.nome = midi.nome;
+    c.tipo = "midi";
+    c.recPlay = false;
+    disegnaControllo();
+    stato.durata = durataTotale();
+    aggiornaTrasporto();
+    segnala("MIDI pronto", "ok");
+    avviso("Controllo MIDI: " + testoBpm(midi) + " · " + midi.note + " note · " +
+      midi.eventi.length + " segmenti. Gli effetti seguono le note, non le bande.", false);
+  }
+
+  function collegaPad(pad) {
+    if (!pad) return;
+    let puntatore = null;
+    pad.addEventListener("pointerdown", function (evento) {
+      if (evento.pointerType === "mouse" && evento.button !== 0) return;
+      if (puntatore !== null) return;
+      evento.preventDefault();
+      puntatore = evento.pointerId;
+      try { pad.setPointerCapture(evento.pointerId); } catch (errore) { /* niente */ }
+      inizioGesto();
+    });
+    function su(evento) {
+      if (puntatore !== null && evento.pointerId !== puntatore) return;
+      puntatore = null;
+      fineGesto();
+    }
+    pad.addEventListener("pointerup", su);
+    pad.addEventListener("pointercancel", su);
+    pad.addEventListener("lostpointercapture", su);
   }
 
   function serveTela(livello) {
@@ -3708,7 +5355,7 @@
       stato.durata = durata;
       const pos = posizione();
       if (pos >= durata) {
-        if (stato.loop && !stato.registrando) {
+        if (stato.loop && !stato.registrando && !stato.controllo.recInCorso) {
           stato.t = 0;
           avviaPiste(0);
           stato.livelli.forEach(function (livello) {
@@ -3721,6 +5368,7 @@
           mettiInPausa();
           stato.t = durata;
           if (stato.registrando) fermaRegistrazione();
+          if (stato.controllo.recInCorso) fermaRegistrazioneGesto();
         }
       } else {
         stato.t = pos;
@@ -3793,6 +5441,16 @@
       livello._telaFatta = false;
       livello.misuraDaFare = true;
     });
+    aggiornaHud();
+  }
+
+  /* Il bitrate segue i PIXEL, non l'altezza: con la vecchia formula (altezza × 7)
+     il 2160p sarebbe arrivato a 15 Mb/s, cioè neve piena di quadrati, perché ha
+     nove volte i pixel di 720p e dodici quelli di 480p. Qui sono ~0,18 bit per
+     pixel al secondo (720p ≈ 5 Mb/s, 2160p ≈ 45 Mb/s), con un tetto a 80 Mb/s. */
+  function bitrateVideo() {
+    const pixel = dom.vista.width * dom.vista.height * stato.fps;
+    return Math.round(Math.min(80000000, Math.max(1500000, pixel * 0.18)));
   }
 
   function fermaRegistrazione() {
@@ -3844,7 +5502,7 @@
       registratore = tipo
         ? new MediaRecorder(flusso, {
           mimeType: tipo,
-          videoBitsPerSecond: Math.round(stato.risoluzione * 1000 * 7)
+          videoBitsPerSecond: bitrateVideo()
         })
         : new MediaRecorder(flusso);
     } catch (errore) {
@@ -4031,10 +5689,33 @@
 
   let caricandoDemo = false;
 
-  /* La cartella del pacchetto: "demo/" di serie, oppure un'altra scelta con
-     ?demo=nome-cartella (utile per provare un pacchetto senza toccare demo/). */
-  const cartellaDemo = (new URLSearchParams(location.search).get("demo") || "demo")
-    .replace(/^\/+|\/+$/g, "") || "demo";
+  /* La cartella del pacchetto. Con ?demo=nome-cartella si sceglie a mano; senza
+     niente vale "demo/", l'estratto della Remixes Collection Vol. 3 che viaggia
+     col sito pubblicato (cover, sfondo, buio, 16 secondi di mix e le tre tracce
+     mute). "demo-video/" è il pacchetto grosso scomposto in strati (sfondo,
+     fuoco, buio, neve, immagine): c'è solo in locale e si chiede apposta con
+     ?demo=demo-video. Prima l'ordine era il contrario, e chi premeva il pulsante
+     si ritrovava il video classico invece del brano del sito. */
+  let cartellaDemo = (new URLSearchParams(location.search).get("demo") || "")
+    .replace(/^\/+|\/+$/g, "");
+  let sceltaCartella = null;
+
+  function scegliCartellaDemo() {
+    if (sceltaCartella) return sceltaCartella;
+    sceltaCartella = (async function () {
+      if (cartellaDemo) return cartellaDemo;
+      const candidate = ["demo", "demo-video"];
+      for (let i = 0; i < candidate.length; i += 1) {
+        try {
+          const prova = await fetch(candidate[i] + "/pacchetto.json", { cache: "no-store" });
+          if (prova.ok) { cartellaDemo = candidate[i]; return cartellaDemo; }
+        } catch (errore) { /* si prova la successiva */ }
+      }
+      cartellaDemo = "demo";
+      return cartellaDemo;
+    })();
+    return sceltaCartella;
+  }
 
   async function scaricaFile(nome, tipo, cartella) {
     const percorso = (cartella || cartellaDemo) + "/" + nome;
@@ -4072,7 +5753,11 @@
       let file = null;
       try {
         if (voce.file === "trama") file = await fileDaTela("Trama.png", disegnaTrama);
-        else file = await scaricaFile(voce.file);
+        /* Un pacchetto leggero può rimandare ai file del pacchetto grosso: la
+           demo del brano non porta i video del fuoco e della neve, che stanno in
+           demo-video/. Se non si trovano in nessuna delle due cartelle e lo
+           strato dichiara una fonte, compare la carta che chiede il file. */
+        else file = await scaricaDaPacchetto(voce.file);
       } catch (errore) {
         console.warn("strato non caricato:", voce.file, errore.message);
         if (voce.fonte && mancanti) mancanti.push(voce);
@@ -4080,6 +5765,17 @@
       }
       const livello = await aggiungiLivello(file);
       if (!livello) continue;
+      /* Gli strati di un pacchetto sono lastre da fondale: se il manifesto non
+         dice come inquadrarli, riempiono il frame (è quello che facevano prima
+         che esistesse la manopola Larghezza). Senza questo, il nero del buio —
+         un PNG 32 × 32 — si ridurrebbe a un quadrato centrale e il colpo non
+         abbasserebbe più tutto lo sfondo. Il manifesto può sempre dire
+         "adatta": 1 per tenere un'immagine intera. */
+      if (typeof voce.adatta !== "number" && typeof voce.adatta !== "boolean") {
+        livello.adatta = 0;
+        livello._telaFatta = false;
+        livello.misuraDaFare = true;
+      }
       applicaVoceDemo(livello, voce);
       if (!scelto && voce.scelto) scelto = livello;
       if (!base) base = livello;
@@ -4106,6 +5802,7 @@
     });
     if (typeof voce.opacita === "number") livello.opacita = clamp(voce.opacita, 0, 1);
     if (typeof voce.reattivo === "number") livello.reattivo = clamp(voce.reattivo, 0, 1);
+    if (voce.finoAlSuono) livello.finoAlSuono = true;
     if (typeof voce.forza === "number") livello.forza = clamp(voce.forza, 0, 1);
     if (typeof voce.attacco === "number") livello.attacco = clamp(voce.attacco, 0, 1);
     if (voce.fusione && FUSIONI.some(function (f) { return f.id === voce.fusione; })) {
@@ -4114,6 +5811,12 @@
     if (typeof voce.adatta === "number" || typeof voce.adatta === "boolean") {
       livello.adatta = voce.adatta ? 1 : 0;
       livello._telaFatta = false;
+      livello.misuraDaFare = true;
+    }
+    if (typeof voce.scala === "number" && isFinite(voce.scala)) {
+      livello.scala = clamp(voce.scala, 0.1, 2);
+      livello._telaFatta = false;
+      livello.misuraDaFare = true;
     }
     if (voce.banda && BANDE[voce.banda]) livello.banda = voce.banda;
     if (voce.spento) livello.spento = true;
@@ -4128,7 +5831,7 @@
     dom.mancanti.hidden = !voci.length;
     if (!voci.length) return;
 
-    voci.forEach(function (voce, indice) {
+    voci.forEach(function (voce) {
       const fonte = voce.fonte || {};
       const carta = document.createElement("div");
       carta.className = "mancante";
@@ -4144,8 +5847,10 @@
       file.textContent = voce.file;
       testo.append(file);
       testo.append(": è il video di " + (fonte.canale || "questa fonte") +
-        ", non un surrogato. Scaricalo, poi caricalo qui: entra nello stack con gli " +
-        "stessi parametri.");
+        ", non un surrogato. " + (fonte.videoId
+          ? "Lo prende l'app dallo scaricatore locale, oppure glielo dai tu: in un modo " +
+            "o nell'altro entra nello stack con gli stessi parametri."
+          : "Scaricalo, poi caricalo qui: entra nello stack con gli stessi parametri."));
 
       const fila = document.createElement("div");
       fila.className = "mancante__fila";
@@ -4158,11 +5863,21 @@
         link.textContent = fonte.canale ? "Video di " + fonte.canale : "Pagina del video";
         fila.appendChild(link);
       }
+      if (fonte.videoId) {
+        const prendi = document.createElement("button");
+        prendi.type = "button";
+        prendi.className = "btn btn--piccolo";
+        prendi.textContent = "Prendilo dal video";
+        prendi.title = "Lo scaricatore locale (SampleLab, porta 5070) prende il video da YouTube " +
+          "e lo mette nello stack con questi parametri";
+        prendi.addEventListener("click", function () { prendiVoceMancante(prendi, voce, fonte); });
+        fila.appendChild(prendi);
+      }
       const bottone = document.createElement("button");
       bottone.type = "button";
-      bottone.className = "btn btn--piccolo";
+      bottone.className = "btn btn--fantasma btn--piccolo";
       bottone.textContent = "Carica il file";
-      bottone.addEventListener("click", function () { chiediFileMancante(indice); });
+      bottone.addEventListener("click", function () { chiediFileMancante(voce); });
       fila.appendChild(bottone);
 
       carta.append(titolo, testo, fila);
@@ -4170,8 +5885,44 @@
     });
   }
 
-  function chiediFileMancante(indice) {
-    const voce = stato.stratiMancanti[indice];
+  /* Lo strato del manifesto entra nello stack con i SUOI parametri, che il file
+     venga scelto a mano o preso dallo scaricatore: la strada è la stessa. */
+  async function installaVoceMancante(voce, file) {
+    if (!voce || !file) return null;
+    const livello = await aggiungiLivello(file);
+    if (!livello) return null;
+    applicaVoceDemo(livello, voce);
+    const dove = stato.stratiMancanti.indexOf(voce);
+    if (dove >= 0) stato.stratiMancanti.splice(dove, 1);
+    stato.durata = durataTotale();
+    disegnaStratiMancanti();
+    disegnaLivelli();
+    disegnaScheda();
+    aggiornaTrasporto();
+    aggiornaHud();
+    programmaRicalcolo();
+    avviso("Strato \"" + (voce.nome || voce.file) + "\" al suo posto.", false);
+    return livello;
+  }
+
+  async function prendiVoceMancante(bottone, voce, fonte) {
+    const testo = bottone.textContent;
+    bottone.disabled = true;
+    bottone.textContent = "prendo il video…";
+    try {
+      const file = await fileDaScaricatore(fonte.videoId, voce.file || "video.mp4");
+      await installaVoceMancante(voce, file);
+    } catch (errore) {
+      console.warn(errore);
+      avviso("Non riesco a prendere il video: " + errore.message +
+        " Carica il file che hai scaricato.", true);
+    } finally {
+      bottone.disabled = false;
+      bottone.textContent = testo;
+    }
+  }
+
+  function chiediFileMancante(voce) {
     if (!voce) return;
     const input = document.createElement("input");
     input.type = "file";
@@ -4182,18 +5933,7 @@
       const file = input.files && input.files[0];
       input.remove();
       if (!file) return;
-      const livello = await aggiungiLivello(file);
-      if (!livello) return;
-      applicaVoceDemo(livello, voce);
-      stato.stratiMancanti.splice(indice, 1);
-      stato.durata = durataTotale();
-      disegnaStratiMancanti();
-      disegnaLivelli();
-      disegnaScheda();
-      aggiornaTrasporto();
-      aggiornaHud();
-      programmaRicalcolo();
-      avviso("Strato \"" + (voce.nome || voce.file) + "\" al suo posto.", false);
+      await installaVoceMancante(voce, file);
     });
     input.click();
   }
@@ -4235,6 +5975,7 @@
        più come base. Senza "livelli" vale la composizione di sempre. */
     const manifesto = await leggiManifesto();
     stato.stratiMancanti = [];
+    stato.eventiFissi = eventiDaManifesto(manifesto);
     if (manifesto && Array.isArray(manifesto.livelli) && manifesto.livelli.length) {
       const composta = await montaDaManifesto(manifesto.livelli, stato.stratiMancanti);
       if (composta.quanti) {
@@ -4260,7 +6001,13 @@
       base = await aggiungiLivello(cover);
       if (base) base.nome = "Cover";
     }
-    return { base: base, composto: false, banda: "kick" };
+    return {
+      base: base, composto: false,
+      /* Se il pacchetto dichiara i suoi colpi, la banda di partenza è quella:
+         altrimenti la cassa, che è il colpo che si sente. */
+      banda: (manifesto && manifesto.banda) ||
+        Object.keys(stato.eventiFissi)[0] || "kick"
+    };
   }
 
   async function demoProcedurale() {
@@ -4306,6 +6053,1245 @@
     cerca(0);
   }
 
+  /* ------------------------------------------------------------ brani dal sito --- */
+  /* Il sito di Raedius è una cartella servita in locale (o, un giorno, un
+     dominio): le raccolte stanno in assets/data/album.js, l'archivio in
+     assets/data/lavori.js, i brani in assets/audio/… . I due elenchi sono script
+     che riempiono una variabile globale (window.ALBUM, window.LAVORI), quindi si
+     leggono con un <script>: per il catalogo non serve il permesso CORS. Per
+     l'audio e le copertine invece il file si scarica con fetch, e lì il CORS
+     serve — lo manda il server del sito (e GitHub Pages, se un giorno va in rete). */
+  const SITO_PREDEFINITO = "http://127.0.0.1:7862/";
+  const CHIAVE_SITO = "nastro:sito";
+  let catalogoSito = null;
+  /* Lo stesso catalogo in una lista sola, nell'ordine delle raccolte: è quella
+     che il pannello mostra e che la ricerca filtra. */
+  let elencoSito = [];
+  let branoSito = null;
+
+  function indirizzoSito() {
+    const scritto = (dom.sitoUrl.value || "").trim() || SITO_PREDEFINITO;
+    return scritto.replace(/\/*$/, "/");
+  }
+
+  function urlSito(percorso) {
+    return new URL(String(percorso || "").replace(/^\/+/, ""), indirizzoSito()).href;
+  }
+
+  function caricaScript(url) {
+    return new Promise(function (ok, ko) {
+      const tag = document.createElement("script");
+      tag.src = url;
+      tag.async = true;
+      tag.onload = function () { tag.remove(); ok(); };
+      tag.onerror = function () { tag.remove(); ko(new Error("non riesco a leggere " + url)); };
+      document.head.appendChild(tag);
+    });
+  }
+
+  /* Le raccolte del sito: i Vol. 1/2/3 e i mashup stanno in album.js, con le
+     versioni dentro ogni traccia; tutto il resto (type beat, strumentali, remix
+     sciolti) è l'archivio di lavori.js. Un brano diventa { nome, audio,
+     copertina, artisti, durata }: quel che serve a caricarlo e a montarci la
+     scena. */
+  function raccolteDalSito() {
+    const raccolte = [];
+    const album = Array.isArray(window.ALBUM) ? window.ALBUM : [];
+    album.forEach(function (voce) {
+      const brani = [];
+      (voce.tracce || []).forEach(function (traccia) {
+        const versioni = traccia.versioni && traccia.versioni.length ? traccia.versioni : [traccia];
+        versioni.forEach(function (versione) {
+          if (!versione.audio) return;
+          brani.push({
+            nome: versione.titolo || traccia.titolo || "senza titolo",
+            dettaglio: traccia.titolo && versione.titolo && versione.titolo !== traccia.titolo
+              ? traccia.titolo : "",
+            audio: versione.audio,
+            copertina: voce.copertina || "",
+            artisti: versione.artisti || traccia.artisti || "",
+            durata: versione.durata || traccia.durata || 0
+          });
+        });
+      });
+      if (brani.length) {
+        raccolte.push({
+          id: voce.id || voce.titolo,
+          titolo: voce.titolo || voce.id || "Raccolta",
+          anno: voce.anno || "",
+          brani: brani
+        });
+      }
+    });
+
+    const lavori = Array.isArray(window.LAVORI) ? window.LAVORI : [];
+    const etichette = {
+      remix: "Archivio · remix",
+      "type-beat": "Archivio · type beat",
+      strumentali: "Archivio · strumentali",
+      mashup: "Archivio · mashup"
+    };
+    const gruppi = {};
+    lavori.forEach(function (voce) {
+      if (!voce.audio) return;
+      const gruppo = voce.catalogo || "strumentali";
+      if (!gruppi[gruppo]) gruppi[gruppo] = [];
+      gruppi[gruppo].push({
+        nome: voce.titolo || "senza titolo",
+        dettaglio: "",
+        audio: voce.audio,
+        copertina: voce.copertina || "",
+        artisti: voce.artisti || "",
+        durata: voce.durata || 0
+      });
+    });
+    const ordine = ["remix", "type-beat", "strumentali", "mashup"].concat(
+      Object.keys(gruppi).filter(function (gruppo) {
+        return ["remix", "type-beat", "strumentali", "mashup"].indexOf(gruppo) < 0;
+      }));
+    ordine.forEach(function (gruppo) {
+      const brani = gruppi[gruppo];
+      if (!brani || !brani.length) return;
+      brani.sort(function (a, b) {
+        return a.nome.localeCompare(b.nome, "it", { sensitivity: "base" });
+      });
+      raccolte.push({
+        id: gruppo,
+        titolo: etichette[gruppo] || ("Archivio · " + gruppo),
+        anno: "",
+        brani: brani
+      });
+    });
+    return raccolte;
+  }
+
+  async function leggiCatalogoSito() {
+    const base = indirizzoSito();
+    dom.sitoUrl.value = base;
+    dom.btnSitoLeggi.disabled = true;
+    dom.sitoStato.textContent = "leggo…";
+    dom.sitoStato.classList.remove("is-acceso");
+    try {
+      try { localStorage.setItem(CHIAVE_SITO, base); } catch (errore) { /* niente */ }
+      await caricaScript(urlSito("assets/data/album.js"));
+      try {
+        await caricaScript(urlSito("assets/data/lavori.js"));
+      } catch (errore) {
+        console.warn("archivio del sito non letto:", errore.message);
+      }
+      catalogoSito = raccolteDalSito();
+      if (!catalogoSito.length) {
+        throw new Error("il catalogo è vuoto: ALBUM e LAVORI non hanno brani");
+      }
+      elencoSito = elencoDelCatalogo();
+      const totale = elencoSito.length;
+      /* Si riparte dal brano che stavi guardando, se c'è ancora; altrimenti dal
+         primo del Vol. 3 (è quello dei remix) e in mancanza dal primo di tutti. */
+      const restava = branoSito && elencoSito.find(function (brano) {
+        return brano.audio === branoSito.audio;
+      });
+      const avvio = restava || elencoSito.find(function (brano) {
+        return brano.raccoltaId === "remix-collection-3";
+      }) || elencoSito[0];
+      branoSito = null;
+      disegnaElencoSito();
+      scegliBranoSito(avvio);
+      /* La riga scelta scorre dentro l'elenco, non la pagina. */
+      const segnata = dom.sitoElenco.querySelector(".sito-brano.is-scelto");
+      if (segnata) dom.sitoElenco.scrollTop = Math.max(0, segnata.offsetTop - 34);
+      dom.sitoStato.textContent = totale + (totale === 1 ? " brano" : " brani");
+      dom.sitoStato.classList.add("is-acceso");
+      avviso("Catalogo del sito: " + catalogoSito.length + " gruppi, " + totale +
+        " brani. Scrivi un titolo nella ricerca: l'elenco si stringe mentre digiti.", false);
+    } catch (errore) {
+      console.error(errore);
+      catalogoSito = null;
+      elencoSito = [];
+      dom.sitoStato.textContent = "non letto";
+      disegnaElencoSito();
+      avviso("Non riesco a leggere il catalogo del sito: " + errore.message, true);
+    } finally {
+      dom.btnSitoLeggi.disabled = false;
+    }
+  }
+
+  function senzaAccenti(testo) {
+    return String(testo == null ? "" : testo)
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
+  /* Tutte le raccolte in fila, con il nome della raccolta appiccicato al brano:
+     così la ricerca non deve sapere in che cassetto sta un titolo. Lo stesso
+     file però può stare in una raccolta e anche nell'archivio (i remix del
+     Vol. 3 sono anche lavori): in elenco conta una volta sola, nel posto più
+     importante che ha. */
+  function elencoDelCatalogo() {
+    const elenco = [];
+    const visti = {};
+    (catalogoSito || []).forEach(function (raccolta) {
+      raccolta.brani.forEach(function (brano) {
+        if (visti[brano.audio]) return;
+        visti[brano.audio] = true;
+        elenco.push({
+          nome: brano.nome, dettaglio: brano.dettaglio, audio: brano.audio,
+          copertina: brano.copertina, artisti: brano.artisti,
+          durata: brano.durata, raccolta: raccolta.titolo,
+          raccoltaId: raccolta.id
+        });
+      });
+    });
+    return elenco;
+  }
+
+  /* La ricerca è larga: titolo, nome della traccia da cui viene la versione,
+     artisti, raccolta. Le parole possono arrivare in disordine ("wall vol 3"
+     trova lo stesso brano) e gli accenti non contano. */
+  function braniFiltrati() {
+    const cerca = senzaAccenti((dom.sitoCerca.value || "").trim());
+    if (!cerca) return elencoSito;
+    const pezzi = cerca.split(/\s+/);
+    return elencoSito.filter(function (brano) {
+      const paglia = senzaAccenti([brano.nome, brano.dettaglio, brano.artisti,
+        brano.raccolta].join(" "));
+      return pezzi.every(function (pezzo) { return paglia.indexOf(pezzo) >= 0; });
+    });
+  }
+
+  /* Un audio che non sta a catalogo: se nella ricerca c'è un percorso che
+     sembra un file audio, l'elenco offre di aprirlo lo stesso. Serve per i file
+     rimasti fuori da album.js e lavori.js — si incolla
+     `assets/audio/…/nome.mp3` e si carica come gli altri. */
+  function audioFuoriCatalogo() {
+    const scritto = (dom.sitoCerca.value || "").trim();
+    if (!/\.(mp3|wav|ogg|m4a|aac|flac|aiff?|opus)(\?|#|$)/i.test(scritto)) return null;
+    let nome = scritto.split(/[?#]/)[0].split("/").pop() || scritto;
+    try { nome = decodeURIComponent(nome); } catch (errore) { /* resta com'è */ }
+    return {
+      nome: nome, dettaglio: "", audio: scritto,
+      copertina: "", artisti: "", durata: 0, raccolta: "Fuori catalogo", fuori: true
+    };
+  }
+
+  function rigaBranoSito(brano) {
+    const riga = document.createElement("button");
+    riga.type = "button";
+    riga.className = "sito-brano" + (brano.fuori ? " sito-brano--fuori" : "");
+    riga.dataset.audio = brano.audio;
+    riga.setAttribute("role", "option");
+    const nome = document.createElement("span");
+    nome.className = "sito-brano__nome";
+    nome.textContent = brano.fuori ? "Apri «" + brano.nome + "»" : brano.nome;
+    nome.title = brano.fuori
+      ? brano.audio
+      : brano.nome + (brano.artisti ? " — " + brano.artisti : "") +
+        (brano.dettaglio ? " · " + brano.dettaglio : "");
+    riga.appendChild(nome);
+    if (brano.durata) {
+      const dati = document.createElement("span");
+      dati.className = "sito-brano__dati";
+      dati.textContent = orologio(brano.durata);
+      riga.appendChild(dati);
+    }
+    const acceso = !!branoSito && branoSito.audio === brano.audio;
+    riga.classList.toggle("is-scelto", acceso);
+    riga.setAttribute("aria-selected", acceso ? "true" : "false");
+    riga.addEventListener("click", function () { scegliBranoSito(brano); });
+    return riga;
+  }
+
+  /* L'elenco è tutto quello che il catalogo ha, già filtrato; la testata della
+     raccolta compare quando cambia. Centottantacinque righe di <button> sono
+     poca cosa, e così per scegliere un brano non si apre niente prima: si
+     scrive, si guarda, si clicca. */
+  function disegnaElencoSito() {
+    dom.sitoElenco.innerHTML = "";
+    if (!elencoSito.length) {
+      dom.sitoCerca.disabled = true;
+      dom.sitoConteggio.textContent = catalogoSito
+        ? "Il catalogo è vuoto."
+        : "Il catalogo non è ancora letto: premi «Leggi il catalogo».";
+      mostraBranoSito(null);
+      return;
+    }
+    dom.sitoCerca.disabled = false;
+    const brani = braniFiltrati();
+    let raccoltaPrima = null;
+    brani.forEach(function (brano) {
+      if (brano.raccolta !== raccoltaPrima) {
+        raccoltaPrima = brano.raccolta;
+        const testa = document.createElement("p");
+        testa.className = "sito-elenco__testa";
+        testa.textContent = brano.raccolta;
+        dom.sitoElenco.appendChild(testa);
+      }
+      dom.sitoElenco.appendChild(rigaBranoSito(brano));
+    });
+    let fuori = null;
+    if (!brani.length) {
+      fuori = audioFuoriCatalogo();
+      if (fuori) {
+        const testa = document.createElement("p");
+        testa.className = "sito-elenco__testa";
+        testa.textContent = "Fuori catalogo";
+        dom.sitoElenco.appendChild(testa);
+        dom.sitoElenco.appendChild(rigaBranoSito(fuori));
+      } else {
+        const vuoto = document.createElement("p");
+        vuoto.className = "controllo__intro";
+        vuoto.textContent = "Nessun brano con «" + (dom.sitoCerca.value || "").trim() + "».";
+        dom.sitoElenco.appendChild(vuoto);
+      }
+    }
+    const totale = elencoSito.length;
+    if (fuori) {
+      dom.sitoConteggio.textContent = "Nessun brano a catalogo con «" +
+        (dom.sitoCerca.value || "").trim() + "»: si può aprire lo stesso.";
+    } else if (brani.length === totale) {
+      dom.sitoConteggio.textContent = "Tutti i " + totale + " brani del catalogo: " +
+        catalogoSito.length + " gruppi, le raccolte e l'archivio.";
+    } else {
+      dom.sitoConteggio.textContent = brani.length + " di " + totale + " brani.";
+    }
+    segnaSceltoSito();
+  }
+
+  /* La scelta si vede subito nell'elenco, senza ridisegnarlo: chi sta cercando
+     non perde il punto in cui era arrivato. */
+  function segnaSceltoSito() {
+    const scelto = branoSito ? branoSito.audio : "";
+    [].forEach.call(dom.sitoElenco.querySelectorAll(".sito-brano"), function (riga) {
+      const acceso = !!scelto && riga.dataset.audio === scelto;
+      riga.classList.toggle("is-scelto", acceso);
+      riga.setAttribute("aria-selected", acceso ? "true" : "false");
+    });
+  }
+
+  function scegliBranoSito(brano) {
+    mostraBranoSito(brano);
+    segnaSceltoSito();
+  }
+
+  /* Anteprima: un <audio> suo, che non entra nel grafo e non tocca il progetto.
+     Il file si scarica solo quando premi Ascolta; se il sito è spento lo dice
+     il suo "error" (o la promessa di play()), non un silenzio. */
+  function fermaAscoltoSito() {
+    if (!dom.audioSito.paused) dom.audioSito.pause();
+    dom.btnSitoAscolta.textContent = "Ascolta";
+  }
+
+  function ascoltaSito() {
+    if (!branoSito) return;
+    const url = urlSito(branoSito.audio);
+    if (dom.audioSito.getAttribute("src") !== url) dom.audioSito.src = url;
+    if (!dom.audioSito.paused) {
+      dom.audioSito.pause();
+      return;
+    }
+    const esito = dom.audioSito.play();
+    if (esito && esito.catch) {
+      esito.catch(function (errore) {
+        console.warn("anteprima non partita:", errore.message);
+        fermaAscoltoSito();
+        avviso("L'anteprima non parte («" + branoSito.nome + "»): il sito è acceso?", true);
+      });
+    }
+  }
+
+  function mostraBranoSito(brano) {
+    const prima = branoSito ? branoSito.audio : "";
+    branoSito = brano;
+    dom.sitoNome.textContent = brano ? brano.nome : "nessun brano";
+    dom.sitoNome.title = brano ? brano.nome : "";
+    const dati = [];
+    /* Il "dettaglio" è la traccia da cui viene la versione: quando il titolo la
+       ripete ("End of the World (Version 3)" da "End of the World") non dice
+       niente di nuovo, quindi si salta. */
+    if (brano && brano.dettaglio && brano.nome.indexOf(brano.dettaglio) !== 0) {
+      dati.push(brano.dettaglio);
+    }
+    if (brano && brano.artisti) dati.push(brano.artisti);
+    if (brano && brano.durata) dati.push(orologio(brano.durata));
+    if (brano && brano.raccolta) dati.push(brano.raccolta);
+    dom.sitoDati.textContent = dati.join(" · ");
+    dom.btnSitoAscolta.disabled = !brano;
+    dom.btnSitoCarica.disabled = !brano;
+    dom.btnSitoSostituisci.disabled = !brano;
+    dom.btnSitoComponi.disabled = !brano;
+    /* Cambiare brano mentre suona l'anteprima: prima si zittisce, poi si sceglie. */
+    if ((brano ? brano.audio : "") !== prima) fermaAscoltoSito();
+  }
+
+  async function scaricaDalSito(percorso, tipo) {
+    const url = urlSito(percorso);
+    let risposta;
+    try {
+      risposta = await fetch(url, { cache: "no-store" });
+    } catch (errore) {
+      throw new Error("il sito non risponde (" + url + "): è acceso?");
+    }
+    if (!risposta.ok) throw new Error(url + " risponde " + risposta.status);
+    const blob = await risposta.blob();
+    const nome = decodeURIComponent((url.split("/").pop() || "file").split("?")[0]);
+    return new File([blob], nome, { type: tipo || blob.type || "" });
+  }
+
+  /* Un <input type="file"> lo riempie solo l'utente: da codice si passa da
+     DataTransfer (Chrome e Safari lo permettono). ComponiStack legge gli input
+     proprio per questo — così la scena si monta da un brano del sito senza
+     toccare i due riquadri a mano. */
+  function mettiFileNelCampo(input, file) {
+    if (!input || !file) return false;
+    try {
+      const trasporto = new DataTransfer();
+      trasporto.items.add(file);
+      input.files = trasporto.files;
+    } catch (errore) {
+      console.warn("campo file non riempito:", errore.message);
+      return false;
+    }
+    input.dispatchEvent(new Event("change"));
+    return true;
+  }
+
+  function immagineDaFile(file) {
+    return new Promise(function (ok, ko) {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = function () { URL.revokeObjectURL(url); ok(img); };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        ko(new Error("immagine non leggibile"));
+      };
+      img.src = url;
+    });
+  }
+
+  /* Il fondale che dal brano non c'è: la copertina stessa, sfocata. Si disegna
+     piccolissima (40 × 23) e si ingrandisce fino a 1280 × 720: il browser
+     interpola e viene una macchia morbida, senza il filtro blur (che non tutti i
+     browser hanno). Sotto, un velo scuro, se no il primo layer non si stacca dal
+     fondo. */
+  async function sfondoDaCopertina(file) {
+    const immagine = await immagineDaFile(file);
+    const piccola = telaDemo(40, 23);
+    const p = piccola.getContext("2d");
+    const scala = Math.max(40 / immagine.width, 23 / immagine.height);
+    const larghezza = immagine.width * scala;
+    const altezza = immagine.height * scala;
+    p.drawImage(immagine, (40 - larghezza) / 2, (23 - altezza) / 2, larghezza, altezza);
+
+    const tela = telaDemo(1280, 720);
+    const t = tela.getContext("2d");
+    t.imageSmoothingEnabled = true;
+    t.imageSmoothingQuality = "high";
+    t.drawImage(piccola, 0, 0, 1280, 720);
+    const velo = t.createLinearGradient(0, 0, 0, 720);
+    velo.addColorStop(0, "rgba(0,0,0,.32)");
+    velo.addColorStop(1, "rgba(0,0,0,.72)");
+    t.fillStyle = velo;
+    t.fillRect(0, 0, 1280, 720);
+    const blob = await new Promise(function (ok) { tela.toBlob(ok, "image/jpeg", 0.92); });
+    return new File([blob], "sfondo.jpg", { type: "image/jpeg" });
+  }
+
+  /* Dal brano alla scena: la copertina diventa il primo layer, il fondale è la
+     stessa copertina sfocata, l'audio va in composizione. Poi componiStack()
+     monta fuoco, buio, neve e immagine e — se il menù lo dice — passa il
+     controllo al MIDI o alla mano. */
+  async function montaScenaDelBrano(brano, file) {
+    let copertina = null;
+    if (brano.copertina) {
+      segnala("prendo la copertina…", "busy");
+      try {
+        copertina = await scaricaDalSito(brano.copertina, "image/jpeg");
+      } catch (errore) {
+        console.warn("copertina non scaricata:", errore.message);
+      }
+    }
+    if (!copertina) {
+      throw new Error("la copertina del brano non arriva: senza, la scena non ha un primo layer");
+    }
+    stato.componiAudio = [file];
+    disegnaComponiAudio();
+    mettiFileNelCampo(dom.componiPrimo, copertina);
+    mettiFileNelCampo(dom.componiSfondo, await sfondoDaCopertina(copertina));
+    componiAperto(true);
+    await componiStack();
+  }
+
+  /* Tre mestieri: "+ Alle tracce" ferma lì l'audio, "Al posto dell'audio" toglie
+     quello che c'è e mette questo (i livelli restano), "Componi la scena" porta
+     tutto fino alla pila. `sostituisci` è il terzo parametro perché il secondo
+     è la scena: chiamare le due cose a rovescio sarebbe un pasticcio. */
+  async function caricaBranoSito(brano, ancheScena, sostituisci) {
+    if (!brano) return null;
+    const statoPrima = dom.sitoStato.textContent;
+    dom.btnSitoCarica.disabled = true;
+    dom.btnSitoComponi.disabled = true;
+    dom.btnSitoSostituisci.disabled = true;
+    dom.sitoStato.textContent = "scarico…";
+    fermaAscoltoSito();
+    try {
+      segnala("prendo \"" + brano.nome + "\"…", "busy");
+      const file = await scaricaDalSito(brano.audio, "audio/mpeg");
+      if (ancheScena) {
+        await montaScenaDelBrano(brano, file);
+        return file;
+      }
+      if (sostituisci && stato.piste.length) {
+        /* L'audio alternativo: via le tracce di prima, e se stavi suonando ci si
+           ferma — sostituire il brano sotto la riproduzione non ha senso. */
+        if (stato.playing) mettiInPausa();
+        stato.piste.slice().forEach(function (pista) { rimuoviTraccia(pista.id); });
+      }
+      const pista = await aggiungiTraccia(file);
+      if (!pista) throw new Error("l'audio non si decodifica");
+      /* Nel catalogo il file si chiama spesso come un hash
+         (`song_f5dfab2c474a.mp3`): in timeline ci va il titolo, che è quello
+         che si riconosce a colpo d'occhio. */
+      if (pista.nome !== brano.nome) {
+        pista.nome = brano.nome;
+        disegnaPiste();
+      }
+      avviso("\"" + brano.nome + "\" " +
+        (sostituisci ? "ha preso il posto dell'audio di prima" : "è nelle tracce") +
+        ": premi Riproduci.", false);
+      return pista;
+    } catch (errore) {
+      console.error(errore);
+      avviso("Brano dal sito non caricato: " + errore.message, true);
+      return null;
+    } finally {
+      dom.sitoStato.textContent = statoPrima;
+      dom.btnSitoAscolta.disabled = !branoSito;
+      dom.btnSitoCarica.disabled = !branoSito;
+      dom.btnSitoSostituisci.disabled = !branoSito;
+      dom.btnSitoComponi.disabled = !branoSito;
+    }
+  }
+
+  /* ------------------------------------------------------------ composizione --- */
+  /* Lo stesso stack del pacchetto scomposto, montato coi file dell'utente: due
+     immagini e l'audio. L'ordine è quello del manifesto, dal fondo alla cima:
+     sfondo, fuoco (velo), buio, neve, immagine. Il buio è un PNG nero che si
+     accende sul colpo, il fuoco e la neve sono i video esterni (dal pacchetto
+     demo o dallo scaricatore locale). Tutti gli strati ascoltano la STESSA
+     banda — di serie la cassa insieme all'808 — quindi si muovono sullo stesso
+     colpo, con gli stessi numeri del pacchetto demo-video. */
+  const RICETTA_STRATI = {
+    sfondo: {
+      nome: "Sfondo", effetti: [], opacita: 1, banda: "cassa808",
+      /* Il fondale riempie sempre il frame, qualunque sia il formato del file. */
+      adatta: 0
+    },
+    fuoco: {
+      /* Il velo di fuoco del video: sempre acceso, appena percettibile (8%),
+         in fusione Schermo. Non è reattivo. */
+      nome: "Fuoco · velo", effetti: [], fusione: "schermo", opacita: 0.08,
+      reattivo: 0, forza: 1, attacco: 0.012, banda: "cassa808", adatta: 0
+    },
+    buio: {
+      /* Si abbassa sul colpo e resta giù finché l'808 suona (finoAlSuono): è la
+         scena che si spegne piano, non un lampo. Il PNG è piccolo (32 × 32):
+         va riempito sul frame, altrimenti scurisce solo un riquadro centrale. */
+      nome: "Buio sul colpo", effetti: [], opacita: 0.42, reattivo: 1,
+      attacco: 0.01, finoAlSuono: true, banda: "cassa808", adatta: 0
+    },
+    neve: {
+      /* Il video del canale, in fusione Schermo e reattivo al 100%: i fiocchi
+         sono il segno del colpo, quindi entrano sul kick e si ritirano. */
+      nome: "Neve", effetti: [], fusione: "schermo", opacita: 1, reattivo: 1,
+      attacco: 0.02, finoAlSuono: true, forza: 1, banda: "cassa808", adatta: 0
+    },
+    immagine: {
+      nome: "Immagine", effetti: ["tremolio", "saturo"], opacita: 1, forza: 0.85,
+      /* Il primo piano entra come nel video: tutto dentro il frame, non tagliato
+         ai bordi come farebbe "Riempi il frame" con una foto quadrata. */
+      attacco: 0.008, banda: "cassa808", adatta: 1, scala: 1,
+      /* Tremolio e saturazione sullo stesso colpo: nel video l'immagine trema E si
+         accende un po' di colore quando arriva la cassa con l'808 (il +35% della
+         saturazione è «leggermente», non un filtro da discoteca). */
+      parametri: { tremolio: { ampiezza: 0.4, scatti: 24 }, saturo: { sat: 0.35 } }
+    }
+  };
+
+  function stratiConBanda(banda) {
+    const scelta = BANDE[banda] ? banda : "cassa808";
+    return {
+      sfondo: Object.assign({}, RICETTA_STRATI.sfondo, { banda: scelta }),
+      fuoco: Object.assign({}, RICETTA_STRATI.fuoco, { banda: scelta }),
+      buio: Object.assign({}, RICETTA_STRATI.buio, { banda: scelta }),
+      neve: Object.assign({}, RICETTA_STRATI.neve, { banda: scelta }),
+      immagine: Object.assign({}, RICETTA_STRATI.immagine, { banda: scelta })
+    };
+  }
+
+  /* La fonte del velo di fuoco è la stessa dello strato `sfondo-fuoco.mp4` del
+     pacchetto demo-video: prima si prova il file nella cartella del pacchetto,
+     poi lo scaricatore locale (:5070). Come per la neve, il file non viaggia
+     col progetto: è un video di terzi e resta sul sito del suo autore. */
+  const ESEMPIO_FUOCO = {
+    tipo: "video",
+    titolo: "Burning Fire Background | 30 minutes | 4K screensaver loops",
+    nome: "Fuoco · velo",
+    canale: "Boss of Screensavers",
+    url: "https://www.youtube.com/watch?v=5jqPvtdGoUU",
+    videoId: "5jqPvtdGoUU",
+    file: "sfondo-fuoco.mp4",
+    effetti: [],
+    fusione: "schermo",
+    opacita: 0.08,
+    reattivo: 0,
+    forza: 1,
+    attacco: 0.012,
+    banda: "cassa808",
+    nota: "estratto da 0:24, bianco e nero, 3840x2160, loop di 58,27 s"
+  };
+
+  function esempioNeve() {
+    const neve = effettoDi("neve");
+    return neve && neve.esempi && neve.esempi.length ? neve.esempi[0] : null;
+  }
+
+  function disegnaNero(g, larghezza, altezza) {
+    g.fillStyle = "#000000";
+    g.fillRect(0, 0, larghezza, altezza);
+  }
+
+  function nomeDelFile(input, output, vuoto) {
+    const file = input.files && input.files[0];
+    output.textContent = file ? file.name : vuoto;
+    output.classList.toggle("is-pieno", !!file);
+  }
+
+  /* ------------------------------------------------- audio della composizione ---
+     Un <input type="file"> non lascia togliere una voce sola: l'elenco dei file
+     scelti vive quindi in `stato.componiAudio`, si riempie con "+ Mix o stems" e
+     si svuota con la × accanto al nome. "Componi ed esporta" legge questo elenco,
+     non `input.files`, così si possono aggiungere gli stems uno alla volta e
+     togliere quello sbagliato senza ricominciare. */
+  function disegnaComponiAudio() {
+    dom.componiAudioElenco.innerHTML = "";
+    const quanti = stato.componiAudio.length;
+    dom.outComponiStems.textContent = quanti
+      ? (quanti === 1 ? stato.componiAudio[0].name : quanti + " file")
+      : "nessun file";
+    dom.outComponiStems.classList.toggle("is-pieno", quanti > 0);
+    dom.btnComponiAudioVia.hidden = quanti === 0;
+
+    stato.componiAudio.forEach(function (file, indice) {
+      const voce = document.createElement("span");
+      voce.className = "componi__file";
+
+      const nome = document.createElement("span");
+      nome.textContent = file.name;
+      nome.title = file.name;
+
+      const via = document.createElement("button");
+      via.type = "button";
+      via.className = "mini";
+      via.textContent = "×";
+      via.title = "Togli " + file.name;
+      via.setAttribute("aria-label", "Togli " + file.name + " dalla composizione");
+      via.addEventListener("click", function () {
+        stato.componiAudio.splice(indice, 1);
+        disegnaComponiAudio();
+        avviso("\"" + file.name + "\" tolto dalla composizione.", false);
+      });
+
+      voce.appendChild(nome);
+      voce.appendChild(via);
+      dom.componiAudioElenco.appendChild(voce);
+    });
+  }
+
+  /* Aggiunge i file scelti, saltando i doppioni (stesso nome, dimensione e data)
+     e dicendo cosa resta fuori se non è audio. */
+  function aggiungiComponiAudio(files) {
+    const nuovi = Array.from(files || []);
+    const scartati = [];
+    let aggiunti = 0;
+    nuovi.forEach(function (file) {
+      if (classificaFile(file) !== "audio") {
+        scartati.push(file.name);
+        return;
+      }
+      const gia = stato.componiAudio.some(function (altro) {
+        return altro.name === file.name && altro.size === file.size &&
+          altro.lastModified === file.lastModified;
+      });
+      if (gia) return;
+      stato.componiAudio.push(file);
+      aggiunti += 1;
+    });
+    disegnaComponiAudio();
+    if (scartati.length) {
+      avviso(scartati.map(function (n) { return "\"" + n + "\""; }).join(", ") +
+        (scartati.length === 1 ? " non è un file audio." : " non sono file audio."), true);
+    } else if (aggiunti) {
+      const quanti = stato.componiAudio.length;
+      avviso("Audio in composizione: " + quanti + (quanti === 1
+        ? " file — con un file solo lo separo io (Demucs)."
+        : " file — sono già gli stems, non li separo."), false);
+    }
+  }
+
+  /* Toglie tutta l'audio della composizione: con l'elenco vuoto "Componi ed
+     esporta" lo dice invece di partire senza colpi. */
+  function svuotaComponiAudio(annuncia) {
+    if (!stato.componiAudio.length) return;
+    stato.componiAudio = [];
+    dom.componiStems.value = "";
+    disegnaComponiAudio();
+    if (annuncia) avviso("Audio della composizione tolto.", false);
+  }
+
+  function componiAperto(apri) {
+    dom.componiCorpo.hidden = !apri;
+    dom.componi.setAttribute("aria-expanded", apri ? "true" : "false");
+  }
+
+  /* La riga del MIDI serve solo quando il menù dice «MIDI»: lasciarla sempre in
+     vista farebbe sembrare obbligatorio un file che, con i colpi o con la mano,
+     non serve a nessuno. */
+  function sincronizzaControlloComponi() {
+    dom.componiMidiFila.hidden = dom.componiControllo.value !== "midi";
+  }
+
+  /* La banda la decide lo stem: se gli effetti seguono batteria o 808, il menù
+     della banda si blocca su quella; tornando al mix si riapre. */
+  function sincronizzaSorgenteComponi() {
+    const scelta = dom.componiSorgente.value;
+    const stem = scelta !== "insieme";
+    dom.componiBanda.disabled = stem;
+    if (stem) {
+      dom.componiBanda.value = scelta === "batteria" ? "kick" : "basso";
+    } else if (dom.componiBanda.value === "kick" || dom.componiBanda.value === "basso") {
+      dom.componiBanda.value = "cassa808";
+    }
+  }
+
+  /* --------------------------------------------- gli stems, ripuliti --- */
+  /* Demucs lascia sempre un velo: la coda dell'hat dentro la batteria, il sub
+     dentro il basso. Quel velo accende il trigger su colpi che non ci sono e si
+     sente come un ronzio basso. Qui si passa un gate sulla banda del colpo: si
+     filtra una copia del segnale, si guarda dove l'inviluppo supera il fondo di
+     rumore LOCALE (la mediana mobile a ±0,8 s, la stessa misura che usa l'analisi
+     del trigger) e si tiene solo lì. Sotto la soglia il campione va a ZERO, non
+     «più piano»: la coda di un 808 resta tutta, il resto non esiste. Restituisce
+     null quando nella banda non c'è niente di netto — e chi chiama non mette la
+     traccia: meglio niente che un ronzio. */
+  function ripulisciBuffer(buffer, banda) {
+    const voce = BANDE[banda] || BANDE.cassa808;
+    const sr = buffer.sampleRate;
+    const canali = buffer.numberOfChannels;
+    const dati = [];
+    for (let c = 0; c < canali; c += 1) dati.push(buffer.getChannelData(c));
+
+    const mono = new Float32Array(buffer.length);
+    for (let c = 0; c < canali; c += 1) {
+      const riga = dati[c];
+      const peso = 1 / canali;
+      for (let i = 0; i < riga.length; i += 1) mono[i] += riga[i] * peso;
+    }
+
+    const alto = Math.min(voce.hi, sr * 0.49);
+    const basso = Math.min(voce.lo, alto * 0.85);
+    const filtrato = filtra(filtra(mono, biquad("passaalto", basso, 0.7, sr)),
+      biquad("passabasso", alto, 0.7, sr));
+    const inv = inviluppo(filtrato, sr);
+    const env = inv.env;
+    const quanti = env.length;
+    if (quanti < 20) return null;
+
+    const ordinati = Float32Array.from(env).sort();
+    const riferimento = ordinati[Math.floor((quanti - 1) * 0.995)] || 0;
+    if (riferimento < 0.001) return null;
+
+    const scala = 1 / riferimento;
+    const normalizzato = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) normalizzato[i] = env[i] * scala;
+
+    /* Mediana mobile (istogramma scorrevole): è il fondo di rumore di QUEL
+       pezzo di audio, così una parte vuota non alza la soglia di quella suonata. */
+    const BIN = 256;
+    const MAX = 2.5;
+    const istogramma = new Uint32Array(BIN);
+    const semi = Math.max(2, Math.round(0.8 / 0.005));
+    let dentro = 0, sinistra = 0, destra = -1;
+    const casella = function (v) { return clamp(Math.floor(v / MAX * BIN), 0, BIN - 1); };
+    const mediana = new Float32Array(quanti);
+    for (let i = 0; i < quanti; i += 1) {
+      const a = Math.max(0, i - semi);
+      const b = Math.min(quanti - 1, i + semi);
+      while (destra < b) {
+        destra += 1;
+        istogramma[casella(normalizzato[destra])] += 1;
+        dentro += 1;
+      }
+      while (sinistra < a) {
+        istogramma[casella(normalizzato[sinistra])] -= 1;
+        dentro -= 1;
+        sinistra += 1;
+      }
+      const meta = dentro / 2;
+      let accumulato = 0;
+      let bin = 0;
+      for (; bin < BIN - 1; bin += 1) {
+        accumulato += istogramma[bin];
+        if (accumulato >= meta) break;
+      }
+      mediana[i] = (bin + 0.5) / BIN * MAX;
+    }
+
+    /* Più severo del trigger (che lavora a 2,0 sulla sensibilità di serie): qui
+       si decide cosa ESISTE nell'audio, e un colpo mezzo coperto non è un colpo.
+       Però i colpi non sono tutti uguali: una cassa è uno spillo sopra il
+       silenzio, e lì il rapporto sulla mediana è la misura giusta; un 808 è una
+       nota che dura, si sovrappone alla successiva e la mediana locale sta già a
+       metà del picco — con il solo rapporto un 808 non passa MAI. Per le bande
+       sostenute vale quindi il livello: la nota resta intera e va a zero il velo
+       che sta sotto (demucs lascia sempre un sub continuo). */
+    const RAPPORTO = 2.4;
+    const sostenuta = voce.modo === "sostenuto";
+    const APRE = 0.18;   // 18% del picco del pezzo: sotto è velo
+    const colpo = new Uint8Array(quanti);
+    if (sostenuta) {
+      /* Nella banda sostenuta il cancello si apre sull'ATTACCO e si chiude quando
+         la nota è scesa al 35% del suo picco: è la forma di un 808, code comprese.
+         Un ronzio continuo attacchi non ne ha, quindi nessun cancello si apre. */
+      const unPasso = inv.passo / sr;
+      const indietro = Math.max(3, Math.round(0.12 / unPasso));
+      const distanza = Math.round(0.15 / unPasso);
+      let ultimo = -1e9;
+      for (let i = indietro; i < quanti; i += 1) {
+        if (normalizzato[i] < 0.05) continue;
+        let minimo = Infinity;
+        for (let j = i - indietro; j < i; j += 1) {
+          if (normalizzato[j] < minimo) minimo = normalizzato[j];
+        }
+        if (normalizzato[i] < minimo * 1.45 + 0.012) continue;
+        if (i - ultimo < distanza) continue;
+        ultimo = i;
+        const tetto = normalizzato[i] * 0.35;
+        for (let j = i; j < quanti && normalizzato[j] > tetto; j += 1) colpo[j] = 1;
+      }
+    } else {
+      for (let i = 0; i < quanti; i += 1) {
+        colpo[i] = normalizzato[i] > mediana[i] * RAPPORTO + 0.012 ? 1 : 0;
+      }
+    }
+    /* Un 808 fittissimo può non mostrare salite nette. Se però il pezzo ha
+       dinamica (la mediana sta sotto il 75% del picco) vale il livello; un ronzio
+       continuo ha la mediana incollata al picco e resta fuori. */
+    if (sostenuta) {
+      let trovati = false;
+      for (let i = 0; i < quanti; i += 1) if (colpo[i]) { trovati = true; break; }
+      if (!trovati && mediana[quanti >> 1] < 0.75) {
+        for (let i = 0; i < quanti; i += 1) colpo[i] = normalizzato[i] > APRE ? 1 : 0;
+      }
+    }
+    /* Le aperture più corte di 15 ms sono spilli (un click, un fruscio): via. */
+    for (let i = 0; i < quanti;) {
+      if (!colpo[i]) { i += 1; continue; }
+      let j = i;
+      while (j < quanti && colpo[j]) j += 1;
+      if (j - i < 3) for (let k = i; k < j; k += 1) colpo[k] = 0;
+      i = j;
+    }
+    /* Nelle bande a impulso il colpo si riapre con isteresi, così la coda non
+       sfarfalla; nella sostenuta la forma la dà già l'attacco. */
+    const suona = new Uint8Array(quanti);
+    let acceso = false;
+    let accesi = 0;
+    for (let k = 0; k < quanti; k += 1) {
+      if (sostenuta) {
+        suona[k] = colpo[k];
+      } else {
+        const soglia = mediana[k] * RAPPORTO + 0.012;
+        if (colpo[k]) acceso = true;
+        else if (acceso && normalizzato[k] < Math.max(soglia * 0.4, mediana[k] * 1.2)) acceso = false;
+        suona[k] = acceso ? 1 : 0;
+      }
+      if (suona[k]) accesi += 1;
+    }
+    const tenuto = accesi / quanti;
+    if (tenuto < 0.02) return null;
+
+    /* Le rampe (4 ms su, 25 ms giù) evitano il click dello zero secco: un click
+       sarebbe un colpo finto per il trigger. */
+    const passo = inv.passo;
+    const su = 1 / Math.max(1, Math.round(0.004 * sr));
+    const giu = 1 / Math.max(1, Math.round(0.025 * sr));
+    let guadagno = 0;
+    for (let n = 0; n < buffer.length; n += 1) {
+      const bersaglio = suona[Math.min(quanti - 1, Math.floor(n / passo))];
+      guadagno = bersaglio ? Math.min(1, guadagno + su) : Math.max(0, guadagno - giu);
+      if (guadagno >= 1) continue;
+      for (let c = 0; c < canali; c += 1) dati[c][n] *= guadagno;
+    }
+    return { tenuto: tenuto, picco: riferimento };
+  }
+
+  /* Un file audio → una traccia pulita, o niente. */
+  async function pistaPulita(file, banda, nome) {
+    const etichetta = nome || file.name.replace(/\.[^.]+$/, "");
+    let buffer;
+    try {
+      buffer = await decodifica(await file.arrayBuffer());
+    } catch (errore) {
+      console.warn("\"" + etichetta + "\" non si decodifica:", errore);
+      avviso("\"" + etichetta + "\" non si legge: resta fuori dallo stack.", true);
+      return null;
+    }
+    const esito = ripulisciBuffer(buffer, banda);
+    if (!esito) {
+      const voce = BANDE[banda] || BANDE.cassa808;
+      avviso("\"" + etichetta + "\" non ha colpi netti nei " + voce.lo + "–" + voce.hi +
+        " Hz: non lo metto nello stack — meglio niente che un ronzio.", true);
+      return null;
+    }
+    const pista = pistaDaBuffer(etichetta, buffer);
+    pista.guadagno = 1;
+    pista.nodo.gain.value = pistaUdibile(pista) ? 1 : 0;
+    return pista;
+  }
+
+  /* Lo scaricatore locale (SampleLab, :5070) è lo stesso che prende i video, e sa
+     separare con Demucs (`htdemucs`): gli si dà il file con `/upload_file`, si
+     guarda il lavoro con `/status/<id>` e le tracce escono da
+     `/stream-stem/<cartella>/<nome>`. Il file caricato si toglie appena la
+     separazione è finita (finisce in `.trash/`, come tutto quello che passa lì). */
+  async function separaConDemucs(file) {
+    const nome = "nastro-" + Date.now() + "-" + file.name.replace(/[^\w.\-]+/g, "_");
+    const modulo = new FormData();
+    modulo.append("file", file, nome);
+    segnala("carico il mix sullo scaricatore…", "busy");
+    const caricato = await fetch(SCARICATORE + "/upload_file", { method: "POST", body: modulo });
+    if (!caricato.ok) throw new Error("lo scaricatore non prende il file (" + caricato.status + ")");
+    const preso = await caricato.json();
+    const caricatoNome = preso.filename || nome;
+
+    let finito = false;
+    try {
+      const avvio = await fetch(SCARICATORE + "/separate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: caricatoNome })
+      });
+      if (!avvio.ok) throw new Error("lo scaricatore non separa (" + avvio.status + ")");
+      const apertura = await avvio.json();
+      const id = apertura.job_id;
+      if (!id) throw new Error("lo scaricatore non ha aperto la separazione");
+
+      let ultimo = null;
+      for (let giro = 0; giro < 450; giro += 1) {
+        await new Promise(function (ok) { setTimeout(ok, 2000); });
+        const risposta = await fetch(SCARICATORE + "/status/" + encodeURIComponent(id),
+          { cache: "no-store" });
+        if (!risposta.ok) throw new Error("lo scaricatore non dice come va (" + risposta.status + ")");
+        ultimo = await risposta.json();
+        if (ultimo.status === "done") { finito = true; break; }
+        if (ultimo.status === "error" || ultimo.status === "stopped") {
+          finito = true;
+          throw new Error(ultimo.error || "separazione fermata");
+        }
+        const percento = ultimo.progress && ultimo.progress.percent
+          ? ultimo.progress.percent
+          : 0;
+        segnala("separo con Demucs… " + percento + "%", "busy");
+      }
+      if (!ultimo || ultimo.status !== "done") throw new Error("la separazione non è finita");
+
+      const cartella = ultimo.stem_folder;
+      const elenco = ultimo.stems || [];
+      const cerca = function (tipo) {
+        return elenco.filter(function (s) {
+          return s.toLowerCase().indexOf(tipo) === 0;
+        })[0];
+      };
+      const richieste = [
+        { tipo: "drums", nome: "Batteria (kick)", banda: "kick" },
+        { tipo: "bass", nome: "808 (basso)", banda: "basso" }
+      ];
+      const pezzi = [];
+      for (let i = 0; i < richieste.length; i += 1) {
+        const voce = richieste[i];
+        const traccia = cartella ? cerca(voce.tipo) : "";
+        if (!traccia) continue;
+        segnala("prendo \"" + voce.nome + "\"…", "busy");
+        const risposta = await fetch(SCARICATORE + "/stream-stem/" +
+          encodeURIComponent(cartella) + "/" + encodeURIComponent(traccia), { cache: "no-store" });
+        if (!risposta.ok) continue;
+        const blob = await risposta.blob();
+        pezzi.push({
+          nome: voce.nome,
+          banda: voce.banda,
+          file: new File([blob], voce.nome + ".mp3", { type: blob.type || "audio/mpeg" })
+        });
+      }
+      return pezzi;
+    } finally {
+      if (finito) {
+        fetch(SCARICATORE + "/delete-file/" + encodeURIComponent(caricatoNome), { method: "DELETE" })
+          .catch(function (errore) {
+            console.warn("Il mix caricato resta in downloads/:", errore.message);
+          });
+      }
+    }
+  }
+
+  /* Da che banda si guarda un file che l'utente dà per già separato: il nome
+     dice se è la batteria (il kick) o il basso (l'808). */
+  function bandaDelNome(nome) {
+    if (/kick|cassa|drum|batt/i.test(nome)) return "kick";
+    if (/808|bass|basso|sub/i.test(nome)) return "basso";
+    return null;
+  }
+
+  async function componiStack() {
+    const sfondoFile = dom.componiSfondo.files && dom.componiSfondo.files[0];
+    const primoFile = dom.componiPrimo.files && dom.componiPrimo.files[0];
+    /* L'elenco gestito (con le × accanto a ogni nome) vince; se è vuoto si
+       guarda l'input, così funziona anche chi imposta `input.files` da fuori. */
+    const forniti = stato.componiAudio.length
+      ? stato.componiAudio.slice()
+      : Array.from(dom.componiStems.files || []);
+    if (!sfondoFile || !primoFile) {
+      avviso("Servono due immagini: lo sfondo e il primo layer.", true);
+      return;
+    }
+    if (!forniti.length) {
+      avviso("Serve il mix (o gli stems): senza audio non c'è nessun colpo da seguire. " +
+        "Il mix lo separo io con Demucs.", true);
+      return;
+    }
+
+    /* La sorgente dice CHI guida gli effetti: il mix, lo stem della batteria o
+       quello dell'808. Con uno stem il trigger ascolta solo quella traccia e la
+       banda diventa quella dello stem, come nel video (cassa o 808). */
+    const sorgente = dom.componiSorgente.value === "batteria" || dom.componiSorgente.value === "basso"
+      ? dom.componiSorgente.value : "insieme";
+    const bandaScelta = BANDE[dom.componiBanda.value] ? dom.componiBanda.value : "cassa808";
+    const bandaStem = sorgente === "batteria" ? "kick" : (sorgente === "basso" ? "basso" : null);
+    let banda = bandaStem || bandaScelta;
+    let strati = stratiConBanda(banda);
+
+    dom.componiFai.disabled = true;
+    const etichetta = dom.componiFai.textContent;
+    dom.componiFai.textContent = "compongo…";
+    try {
+      if (stato.livelli.length || stato.piste.length) azzera(true);
+      assicuraGrafo();
+
+      /* La cartella del pacchetto serve per i video di fuoco e neve: se non si è
+         passati da "Carica il pacchetto demo", si sceglie qui (demo, poi
+         demo-video, così sotto c'è il brano del sito). Da file:// non c'è: i
+         video si provano dallo scaricatore. */
+      await scegliCartellaDemo();
+
+      /* L'audio prima dei livelli: il colpo che accende il buio è lo stesso che
+         accende il fuoco e la neve. Un file solo è il mix e lo separa Demucs;
+         più file sono già gli stems. In tutti e due i casi il gate toglie quello
+         che non è un colpo — se non resta niente di netto la traccia non entra. */
+      let pezzi;
+      let senzaDemucs = false;
+      if (forniti.length === 1) {
+        dom.componiFai.textContent = "separo…";
+        try {
+          pezzi = await separaConDemucs(forniti[0]);
+        } catch (errore) {
+          /* Senza Demucs si può lo stesso: il mix intero passa dal gate sulla
+             banda scelta, quindi gli effetti seguono quella frequenza. */
+          console.warn("Demucs non disponibile:", errore.message);
+          senzaDemucs = true;
+          const bandaMix = bandaStem || bandaScelta;
+          pezzi = [{ nome: "Mix", file: forniti[0], banda: bandaMix }];
+        }
+      } else {
+        pezzi = forniti.map(function (file) {
+          const nome = file.name.replace(/\.[^.]+$/, "");
+          return { nome: nome, file: file, banda: bandaDelNome(nome) || banda };
+        });
+      }
+      if (!pezzi.length) throw new Error("non ho trovato batteria e basso da mettere nello stack");
+
+      const pisteInStack = [];
+      const scartati = [];
+      for (let i = 0; i < pezzi.length; i += 1) {
+        segnala("ripulisco \"" + pezzi[i].nome + "\"…", "busy");
+        const pista = await pistaPulita(pezzi[i].file, pezzi[i].banda, pezzi[i].nome);
+        if (pista) {
+          pisteInStack.push({ pista: pista, banda: pezzi[i].banda, nome: pezzi[i].nome });
+        } else {
+          scartati.push(pezzi[i].nome);
+        }
+      }
+      if (!pisteInStack.length) throw new Error("nessun colpo netto negli stems: non metto audio a caso");
+
+      /* Aggancio: se lo stem scelto c'è, il trigger legge solo lui (anche se è
+         muto); se non c'è si torna al mix, e lo si dice invece di fingere. */
+      let trigger = "mix";
+      let notaStem = "";
+      if (bandaStem) {
+        const scelto = pisteInStack.filter(function (voce) {
+          return voce.banda === bandaStem;
+        })[0];
+        if (scelto) {
+          trigger = "pista:" + scelto.pista.id;
+          notaStem = senzaDemucs
+            ? " Gli effetti seguono la banda " + (BANDE[banda] ? BANDE[banda].nome.toLowerCase() : banda) +
+              " del mix."
+            : " Gli effetti seguono lo stem \"" + scelto.nome + "\".";
+        } else {
+          banda = bandaScelta;
+          notaStem = " Lo stem " + (bandaStem === "kick" ? "della batteria" : "dell'808") +
+            " non è arrivato: il trigger resta sul mix.";
+        }
+        strati = stratiConBanda(banda);
+      }
+      stato.durata = durataTotale();
+
+      /* La linea del tempo resta quella dell'audio: il velo di fuoco dura 58 s,
+         un brano può durare meno, e la registrazione non deve correre oltre. */
+      let durataAudio = 0;
+      stato.piste.forEach(function (pista) {
+        durataAudio = Math.max(durataAudio, pista.ritardo + pista.buffer.duration);
+      });
+
+      const sfondo = await aggiungiLivello(sfondoFile);
+      if (!sfondo) throw new Error("lo sfondo non si legge");
+      applicaVoceDemo(sfondo, strati.sfondo);
+
+      /* L'ordine è quello del manifesto demo-video: sfondo, fuoco, buio, neve,
+         immagine. Il velo di fuoco sta sopra il fondale e sotto il nero, la neve
+         sopra il nero (i fiocchi non si scuriscono) e sotto l'opera. */
+      let fuoco = null;
+      const salti = [];
+      if (dom.componiFuoco.checked) {
+        try {
+          segnala("prendo il velo di fuoco…", "busy");
+          /* Se hai scelto il file a mano vale quello: così il fuoco esiste anche
+             senza il pacchetto demo e senza lo scaricatore su :5070. */
+          const sceltoFuoco = dom.componiFuocoFile.files && dom.componiFuocoFile.files[0];
+          const file = sceltoFuoco || await pescaVideoEsempio(ESEMPIO_FUOCO);
+          fuoco = await montaEsempioVideo(file, Object.assign({}, ESEMPIO_FUOCO, strati.fuoco));
+          if (fuoco) fuoco.limiteDurata = durataAudio;
+          else salti.push("fuoco");
+        } catch (errore) {
+          console.warn("fuoco non caricato:", errore.message);
+          salti.push("fuoco");
+        }
+      }
+
+      const buio = await aggiungiLivello(await fileDaTela("Buio.png", disegnaNero));
+      if (buio) applicaVoceDemo(buio, strati.buio);
+
+      let neve = null;
+      const esempio = esempioNeve() || {};
+      /* Anche qui il file scelto a mano vince: senza pacchetto e senza scaricatore
+         la neve è comunque quella che hai sul disco. */
+      const sceltaNeve = dom.componiNeveFile.files && dom.componiNeveFile.files[0];
+      if (dom.componiNeve.checked && (esempio.file || esempio.videoId || sceltaNeve)) {
+        try {
+          /* I numeri del pacchetto demo-video: fusione Schermo, opacità 1,
+             reattivo 100%, fino alla fine del suono, attacco 20 ms. */
+          const voce = Object.assign({}, esempio, strati.neve);
+          const file = sceltaNeve || await pescaVideoEsempio(voce);
+          neve = await montaEsempioVideo(file, voce);
+          if (neve) neve.limiteDurata = durataAudio;
+          else salti.push("neve");
+        } catch (errore) {
+          console.warn("neve non caricata:", errore.message);
+          salti.push("neve");
+        }
+      } else if (dom.componiNeve.checked) {
+        salti.push("neve");
+      }
+
+      const immagine = await aggiungiLivello(primoFile);
+      if (!immagine) throw new Error("il primo layer non si legge");
+      applicaVoceDemo(immagine, strati.immagine);
+
+      stato.scelto = immagine.id;
+      stato.banda = banda;
+      stato.modo = BANDE[banda].modo;
+      stato.trigger = trigger;
+      stato.t = 0;
+      stato.durata = durataTotale();
+
+      disegnaLivelli();
+      disegnaScheda();
+      disegnaPiste();
+      aggiornaTrigger();
+      aggiornaTrasporto();
+      aggiornaSchermoVuoto();
+      aggiornaHud();
+      componiAperto(false);
+
+      /* L'analisi si aspetta: registrare prima che i colpi siano calcolati
+         vorrebbe dire un video con gli effetti spenti nei primi secondi. */
+      dom.componiFai.textContent = "analizzo…";
+      clearTimeout(timerRicalcolo);
+      await ricalcola();
+      cerca(0);
+
+      /* Chi accende l'animazione. "auto" è il gesto di sempre: i colpi del brano
+         sulla banda scelta qui sopra. Con il MIDI il gate diventa quello delle
+         note — una nota lunga tiene accesi fuoco, neve, buio e immagine, il
+         silenzio li spegne. Con la mano il brano riparte da capo e registro i
+         click sul pad (o il tasto H), così il video esce già animato. */
+      const chiAccende = dom.componiControllo.value;
+      let notaControllo = "";
+      if (chiAccende === "midi") {
+        const midiScelto = dom.componiMidi.files && dom.componiMidi.files[0];
+        if (midiScelto) {
+          await caricaControlloMidi(midiScelto);
+          notaControllo = " L'animazione segue le note del MIDI, non i colpi: una nota " +
+            "accesa tiene la scena accesa, il silenzio la spegne.";
+        } else {
+          avviso("Nessun file MIDI scelto: l'animazione resta sui colpi del brano.", true);
+          impostaControlloTipo("auto");
+        }
+      } else if (chiAccende === "mano") {
+        avviaRegistrazioneGesto();
+        notaControllo = " Registro i tuoi click: tieni premuto sul palco (o il tasto H) " +
+          "mentre il brano suona.";
+      } else {
+        impostaControlloTipo("auto");
+      }
+
+      if (dom.componiRegistra.checked) avviaRegistrazione();
+      /* Il ronzio non entra, ma non sparisce in silenzio: se un file è rimasto
+         fuori lo si dice, altrimenti sembra che l'audio si sia perso. */
+      const nota = scartati.length
+        ? " Fuori resta " + scartati.map(function (n) { return "\"" + n + "\""; }).join(", ") +
+          ": non ci sono colpi netti, e meglio niente che un ronzio."
+        : "";
+      const mancanti = salti.length
+        ? " " + (salti.length === 1 ? "Non è arrivato: " : "Non sono arrivati: ") +
+          salti.join(", ") + (salti.length === 1 ? ". Puoi aggiungerlo" : ". Puoi aggiungerli") +
+          " con + Video o immagine."
+        : "";
+      const sorgenteNome = trigger === "mix"
+        ? "il mix di " + pisteInStack.length + (pisteInStack.length === 1 ? " traccia" : " tracce")
+        : (senzaDemucs ? "il mix filtrato" : "lo stem scelto");
+      avviso("Stack composto come nella demo: sfondo, " + (fuoco ? "velo di fuoco, " : "") +
+        "buio sul colpo, " + (neve ? "neve e " : "") + "immagine che trema e si satura, " +
+        "tutti sulla " + (BANDE[banda] ? BANDE[banda].nome.toLowerCase() : banda) + "." +
+        notaStem + " Il trigger ascolta " + sorgenteNome + "." + nota + mancanti + notaControllo +
+        (dom.componiRegistra.checked ? " Registro in tempo reale: il WebM arriva alla fine." :
+          " Premi Riproduci."), false);
+    } catch (errore) {
+      console.error(errore);
+      avviso("Non riesco a comporre lo stack: " + errore.message, true);
+    } finally {
+      dom.componiFai.disabled = false;
+      dom.componiFai.textContent = etichetta;
+    }
+  }
+
+
   /* ---------------------------------------------------------------- esempi --- */
   /* L'esempio è il video che pubblica il canale: non viaggia col pacchetto, quindi
      o hai già il file e lo carichi, o apri il link. In entrambi i casi nasce un
@@ -4321,10 +7307,7 @@
       const file = input.files && input.files[0];
       input.remove();
       if (!file) return;
-      const livello = await aggiungiLivello(file);
-      if (!livello) return;
-      livello.nome = esempio && esempio.nome ? esempio.nome : file.name.replace(/\.[^.]+$/, "");
-      applicaEsempioNeve(livello, esempio);
+      await montaEsempioVideo(file, esempio);
     });
     input.click();
   }
@@ -4343,7 +7326,10 @@
     livello.fusione = dati.fusione || "schermo";
     livello.opacita = typeof dati.opacita === "number" ? dati.opacita : 0.85;
     livello.forza = typeof dati.forza === "number" ? dati.forza : 0.8;
-    livello.attacco = 0.02;
+    livello.attacco = typeof dati.attacco === "number" ? dati.attacco : 0.02;
+    livello.reattivo = typeof dati.reattivo === "number" ? dati.reattivo : 0;
+    livello.finoAlSuono = dati.finoAlSuono === true;
+    if (dati.banda && BANDE[dati.banda]) livello.banda = dati.banda;
     livello.spento = false;
     disegnaLivelli();
     disegnaScheda();
@@ -4360,6 +7346,7 @@
     dom.demo.disabled = true;
     segnala("preparo il pacchetto demo…", "busy");
     try {
+      await scegliCartellaDemo();
       if (stato.livelli.length || stato.piste.length) azzera(true);
       assicuraGrafo();
 
@@ -4376,16 +7363,25 @@
       disegnaStratiMancanti();
 
       const mancanti = stato.stratiMancanti.length;
+      /* Il nome della cartella nel messaggio: se un giorno si riapre la pagina e
+         sembra "la solita demo", si vede subito quale pacchetto è entrato. */
+      const quale = cartellaDemo === "demo-video"
+        ? "Demo del video (" + cartellaDemo + "/)"
+        : "Demo del brano (" + cartellaDemo + "/)";
+      /* La demo del brano è un estratto: chi vuole la canzone intera la prende
+         dal sito, con il pannello qui sotto. */
+      const consiglio = cartellaDemo === "demo"
+        ? " Per il brano intero: Brani dal sito, Vol. 3 dei remix." : "";
       avviso(origine === "file"
         ? (esito.composto
-          ? "Demo scomposta in strati: sul colpo lo sfondo si scurisce, l'immagine " +
+          ? quale + ": sul colpo lo sfondo si scurisce, l'immagine " +
             "trema e la neve compare solo lì. Le tracce mute guidano il trigger: premi Riproduci." +
             (mancanti ? " " + (mancanti === 1 ? "Uno strato aspetta" : mancanti + " strati aspettano") +
-              " il suo video: lo carichi dalla carta qui sotto." : "")
-          : "Demo pronta: la base del pacchetto con il contorno e le tracce mute per il " +
-            "trigger. Premi Riproduci.")
-        : "I file in demo/ non sono raggiungibili da qui, quindi ho sintetizzato tutto " +
-          "al momento. Premi Riproduci.", false);
+              " il suo video: lo carichi dalla carta qui sotto." : "") + consiglio
+          : quale + ": la base del pacchetto con il contorno e le tracce mute per il " +
+            "trigger. Premi Riproduci." + consiglio)
+        : "I file in " + cartellaDemo + "/ non sono raggiungibili da qui, quindi ho " +
+          "sintetizzato tutto al momento. Premi Riproduci.", false);
     } catch (errore) {
       console.error(errore);
       avviso("La demo non è partita: " + errore.message, true);
@@ -4421,10 +7417,12 @@
     stato.durata = 0;
     stato.vista = "tutti";
     stato.eventiPerBanda = {};
+    stato.eventiFissi = {};
     stato.forma = null;
     stato.versioneAnalisi += 1;
     stato.forzaOra = 0;
     cacheAnalisi.clear();
+    azzeraControllo();
 
     $$("[data-vista]").forEach(function (chip) {
       const attivo = chip.dataset.vista === "tutti";
@@ -4459,6 +7457,28 @@
       }
     });
 
+    /* L'audio si può aggiungere anche da qui, accanto a "+ Video o immagine";
+       finisce nelle tracce del punto 4, dove la × lo toglie. */
+    dom.fileLivelliAudio.addEventListener("change", async function () {
+      const files = Array.from(dom.fileLivelliAudio.files || []);
+      dom.fileLivelliAudio.value = "";
+      if (!files.length) return;
+      let aggiunte = 0;
+      for (let i = 0; i < files.length; i += 1) {
+        const pista = await aggiungiTraccia(files[i]);
+        if (pista) aggiunte += 1;
+      }
+      if (!aggiunte) return;
+      if (dom.bloccoAudio && dom.bloccoAudio.scrollIntoView) {
+        dom.bloccoAudio.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+      const totale = stato.piste.length +
+        (stato.piste.length === 1 ? " traccia" : " tracce");
+      avviso(aggiunte + (aggiunte === 1 ? " traccia audio aggiunta" : " tracce audio aggiunte") +
+        " in «4 · Tracce audio» · il progetto ha " + totale +
+        ". La × la toglie, M la muta, S la isola; dura quanto la più lunga.", false);
+    });
+
     dom.fileAudio.addEventListener("change", async function () {
       const files = Array.from(dom.fileAudio.files || []);
       dom.fileAudio.value = "";
@@ -4467,6 +7487,159 @@
       }
     });
 
+    dom.fileControlloAudio.addEventListener("change", async function () {
+      const file = (dom.fileControlloAudio.files || [])[0];
+      dom.fileControlloAudio.value = "";
+      await caricaControlloAudio(file);
+    });
+    dom.fileControlloMidi.addEventListener("change", async function () {
+      const file = (dom.fileControlloMidi.files || [])[0];
+      dom.fileControlloMidi.value = "";
+      await caricaControlloMidi(file);
+    });
+    dom.selControllo.addEventListener("change", function () {
+      impostaControlloTipo(dom.selControllo.value);
+    });
+    dom.rngSoglia.addEventListener("input", function () {
+      const c = stato.controllo;
+      c.soglia = clamp(parseFloat(dom.rngSoglia.value) / 100, 0.01, 0.95);
+      dom.outSoglia.textContent = Math.round(c.soglia * 100) + "%";
+      if (c.audio) costruisciGateAudio();
+      aggiornaOndaInfo();
+      disegnaOnda(stato.t);
+    });
+    dom.rngRilascio.addEventListener("input", function () {
+      const c = stato.controllo;
+      c.rilascio = Math.max(0, parseFloat(dom.rngRilascio.value) / 1000);
+      dom.outRilascio.textContent = Math.round(c.rilascio * 1000) + " ms";
+      if (c.audio) costruisciGateAudio();
+      aggiornaOndaInfo();
+      disegnaOnda(stato.t);
+    });
+    dom.rngAllinea.addEventListener("input", function () {
+      const c = stato.controllo;
+      c.offset = parseFloat(dom.rngAllinea.value) / 1000;
+      dom.outAllinea.textContent = (c.offset > 0 ? "+" : "") +
+        Math.round(c.offset * 1000) + " ms";
+      aggiornaOndaInfo();
+      disegnaOnda(stato.t);
+    });
+    dom.chkControlloLoop.addEventListener("change", function () {
+      cambiaLoopControllo(dom.chkControlloLoop.checked);
+    });
+    dom.btnGestoRegistra.addEventListener("click", avviaRegistrazioneGesto);
+    dom.btnGestoRipeti.addEventListener("click", ripetiGesto);
+    dom.btnGestoPulisci.addEventListener("click", pulisciGesto);
+    collegaPad(dom.padMano);
+    collegaPad(dom.padPalco);
+
+    dom.componi.addEventListener("click", function () {
+      componiAperto(dom.componiCorpo.hidden);
+    });
+    dom.componiFai.addEventListener("click", componiStack);
+    dom.componiSorgente.addEventListener("change", sincronizzaSorgenteComponi);
+    sincronizzaSorgenteComponi();
+    dom.componiSfondo.addEventListener("change", function () {
+      nomeDelFile(dom.componiSfondo, dom.outComponiSfondo, "nessuna immagine");
+    });
+    dom.componiPrimo.addEventListener("change", function () {
+      nomeDelFile(dom.componiPrimo, dom.outComponiPrimo, "nessuna immagine");
+    });
+    dom.componiStems.addEventListener("change", function () {
+      aggiungiComponiAudio(dom.componiStems.files);
+      /* L'input si svuota: così lo stesso file si può riprendere dopo averlo
+         tolto, e i file veri restano solo nell'elenco (che si può modificare). */
+      dom.componiStems.value = "";
+    });
+    dom.btnComponiAudioVia.addEventListener("click", function () {
+      svuotaComponiAudio(true);
+    });
+
+    /* I due video esterni della scena: il riquadro dice che file hai scelto,
+       altrimenti il pulsante sembra non aver fatto niente. */
+    dom.componiFuocoFile.addEventListener("change", function () {
+      nomeDelFile(dom.componiFuocoFile, dom.outComponiFuoco, "lo prendo io");
+    });
+    dom.componiNeveFile.addEventListener("change", function () {
+      nomeDelFile(dom.componiNeveFile, dom.outComponiNeve, "lo prendo io");
+    });
+    dom.componiMidi.addEventListener("change", function () {
+      nomeDelFile(dom.componiMidi, dom.outComponiMidi, "nessun file");
+    });
+    dom.componiControllo.addEventListener("change", sincronizzaControlloComponi);
+    sincronizzaControlloComponi();
+
+    /* Brani dal sito: leggo il catalogo, cerco un titolo, lo ascolto e poi o lo
+       metto nelle tracce, o ci monto sopra la scena di «Componi come nel video». */
+    dom.btnSitoLeggi.addEventListener("click", leggiCatalogoSito);
+    /* La ricerca filtra mentre scrivi (con una pausa di 110 ms: battere cinque
+       lettere non deve ridisegnare centottantacinque righe cinque volte).
+       Invio prende il primo della lista. */
+    let attesaCerca = 0;
+    dom.sitoCerca.addEventListener("input", function () {
+      clearTimeout(attesaCerca);
+      attesaCerca = setTimeout(disegnaElencoSito, 110);
+    });
+    dom.sitoCerca.addEventListener("keydown", function (evento) {
+      if (evento.key !== "Enter") return;
+      evento.preventDefault();
+      clearTimeout(attesaCerca);
+      const brani = braniFiltrati();
+      if (brani.length) scegliBranoSito(brani[0]);
+      else {
+        const fuori = audioFuoriCatalogo();
+        if (fuori) scegliBranoSito(fuori);
+      }
+    });
+    /* Esc svuota la ricerca e riporta tutto l'elenco. */
+    dom.sitoCerca.addEventListener("keydown", function (evento) {
+      if (evento.key !== "Escape" || !dom.sitoCerca.value) return;
+      dom.sitoCerca.value = "";
+      disegnaElencoSito();
+    });
+    dom.btnSitoAscolta.addEventListener("click", ascoltaSito);
+    dom.audioSito.addEventListener("play", function () {
+      dom.btnSitoAscolta.textContent = "Ferma";
+    });
+    dom.audioSito.addEventListener("pause", function () {
+      dom.btnSitoAscolta.textContent = "Ascolta";
+    });
+    dom.audioSito.addEventListener("ended", function () {
+      dom.btnSitoAscolta.textContent = "Ascolta";
+      /* Riascoltarlo riparte da capo. */
+      dom.audioSito.currentTime = 0;
+    });
+    dom.audioSito.addEventListener("error", function () {
+      if (!dom.audioSito.getAttribute("src")) return;
+      fermaAscoltoSito();
+      avviso("L'anteprima non arriva dal sito: il file c'è? il server è acceso?", true);
+    });
+    dom.btnSitoCarica.addEventListener("click", function () {
+      caricaBranoSito(branoSito, false, false);
+    });
+    dom.btnSitoSostituisci.addEventListener("click", function () {
+      caricaBranoSito(branoSito, false, true);
+    });
+    dom.btnSitoComponi.addEventListener("click", function () {
+      caricaBranoSito(branoSito, true, false);
+    });
+    /* Un indirizzo nuovo è un catalogo nuovo: la scelta di prima non vale più. */
+    dom.sitoUrl.addEventListener("change", function () {
+      catalogoSito = null;
+      elencoSito = [];
+      branoSito = null;
+      disegnaElencoSito();
+    });
+    try {
+      const sitoSalvato = localStorage.getItem(CHIAVE_SITO);
+      if (sitoSalvato) dom.sitoUrl.value = sitoSalvato;
+    } catch (errore) {
+      /* niente memoria: resta l'indirizzo scritto nell'HTML */
+    }
+    disegnaElencoSito();
+
+    /* Far partire il progetto zittisce l'anteprima: due brani insieme no. */
+    dom.play.addEventListener("click", fermaAscoltoSito);
     dom.demo.addEventListener("click", caricaDemo);
     dom.play.addEventListener("click", riproduci);
     dom.prova.addEventListener("click", function () {
@@ -4548,6 +7721,29 @@
       livello.adatta = parseInt(dom.selAdatta.value, 10) ? 1 : 0;
       livello._telaFatta = false;
       livello.misuraDaFare = true;
+      aggiornaLarghezza();
+    });
+    dom.rngLarghezza.addEventListener("input", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.scala = clamp(parseFloat(dom.rngLarghezza.value) / 100, 0.1, 2);
+      livello._telaFatta = false;
+      livello.misuraDaFare = true;
+      aggiornaLarghezza();
+    });
+    /* Un clic per il primo piano della demo: tutta l'immagine dentro il frame
+       1280 × 720, senza tagli né deformazioni. */
+    dom.btnFormatoDemo.addEventListener("click", function () {
+      const livello = livelloScelto();
+      if (!livello) return;
+      livello.adatta = 1;
+      livello.scala = 1;
+      livello._telaFatta = false;
+      livello.misuraDaFare = true;
+      disegnaScheda();
+      const misura = misuraDisegnata(livello);
+      avviso("Formato demo: " + Math.round(misura.dl) + " × " + Math.round(misura.da) +
+        " px dentro il frame 1280 × 720, senza deformare l'immagine.", false);
     });
 
     dom.btnSu.addEventListener("click", function () {
@@ -4616,21 +7812,37 @@
     if (/^audio\//.test(file.type) || /\.(wav|mp3|ogg|m4a|aac|flac|aiff?)$/i.test(file.name)) {
       return "audio";
     }
+    if (/midi/.test(file.type) || /\.(mid|midi)$/i.test(file.name)) {
+      return "midi";
+    }
     return "altro";
   }
 
   async function importaFile(files) {
     const elenco = Array.from(files || []);
+    let audio = 0;
     for (let i = 0; i < elenco.length; i += 1) {
       const file = elenco[i];
       const tipo = classificaFile(file);
       if (tipo === "audio") {
-        await aggiungiTraccia(file);
+        const pista = await aggiungiTraccia(file);
+        if (pista) audio += 1;
+      } else if (tipo === "midi") {
+        await caricaControlloMidi(file);
       } else if (tipo === "altro") {
-        avviso("\"" + file.name + "\" non è un video, un'immagine o un audio.", true);
+        avviso("\"" + file.name + "\" non è un video, un'immagine, un audio o un MIDI.", true);
       } else {
         await aggiungiLivello(file);
       }
+    }
+    /* Trascinare un audio sullo schermo lo mette tra le tracce: si dice dove
+       è finito, altrimenti sembra che il drop non abbia fatto niente. */
+    if (audio) {
+      if (dom.bloccoAudio && dom.bloccoAudio.scrollIntoView) {
+        dom.bloccoAudio.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+      avviso(audio + (audio === 1 ? " traccia audio" : " tracce audio") +
+        " in «4 · Tracce audio»: la × la toglie, M la muta, S la isola.", false);
     }
   }
 
@@ -4677,7 +7889,30 @@
           stato.manuale = performance.now() / 1000;
           segnala("colpo di prova", "busy");
         }
+      } else if (evento.key === "h" || evento.key === "H") {
+        if (!evento.repeat && !stato.controllo.premuto) {
+          evento.preventDefault();
+          stato.controllo.hTasto = true;
+          inizioGesto();
+        }
       }
+    });
+
+    document.addEventListener("keyup", function (evento) {
+      if (evento.key !== "h" && evento.key !== "H") return;
+      /* Il filtro sul target vale solo per il keydown: se il fuoco è passato a
+         un campo mentre H era premuto, il rilascio deve comunque spegnere. */
+      if (!stato.controllo.hTasto) return;
+      stato.controllo.hTasto = false;
+      fineGesto();
+    });
+
+    /* Se la finestra perde il fuoco con H premuto, il keyup non arriva mai:
+       il controllo non deve restare acceso. */
+    window.addEventListener("blur", function () {
+      if (!stato.controllo.hTasto) return;
+      stato.controllo.hTasto = false;
+      fineGesto();
     });
 
     let timerForma = 0;
@@ -4747,6 +7982,8 @@
     disegnaLivelli();
     disegnaScheda();
     disegnaPiste();
+    disegnaComponiAudio();
+
     aggiornaTrigger();
     aggiornaTrasporto();
     aggiornaSchermoVuoto();

@@ -23,28 +23,103 @@ python3 strumenti/serve.py --senza-browser    # senza aprire il browser
 
 Poi: **Carica il pacchetto demo** → **Riproduci**. In alternativa trascini i tuoi
 file sullo schermo: immagini e video diventano livelli, gli audio diventano
-tracce.
+tracce. Per i brani interi del sito (non l'estratto della demo) serve anche il sito
+acceso, nella sua cartella: `python3 strumenti/serve.py`, porta 7862 — è
+l'indirizzo che il pannello *Brani dal sito* si aspetta.
 
 ## Come si usa
 
-1. **Carica il pacchetto demo** per avere una scena di partenza: cover e quattro
-   tracce, dodici secondi di timeline. Con `?demo=demo-video` la demo è invece il
-   video scomposto in strati (sfondo, buio, immagine, neve): vedi *Da un video al
-   pacchetto*.
+1. **Carica il pacchetto demo** per avere una scena di partenza: la cover della
+   Remixes Collection Vol. 3 sopra lo sfondo, con il velo di fuoco e la neve che
+   stanno in `demo-video/`, sedici secondi di timeline e quattro tracce (il mix e le
+   tre mute che guidano il trigger). Sono gli stessi cinque strati dello stack
+   composto, montati dal manifesto. La demo è un **estratto** di sedici secondi: per
+   il brano intero c'è *Brani dal sito*, qui sotto. Con `?demo=demo-video` la demo è
+   invece il video scomposto in strati (sfondo, fuoco, buio, neve, immagine): vedi
+   *Da un video al pacchetto*.
 2. **Aggiungi un livello**: trascina un video o un'immagine sullo schermo, oppure
    usa **+ Video o immagine** nel blocco *Livelli*. Nasce in cima allo stack,
    quindi copre quello che sta sotto; se è un loop su fondo nero mettilo in
    **fusione Schermo** e abbassa l'opacità. Con **×** sulla riga lo elimini.
-3. **Scegli il livello dallo stack** e dagli uno o più effetti (o lascialo pulito),
+3. **Aggiungi audio**: trascina un file audio sullo schermo, oppure usa **+ Audio**
+   accanto a *+ Video o immagine*, oppure **+ Aggiungi audio** nel blocco *Tracce
+   audio*. Gli audio non diventano livelli: finiscono nelle tracce, dove la **×**
+   toglie la traccia, **M** la muta, **S** la isola, e le due manopole regolano
+   volume e ritardo d'ingresso. Il suono di un livello video non si sente: nel
+   progetto l'audio arriva solo dalle tracce.
+4. **Scegli il livello dallo stack** e dagli uno o più effetti (o lascialo pulito),
    poi **Riproduci**. La durata del progetto è la sorgente più lunga: un video più
    corto si ripete da capo finché la timeline non finisce.
-4. **Esporta** con *Registra*: parte dall'inizio, si ferma alla fine e scrive un
+5. **Esporta** con *Registra*: parte dall'inizio, si ferma alla fine e scrive un
    WebM con l'audio che stai sentendo.
 
 Il blocco **Esempi** dell'effetto Neve porta il riferimento al video del canale:
 **Ho già il file** serve se hai scaricato quell'overlay (il file non viaggia col
 progetto, i crediti restano a chi l'ha fatto): diventa un livello normale, con le
 stesse manopole degli altri.
+
+**Componi come nel video.** Nel blocco *Livelli*, **Componi come nel video** prende
+due immagini e il mix — o già gli stems — e monta lo stack identico al pacchetto
+`demo-video`: sfondo, velo di fuoco all'8% in fusione Schermo, buio sul colpo, neve
+reattiva e immagine con Tremolio + Saturazione (0,40% a 24 Hz e +35%), gli stessi
+numeri del manifesto tranne il tremolio, tenuto più leggero. Il primo layer entra
+in **Adatta intera** al 100%, come il primo piano della demo: tutta l'immagine
+dentro il frame 1280 × 720, senza tagli. **+ Mix o stems** accetta i file uno alla
+volta: ognuno compare come voce con la sua **×** e si toglie senza rifare la scelta,
+mentre **Togli l'audio** svuota l'elenco. Un file solo passa da Demucs (lo
+scaricatore su `:5070`) e diventa batteria + basso, col gate sulla banda del colpo;
+se Demucs non risponde, il mix intero passa lo stesso dal gate sulla banda scelta,
+così gli effetti restano agganciati a quella frequenza. Con **Sorgente del colpo**
+scegli se gli effetti devono seguire il mix, lo stem della batteria (kick) o quello
+dell'808 (basso): il trigger analizza solo quella traccia, anche se è muta. Fuoco e
+neve si cercano nella cartella del pacchetto, poi in `demo-video/` (è il pacchetto
+grosso, quello che sul sito pubblicato non c'è) e infine allo scaricatore, come per i
+video del blocco Esempi; **File del fuoco** e **File della neve** li scavalcano
+entrambi, così la scena si monta anche con i video che hai tu. È lo stesso meccanismo
+della demo: il manifesto di `demo/` elenca cinque strati e i due mp4 li prende da
+`demo-video/`. Se non arrivano lo stack si monta lo stesso e la riga di stato dice
+cosa manca. Con **Registra il video appena
+composto** la composizione parte subito in registrazione e si ferma da sola alla
+fine dell'audio: il WebM arriva senza altri clic.
+
+**Brani dal sito.** Sempre nel blocco *Tracce audio*, **Brani dal sito** porta dentro
+i brani veri di Raedius Productions, interi e non gli estratti della demo.
+L'indirizzo di serie è `http://127.0.0.1:7862/`, il sito in locale (nella sua cartella:
+`python3 strumenti/serve.py`); se un giorno il sito va in rete, si incolla lì.
+**Leggi il catalogo** carica `assets/data/album.js` e `lavori.js` come `<script>` —
+il catalogo non passa da `fetch`, quindi non ha bisogno del CORS — e riempie un solo
+elenco: le raccolte (Vol. 1, Vol. 2, **Remixes Collection Vol. 3** con i suoi
+quarantuno brani, versioni comprese, e i mashup) e l'archivio diviso per catalogo
+(remix, type beat, strumentali), con la testata del gruppo quando cambia. Lo stesso
+file che sta in una raccolta e anche nell'archivio compare una volta sola.
+
+Sopra l'elenco c'è **Cerca un brano**: si scrive e le righe si stringono mentre
+digiti (accenti e maiuscole non contano, le parole possono arrivare in disordine),
+**Invio** prende il primo risultato, **Esc** svuota il campo. Se incolli un percorso
+che sembra un audio (`assets/audio/…/nome.mp3`) e non è a catalogo, l'elenco te lo
+propone lo stesso: è la via per i file rimasti fuori da `album.js` e `lavori.js`.
+
+Sotto la lista c'è il brano scelto con artisti, durata e raccolta, e quattro
+pulsanti. **Ascolta** fa sentire l'mp3 dal sito senza toccare il progetto (un
+`<audio>` suo: si zittisce da solo quando scegli un altro brano o premi
+Riproduci). **+ Alle tracce** scarica il file e lo aggiunge alle tracce, col titolo
+del brano al posto del nome-hash del file. **Al posto dell'audio** fa lo stesso ma
+prima toglie le tracce che ci sono — è il modo per cambiare brano senza rifare il
+progetto: i livelli restano come sono. **Componi la scena** monta lo stack di
+*Componi come nel video* con la copertina del brano come primo layer e la stessa
+copertina sfocata come sfondo: il pezzo parte intero, con fuoco, buio, neve e
+immagine già sui loro numeri. Audio e copertine si scaricano con `fetch`, quindi il
+server del sito deve mandare `Access-Control-Allow-Origin` (lo fa il suo
+`strumenti/serve.py`, e lo fa GitHub Pages se il sito è in rete). L'indirizzo resta
+in memoria: alla riapertura è già lì.
+
+**Chi accende l'animazione.** In fondo a *Componi come nel video*, **Chi accende
+l'animazione** decide chi comanda il gate degli strati. *Il brano* sono i colpi del
+mix o dello stem scelto, come nel video. *Un file MIDI* cambia il gate: contano le
+note — una nota lunga tiene accesi insieme fuoco, neve, buio e immagine, il silenzio
+li spegne; la riga per scegliere il `.mid` compare solo con questa voce. *La mia
+mano* fa ripartire il brano da capo e registra i click sul pad (o il tasto **H**):
+poi li ripete da solo, e il video esce già con il gesto giusto.
 
 ## L'interfaccia
 
@@ -69,7 +144,16 @@ logo si sovrappone senza effetti.
 **Livello scelto.** Dodici effetti più «Nessun effetto», ognuno con i suoi
 parametri; poi forza del livello, attacco (quanto ci mette ad accendersi), opacità,
 fusione (normale, somma, schermo, moltiplica) e inquadratura (riempi il frame o
-adatta intera).
+adatta intera). La manopola **Larghezza** (10–200%) ridimensiona il livello senza
+deformarlo: 100% è la misura dell'inquadratura, e l'output dice anche quanti pixel
+occupa sul frame e se viene tagliata ai bordi. **Formato demo · 1280 × 720**
+mette tutta l'immagine dentro il frame del primo piano della demo, senza
+tagliarla: una foto quadrata diventa 720 × 720. Per riempire tutto il frame,
+scegli «Riempi il frame». Un'immagine appena aggiunta nasce già in «Adatta
+intera», un video invece riempie il frame; le tinte piatte (il nero del buio,
+un PNG 32 × 32) riempiono sempre il frame, perché «adatta intera» ne farebbe un
+quadrato in mezzo al fondale invece di abbassare tutta la scena. Gli strati di un
+pacchetto demo riempiono il frame salvo che il manifesto dica `"adatta": 1`.
 
 **Catena.** La griglia degli effetti è un interruttore: ogni clic aggiunge
 l'effetto in fondo alla catena (col numero della posizione sul bottone), un altro
@@ -93,7 +177,10 @@ globale.
 **Tracce.** `M` muta, `S` mette in solo (con un solo acceso si sentono solo le
 tracce in solo), `×` toglie la traccia. Ogni traccia ha il suo volume e il suo
 ritardo d'ingresso: la coda di un 808 può entrare due secondi dopo. La durata del
-progetto è la traccia più lunga.
+progetto è la traccia più lunga. Sotto le tracce c'è **Brani dal sito**: il catalogo
+di Raedius Productions in una lista cercabile, con **Ascolta** per sentire il brano
+prima, **+ Alle tracce** per aggiungerlo, **Al posto dell'audio** per cambiare brano
+tenendo il progetto e **Componi la scena** per portarlo fino ai livelli.
 
 **Export.** Risoluzione e fps si scelgono nel pannello. Registra riporta la
 timeline all'inizio, sospende il loop e si ferma da sola alla fine: il file esce
@@ -139,7 +226,8 @@ solo e ritardo; il master alimenta anche la `MediaStreamDestination` della
 registrazione, così il video esportato ha l'audio che stai sentendo.
 
 **Demo.** Se la cartella `demo/` è servita da un server, la demo usa i file veri
-(`cover.jpg`, `mix.wav`, `kick.wav`, `bass808.wav`, `hat.wav`); da `file://` la
+(`cover.jpg`, `sfondo.jpg`, `buio.png` e le quattro tracce `mix.wav`, `kick.wav`,
+`bass808.wav`, `hat.wav`); da `file://` la
 sintetizza sul momento, così l'app funziona anche con doppio clic. Se il manifesto
 del pacchetto elenca `livelli`, al posto della base si monta quella pila; uno
 strato può dichiarare una `fonte` esterna (il video della neve su YouTube) e, se
@@ -179,19 +267,29 @@ schermo) e diventa un livello in fusione Schermo. I crediti restano al canale.
 
 ```
 index.html                 l'app: CSS, markup, Web Audio, shader, export
-demo/cover.jpg             copertina 1600×900 generata
-demo/mix.wav               brano completo (12 s, 120 BPM, 32 kHz)
+demo/cover.jpg             la cover: la variante «(1)» dell'opera della Remixes
+                           Collection Vol. 3 (1200×1200)
+demo/sfondo.jpg            il fondale sfocato che le sta dietro (1280×720)
+demo/buio.png              un nero 32×32, acceso sul colpo
+demo/mix.wav               estratto di 16 s (112 BPM, 32 kHz mono)
 demo/kick.wav              solo cassa
 demo/bass808.wav           solo 808
 demo/hat.wav               solo hi-hat
-strumenti/genera_demo.py   rigenera demo/ (numpy + Pillow)
+demo/pacchetto.json        durata, BPM, colpi e pila dei livelli; il fuoco e la
+                           neve li rimanda a demo-video/ (vedi sotto)
+strumenti/genera_demo.py   rigenera demo/ sintetica (numpy + Pillow)
+strumenti/demo_da_brano.py  il pacchetto da un brano e due immagini
 strumenti/pacchetto_da_video.py  costruisce un pacchetto da un tuo filmato
 strumenti/serve.py         server statico per l'uso in locale
 ```
 
-Le tracce sono sintetizzate da `genera_demo.py`: nessun campione esterno, nessuna
-licenza da chiedere. L'unico filmato di terzi che l'app cita è l'overlay di neve,
-e resta sul sito del suo autore.
+Le tracce del pacchetto sono **Off The Wall (Remix) [Instrumental]**, dalla
+*Remixes Collection Vol. 3* di Raedius Productions (l'archivio di `sito-beat/`): il
+pacchetto ne tiene sedici secondi a 112 BPM, separati con Demucs e filtrati come i
+brani caricati a mano. Chi vuole il pacchetto sintetico di prima lo rigenera con
+`genera_demo.py`: cassa, 808 e hi-hat a 120 BPM, nessun campione esterno. L'unico
+filmato di terzi che l'app cita è l'overlay di neve, e resta sul sito del suo
+autore.
 
 ## Da un video al pacchetto
 
@@ -237,6 +335,33 @@ Un avvertimento onesto: dal video **non** si ricavano gli strati veri. Un filmat
 già montato è un'immagine sola (più zoom e particelle, se ci sono), quindi lo
 strumento separa quello che un fotogramma permette — l'opera dal fondale, il nero
 da accendere sul colpo — e la neve resta il video del suo autore, caricato a mano.
+
+
+## Da un brano al pacchetto
+
+Quando il brano c'è ma il video no, la scena si monta da due immagini:
+
+```
+python3 strumenti/demo_da_brano.py brano.mp3 \
+    --cover opera.jpeg --sfondo fondale.jpeg --uscita demo --durata 16
+```
+
+Lo strumento prende un estratto (di serie 16 s, dalla finestra con più cassa nel
+brano; `--inizio` la fissa a mano), separa batteria e basso con Demucs, filtra le
+bande che l'app ascolta e scrive le quattro tracce a 32 kHz mono, come fa
+`pacchetto_da_video.py`. L'opera diventa `cover.jpg` (1200 × 1200), il fondale
+`sfondo.jpg` (1280 × 720), il buio `buio.png`; il manifesto elenca la pila dal fondo
+alla cima — sfondo, buio, opera — con il buio al 42% che si accende sul colpo e
+l'opera in «adatta intera» con Tremolio e Saturazione. Senza `--sfondo` la pila
+resta buio + opera, e sotto c'è il nero del palco. `--sorgente` è il nome che
+finisce nel manifesto (per i crediti del brano), `--uscita` la cartella. Con
+`--con-fuoco` la pila diventa quella della demo di serie — sfondo, velo di fuoco
+all'8%, buio, neve, opera — e sono gli stessi strati che l'app cerca in `demo-video/`
+(il manifesto ne dichiara la fonte, i file non si copiano).
+
+Il `demo/` pubblicato è fatto così: *Off The Wall (Remix) [Instrumental]* della
+Remixes Collection Vol. 3, quindi sedici secondi a 112 BPM, con la cover della
+raccolta e il suo fondale, più il fuoco e la neve presi da `demo-video/`.
 
 
 ## Limiti

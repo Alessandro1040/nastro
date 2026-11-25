@@ -13,6 +13,12 @@ Scrive in demo/:
 
 Le tracce sono sintetizzate qui: niente campioni esterni, niente licenze.
 Sono mono, 32 kHz, 16 bit e durano 12 secondi (6 battute a 120 BPM).
+
+Il `demo/` che viaggia col sito oggi non è più questo: è la scena composta a mano
+con la cover della Remixes Collection Vol. 3, il suo sfondo e sedici secondi di
+*Off The Wall (Remix) [Instrumental]* (vedi il README, *File*). Questo script
+resta per rifare il pacchetto sintetico: rilanciandolo, `demo/` torna com'era e il
+manifesto va rifatto, perché qui non si scrive `pacchetto.json`.
 """
 
 from __future__ import annotations
